@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class TextsFilesFactoryTests {
 
-    private final TextFilesFactory textFilesFactory = new TextFilesFactoryImpl()
+    private static final TextFileType markdownType = new TextFileType(['.md'], null, null)
+
+    private final TextFilesFactory textFilesFactory = new TextFilesFactoryImpl([markdownType])
 
     @Test
     void findsFile() {
@@ -19,7 +21,7 @@ class TextsFilesFactoryTests {
         def f0 = r[0]
         assertEquals('test.md', f0.relativePath)
         assertEquals('**Hello, World!**', f0.file.text)
-        assertEquals(TextFile.Type.MARKDOWN, f0.type)
+        assertEquals(markdownType, f0.type)
     }
 
     @Test
@@ -35,7 +37,7 @@ class TextsFilesFactoryTests {
         def f0 = r[0]
         assertEquals('nested/nested.md', f0.relativePath)
         assertEquals('**Hello!**', f0.file.text)
-        assertEquals(TextFile.Type.MARKDOWN, f0.type)
+        assertEquals(markdownType, f0.type)
     }
 
     @Test

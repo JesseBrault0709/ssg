@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class PageTemplatesFactoryTests {
 
-    private final PageTemplatesFactory templateFactory = new PageTemplatesFactoryImpl()
+    private static final PageTemplateType gspType = new PageTemplateType(['.gsp'], null)
+
+    private final PageTemplatesFactory templateFactory = new PageTemplatesFactoryImpl([gspType])
 
     @Test
     void findsTemplate() {
@@ -19,6 +21,7 @@ class PageTemplatesFactoryTests {
         def t0 = r[0]
         assertEquals('test.gsp', t0.relativePath)
         assertEquals('<% out << text %>', t0.file.text)
+        assertEquals(gspType, t0.type)
     }
 
     @Test
@@ -35,6 +38,7 @@ class PageTemplatesFactoryTests {
         def t0 = r[0]
         assertEquals('nested/nested.gsp', t0.relativePath)
         assertEquals('<%= text %>', t0.file.text)
+        assertEquals(gspType, t0.type)
     }
 
     @Test

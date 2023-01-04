@@ -6,10 +6,14 @@ import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.Marker
+import org.slf4j.MarkerFactory
 
 class StaticSiteGeneratorImpl implements StaticSiteGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticSiteGeneratorImpl)
+    private static final Marker enter = MarkerFactory.getMarker('ENTER')
+    private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     private final Config config
     private final TextFilesFactory textFilesFactory
@@ -23,8 +27,10 @@ class StaticSiteGeneratorImpl implements StaticSiteGenerator {
 
     @Override
     void generate(SiteSpec spec) {
+        logger.trace(enter, 'spec: {}', spec)
         def textFiles = this.textFilesFactory.getTextFiles(spec.textsDir)
         def pageTemplates = this.pageTemplatesFactory.getTemplates(spec.templatesDir)
+        logger.debug('textFiles: {}, pageTemplates: {}', textFiles, pageTemplates)
         textFiles.each {
             logger.info('processing textFile: {}', it.relativePath)
             def fileNameHandler = new FileNameHandler(it.file)
@@ -67,6 +73,7 @@ class StaticSiteGeneratorImpl implements StaticSiteGenerator {
             logger.info('writing result to {}', outFile)
             outFile.write(result)
         }
+        logger.trace(exit, '')
     }
 
 }
