@@ -1,10 +1,10 @@
-package com.jessebrault.ssg.textfile
+package com.jessebrault.ssg.text
 
-import com.jessebrault.ssg.textrenderer.TextRenderer
 import groovy.transform.Canonical
 
 @Canonical
 class TextFileType {
     Collection<String> extensions
     TextRenderer renderer
+    FrontMatterGetter frontMatterGetter
 }

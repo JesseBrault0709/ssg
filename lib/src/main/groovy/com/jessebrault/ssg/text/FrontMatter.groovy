@@ -1,8 +1,10 @@
-package com.jessebrault.ssg.frontmatter
+package com.jessebrault.ssg.text
 
+import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(includeFields = true)
+@ToString
 class FrontMatter {
 
     private final Map<String, List<String>> data

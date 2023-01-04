@@ -1,19 +1,20 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.frontmatter.FrontMatterGetter
-import com.jessebrault.ssg.renderer.Renderer
-import com.jessebrault.ssg.template.TemplatesFactory
-import com.jessebrault.ssg.textfile.TextFilesFactory
-import com.jessebrault.ssg.textrenderer.TextRenderer
+import com.jessebrault.ssg.pagetemplate.PageTemplateType
+import com.jessebrault.ssg.pagetemplate.PageTemplatesFactory
+import com.jessebrault.ssg.text.TextFileType
+import com.jessebrault.ssg.text.TextFilesFactory
 import groovy.transform.Canonical
 import groovy.transform.MapConstructor
+
+import java.util.function.Function
 
 @Canonical
 @MapConstructor
 class Config {
-    TextFilesFactory textFilesFactory
-    TemplatesFactory templatesFactory
-    FrontMatterGetter markdownFrontMatterGetter
-    TextRenderer markdownRenderer
-    Renderer gspRenderer
+    Collection<TextFileType> textFileTypes
+    Collection<PageTemplateType> pageTemplateTypes
+
+    Function<Config, TextFilesFactory> textFileFactoryGetter
+    Function<Config, PageTemplatesFactory> pageTemplatesFactoryGetter
 }

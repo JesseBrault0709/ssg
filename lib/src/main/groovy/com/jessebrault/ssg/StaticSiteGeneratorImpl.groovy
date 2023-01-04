@@ -1,11 +1,9 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.frontmatter.FrontMatterGetter
-import com.jessebrault.ssg.template.TemplatesFactory
-import com.jessebrault.ssg.renderer.Renderer
-import com.jessebrault.ssg.textfile.TextFile
-import com.jessebrault.ssg.textfile.TextFilesFactory
-import com.jessebrault.ssg.textrenderer.TextRenderer
+import com.jessebrault.ssg.pagetemplate.PageTemplatesFactory
+import com.jessebrault.ssg.text.TextFilesFactory
+import com.jessebrault.ssg.util.FileNameHandler
+import com.jessebrault.ssg.util.RelativePathHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -13,46 +11,61 @@ class StaticSiteGeneratorImpl implements StaticSiteGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticSiteGeneratorImpl)
 
-    private static String stripExtension(String relativePath) {
-        relativePath.substring(0, relativePath.lastIndexOf('.'))
-    }
-
+    private final Config config
     private final TextFilesFactory textFilesFactory
-    private final TemplatesFactory templateFactory
-    private final FrontMatterGetter markdownFrontMatterGetter
-    private final TextRenderer markdownRenderer
-    private final Renderer gspRenderer
+    private final PageTemplatesFactory pageTemplatesFactory
 
     StaticSiteGeneratorImpl(Config config) {
-        this.textFilesFactory = Objects.requireNonNull(config.textFilesFactory)
-        this.templateFactory = Objects.requireNonNull(config.templatesFactory)
-        this.markdownFrontMatterGetter = Objects.requireNonNull(config.markdownFrontMatterGetter)
-        this.markdownRenderer = Objects.requireNonNull(config.markdownRenderer)
-        this.gspRenderer = Objects.requireNonNull(config.gspRenderer)
+        this.config = config
+        this.textFilesFactory = config.textFileFactoryGetter.apply(config)
+        this.pageTemplatesFactory = config.pageTemplatesFactoryGetter.apply(config)
     }
 
     @Override
     void generate(SiteSpec spec) {
         def textFiles = this.textFilesFactory.getTextFiles(spec.textsDir)
-        def templates = this.templateFactory.getTemplates(spec.templatesDir)
+        def pageTemplates = this.pageTemplatesFactory.getTemplates(spec.templatesDir)
         textFiles.each {
-            if (it.type == TextFile.Type.MARKDOWN) {
-                def frontMatter = this.markdownFrontMatterGetter.get(it.file.text)
-                def desiredTemplate = frontMatter['template']
-                if (desiredTemplate == null) {
-                    throw new IllegalArgumentException('template must not be null')
-                }
-                def template = templates.find { it.relativePath == desiredTemplate }
-                def renderedText = this.markdownRenderer.render(it.file.text)
-                def result = this.gspRenderer.render(template, renderedText)
-                def outFile = new File(spec.buildDir, stripExtension(it.relativePath) + '.html')
-                if (outFile.exists()) {
-                    outFile.delete()
-                }
-                outFile.createParentDirectories()
-                logger.debug('writing to outFile {}', outFile)
-                outFile.write(result)
+            logger.info('processing textFile: {}', it.relativePath)
+            def fileNameHandler = new FileNameHandler(it.file)
+            def textFileType = this.config.textFileTypes.find {
+                it.extensions.contains(fileNameHandler.getExtension())
             }
+            logger.debug('textFileType: {}', textFileType)
+            if (textFileType == null) {
+                throw new IllegalArgumentException('unknown textFile type: ' + it.relativePath)
+            }
+
+            def renderedText = textFileType.renderer.render(it.file.text)
+            logger.debug('renderedText: {}', renderedText)
+
+            def frontMatter = textFileType.frontMatterGetter.get(it.file.text)
+            logger.debug('frontMatter: {}', frontMatter)
+
+            def desiredPageTemplate = frontMatter['template']
+            logger.debug('desiredPageTemplate name: {}', desiredPageTemplate)
+            if (desiredPageTemplate == null) {
+                throw new IllegalArgumentException('in textFile ' + it.relativePath + ' template must not be null')
+            }
+            def pageTemplate = pageTemplates.find {
+                it.relativePath == desiredPageTemplate
+            }
+            logger.debug('pageTemplate: {}', pageTemplate)
+            if (pageTemplate == null) {
+                throw new IllegalArgumentException('in textFile' + it.relativePath + ' unknown pageTemplate: ' + desiredPageTemplate)
+            }
+
+            def result = pageTemplate.type.renderer.render(pageTemplate, renderedText)
+            logger.debug('result: {}', result)
+
+            def outFile = new File(spec.buildDir, new RelativePathHandler(it.relativePath).getWithoutExtension() + '.html')
+            if (outFile.exists()) {
+                logger.info('outFile {} already exists, deleting', outFile)
+                outFile.delete()
+            }
+            outFile.createParentDirectories()
+            logger.info('writing result to {}', outFile)
+            outFile.write(result)
         }
     }
 

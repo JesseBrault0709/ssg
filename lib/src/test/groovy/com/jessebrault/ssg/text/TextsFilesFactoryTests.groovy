@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.textfile
+package com.jessebrault.ssg.text
 
 import org.junit.jupiter.api.Test
 

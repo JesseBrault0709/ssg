@@ -1,27 +1,24 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.frontmatter.MarkdownFrontMatterGetter
-import com.jessebrault.ssg.renderer.GspRenderer
-import com.jessebrault.ssg.template.TemplatesFactoryImpl
-import com.jessebrault.ssg.textfile.TextFilesFactoryImpl
-import com.jessebrault.ssg.textrenderer.MarkdownRenderer
+import com.jessebrault.ssg.pagetemplate.GspRenderer
+import com.jessebrault.ssg.pagetemplate.PageTemplateType
+import com.jessebrault.ssg.pagetemplate.PageTemplatesFactoryImpl
+import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
+import com.jessebrault.ssg.text.MarkdownRenderer
+import com.jessebrault.ssg.text.TextFileType
+import com.jessebrault.ssg.text.TextFilesFactoryImpl
 import org.junit.jupiter.api.Test
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 
 class StaticSiteGeneratorTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(StaticSiteGeneratorTests)
-
     private final StaticSiteGenerator ssg = new StaticSiteGeneratorImpl(new Config(
-            textFilesFactory: new TextFilesFactoryImpl(),
-            templatesFactory: new TemplatesFactoryImpl(),
-            markdownFrontMatterGetter: new MarkdownFrontMatterGetter(),
-            markdownRenderer: new MarkdownRenderer(),
-            gspRenderer: new GspRenderer()
+            textFileTypes: [new TextFileType(['.md'], new MarkdownRenderer(), new MarkdownFrontMatterGetter())],
+            pageTemplateTypes: [new PageTemplateType(['.gsp'], new GspRenderer())],
+            textFileFactoryGetter: { Config config -> new TextFilesFactoryImpl(config.textFileTypes) },
+            pageTemplatesFactoryGetter: { Config config -> new PageTemplatesFactoryImpl(config.pageTemplateTypes) }
     ))
 
     @Test
@@ -32,7 +29,6 @@ class StaticSiteGeneratorTests {
 
         new File(textsDir, 'test.md').write('---\ntemplate: test.gsp\n---\n**Hello, World!**')
         new File(templatesDir, 'test.gsp').write('<%= text %>')
-
 
         def spec = new SiteSpec(
                 buildDir: buildDir,

@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.frontmatter
+package com.jessebrault.ssg.text
 
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor

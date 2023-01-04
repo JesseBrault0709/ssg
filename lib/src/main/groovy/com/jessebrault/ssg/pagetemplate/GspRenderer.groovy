@@ -1,15 +1,15 @@
-package com.jessebrault.ssg.renderer
+package com.jessebrault.ssg.pagetemplate
 
-import com.jessebrault.ssg.template.Template
+
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 
-class GspRenderer implements Renderer {
+class GspRenderer implements PageRenderer {
 
     private static final TemplateEngine engine = new GStringTemplateEngine()
 
     @Override
-    String render(Template template, String text) {
+    String render(PageTemplate template, String text) {
         engine.createTemplate(template.file.text).make([
                 text: text
         ])

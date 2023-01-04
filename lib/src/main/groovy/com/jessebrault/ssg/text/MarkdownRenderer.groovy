@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.textrenderer
+package com.jessebrault.ssg.text
 
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.parser.Parser

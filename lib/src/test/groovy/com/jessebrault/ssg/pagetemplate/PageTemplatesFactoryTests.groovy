@@ -1,12 +1,12 @@
-package com.jessebrault.ssg.template
+package com.jessebrault.ssg.pagetemplate
 
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-class TemplatesFactoryTests {
+class PageTemplatesFactoryTests {
 
-    private final TemplatesFactory templateFactory = new TemplatesFactoryImpl()
+    private final PageTemplatesFactory templateFactory = new PageTemplatesFactoryImpl()
 
     @Test
     void findsTemplate() {
