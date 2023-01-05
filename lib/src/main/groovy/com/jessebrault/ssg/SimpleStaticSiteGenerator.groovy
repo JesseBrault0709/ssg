@@ -1,6 +1,7 @@
 package com.jessebrault.ssg
 
 import com.jessebrault.ssg.part.PartsProvider
+import com.jessebrault.ssg.specialpage.SpecialPagesProvider
 import com.jessebrault.ssg.template.TemplatesProvider
 import com.jessebrault.ssg.text.TextsProvider
 import org.slf4j.Logger
@@ -18,24 +19,41 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private final TextsProvider textsProvider
     private final TemplatesProvider templatesProvider
     private final PartsProvider partsProvider
+    private final SpecialPagesProvider specialPagesProvider
 
     SimpleStaticSiteGenerator(Config config) {
         this.config = config
         this.textsProvider = config.textsProviderGetter.apply(config)
         this.templatesProvider = config.templatesProviderGetter.apply(config)
         this.partsProvider = config.partsProviderGetter.apply(config)
+        this.specialPagesProvider = config.specialPagesProviderGetter.apply(config)
     }
 
     @Override
     void generate(File buildDir) {
         logger.trace(enter, 'buildDir: {}', buildDir)
 
-        // Get all texts, templates, and parts
+        // Get all texts, templates, parts, and specialPages
         def texts = this.textsProvider.getTextFiles()
         def templates = this.templatesProvider.getTemplates()
         def parts = this.partsProvider.getParts()
+        def specialPages = this.specialPagesProvider.getSpecialPages()
 
-        logger.debug('texts: {}, templates: {}, parts: {}', texts, templates, parts)
+        logger.debug('\n\ttexts: {}\n\ttemplates: {}\n\tparts: {}\n\tspecialPages: {}', texts, templates, parts, specialPages)
+
+        // Define output function
+        def outputPage = { String path, String result ->
+            def outFile = new File(buildDir, path + '.html')
+            if (outFile.exists()) {
+                logger.info('outFile {} already exists, deleting', outFile)
+                outFile.delete()
+            }
+            outFile.createParentDirectories()
+            logger.info('writing result to {}', outFile)
+            outFile.write(result)
+        }
+
+        // Generate pages from each text
         texts.each {
             logger.info('processing text: {}', it.path)
 
@@ -53,6 +71,9 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             if (desiredTemplate == null) {
                 throw new IllegalArgumentException('in text ' + it.path + ' frontMatter.template must not be null')
             }
+            if (desiredTemplate.isEmpty() || desiredTemplate.isBlank()) {
+                throw new IllegalArgumentException('in text ' + it.path + ' frontMatter.template must not be empty, blank, or missing')
+            }
             def template = templates.find {
                 it.relativePath == desiredTemplate
             }
@@ -66,15 +87,20 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             logger.debug('result: {}', result)
 
             // Output the result to the outfile, an .html file
-            def outFile = new File(buildDir, it.path + '.html')
-            if (outFile.exists()) {
-                logger.info('outFile {} already exists, deleting', outFile)
-                outFile.delete()
-            }
-            outFile.createParentDirectories()
-            logger.info('writing result to {}', outFile)
-            outFile.write(result)
+            outputPage(it.path, result)
         }
+
+        // Generate special pages
+        specialPages.each {
+            logger.info('processing specialPage: {}', it)
+
+            def result = it.type.renderer.render(it.text, texts, parts)
+            logger.info('result: {}', result)
+
+            // Output result to file
+            outputPage(it.path, result)
+        }
+
         logger.trace(exit, '')
     }
 

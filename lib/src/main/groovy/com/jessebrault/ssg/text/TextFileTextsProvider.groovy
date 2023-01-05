@@ -2,6 +2,7 @@ package com.jessebrault.ssg.text
 
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
+import groovy.io.FileType
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -29,15 +30,15 @@ class TextFileTextsProvider implements TextsProvider {
         }
 
         def textFiles = []
-        this.textsDir.eachFileRecurse {
-            if (it.isFile()) {
-                def type = this.getTextType(it)
-                if (type != null) {
-                    def relativePath = this.textsDir.relativePath(it)
-                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
-                    logger.debug('found textFile {} with type {}', path, type)
-                    textFiles << new Text(it.text, path, type)
-                }
+        this.textsDir.eachFileRecurse(FileType.FILES) {
+            def type = this.getTextType(it)
+            if (type != null) {
+                def relativePath = this.textsDir.relativePath(it)
+                def path = new RelativePathHandler(relativePath).getWithoutExtension()
+                logger.debug('found textFile {} with type {}', path, type)
+                textFiles << new Text(it.text, path, type)
+            } else {
+                logger.warn('ignoring {} because there is no textType for it', it)
             }
         }
         textFiles

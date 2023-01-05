@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.part
 
 import com.jessebrault.ssg.util.FileNameHandler
+import groovy.io.FileType
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -28,14 +29,14 @@ class PartFilePartsProvider implements PartsProvider {
         }
 
         def parts = []
-        partsDir.eachFileRecurse {
-            if (it.isFile()) {
-                def type = this.getPartType(it)
-                if (type != null) {
-                    def relativePath = this.partsDir.relativePath(it)
-                    logger.debug('found part {}', relativePath)
-                    parts << new Part(relativePath, type, it.text)
-                }
+        partsDir.eachFileRecurse(FileType.FILES) {
+            def type = this.getPartType(it)
+            if (type != null) {
+                def relativePath = this.partsDir.relativePath(it)
+                logger.debug('found part {}', relativePath)
+                parts << new Part(relativePath, type, it.text)
+            } else {
+                logger.warn('ignoring {} since there is no partType for it', it)
             }
         }
         parts

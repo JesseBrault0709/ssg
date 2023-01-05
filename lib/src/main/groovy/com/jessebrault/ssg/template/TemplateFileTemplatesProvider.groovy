@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.util.FileNameHandler
+import groovy.io.FileType
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -27,14 +28,14 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
             throw new IllegalArgumentException('templatesDir must be a directory')
         }
         def templates = []
-        this.templatesDir.eachFileRecurse {
-            if (it.isFile()) {
-                def type = this.getType(it)
-                if (type != null) {
-                    def relativePath = this.templatesDir.relativePath(it)
-                    logger.debug('found template {}', relativePath)
-                    templates << new Template(it.text, relativePath, type)
-                }
+        this.templatesDir.eachFileRecurse(FileType.FILES) {
+            def type = this.getType(it)
+            if (type != null) {
+                def relativePath = this.templatesDir.relativePath(it)
+                logger.debug('found template {}', relativePath)
+                templates << new Template(it.text, relativePath, type)
+            } else {
+                logger.warn('ignoring {} because there is no templateType for it', it)
             }
         }
         templates

@@ -10,7 +10,12 @@ class FileNameHandler {
     private final File file
 
     String getExtension() {
-        this.file.name.substring(this.file.name.lastIndexOf('.'))
+        def lastIndexOfDot = this.file.name.lastIndexOf('.')
+        if (lastIndexOfDot == -1) {
+            ''
+        } else {
+            this.file.name.substring(lastIndexOfDot)
+        }
     }
 
     String getWithoutExtension() {
