@@ -1,20 +1,30 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.pagetemplate.PageTemplateType
-import com.jessebrault.ssg.pagetemplate.PageTemplatesFactory
-import com.jessebrault.ssg.text.TextFileType
-import com.jessebrault.ssg.text.TextFilesFactory
+import com.jessebrault.ssg.part.PartType
+import com.jessebrault.ssg.part.PartsProvider
+import com.jessebrault.ssg.template.TemplateType
+import com.jessebrault.ssg.template.TemplatesProvider
+import com.jessebrault.ssg.text.TextType
+import com.jessebrault.ssg.text.TextsProvider
 import groovy.transform.Canonical
 import groovy.transform.MapConstructor
+import groovy.transform.NullCheck
 
 import java.util.function.Function
 
 @Canonical
 @MapConstructor
+@NullCheck
 class Config {
-    Collection<TextFileType> textFileTypes
-    Collection<PageTemplateType> pageTemplateTypes
+    Collection<TextType> textTypes
+    Collection<TemplateType> templateTypes
+    Collection<PartType> partTypes
 
-    Function<Config, TextFilesFactory> textFileFactoryGetter
-    Function<Config, PageTemplatesFactory> pageTemplatesFactoryGetter
+    File textsDir
+    File templatesDir
+    File partsDir
+
+    Function<Config, TextsProvider> textsProviderGetter
+    Function<Config, TemplatesProvider> templatesProviderGetter
+    Function<Config, PartsProvider> partsProviderGetter
 }

@@ -1,9 +1,11 @@
 package com.jessebrault.ssg.text
 
+import groovy.transform.NullCheck
 import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 
-@TupleConstructor(includeFields = true)
+@TupleConstructor(includeFields = true, defaults = false)
+@NullCheck
 @ToString
 class FrontMatter {
 

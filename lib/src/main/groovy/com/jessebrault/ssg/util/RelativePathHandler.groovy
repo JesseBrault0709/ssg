@@ -1,8 +1,10 @@
 package com.jessebrault.ssg.util
 
+import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@TupleConstructor(includeFields = true)
+@TupleConstructor(includeFields = true, defaults = false)
+@NullCheck
 class RelativePathHandler {
 
     private final String relativePath

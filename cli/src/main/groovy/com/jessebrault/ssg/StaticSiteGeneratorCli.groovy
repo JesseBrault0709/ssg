@@ -1,31 +1,39 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.pagetemplate.GspRenderer
-import com.jessebrault.ssg.pagetemplate.PageTemplateType
-import com.jessebrault.ssg.pagetemplate.PageTemplatesFactoryImpl
+import com.jessebrault.ssg.part.GspPartRenderer
+import com.jessebrault.ssg.part.PartFilePartsProvider
+import com.jessebrault.ssg.part.PartType
+import com.jessebrault.ssg.template.GspTemplateRenderer
+import com.jessebrault.ssg.template.TemplateType
+import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
-import com.jessebrault.ssg.text.MarkdownRenderer
-import com.jessebrault.ssg.text.TextFileType
-import com.jessebrault.ssg.text.TextFilesFactoryImpl
+import com.jessebrault.ssg.text.MarkdownTextRenderer
+import com.jessebrault.ssg.text.TextType
+import com.jessebrault.ssg.text.TextFileTextsProvider
 
 class StaticSiteGeneratorCli {
 
     static void main(String[] args) {
-        def markdown = new TextFileType(['.md'], new MarkdownRenderer(), new MarkdownFrontMatterGetter())
-        def gsp = new PageTemplateType(['.gsp'], new GspRenderer())
+        def markdownText = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
+        def gspTemplate = new TemplateType(['.gsp'], new GspTemplateRenderer())
+        def gspPart = new PartType(['.gsp'], new GspPartRenderer())
+
         def config = new Config(
-                textFileTypes: [markdown],
-                pageTemplateTypes: [gsp],
-                textFileFactoryGetter: { Config config -> new TextFilesFactoryImpl(config.textFileTypes) },
-                pageTemplatesFactoryGetter: { Config config -> new PageTemplatesFactoryImpl(config.pageTemplateTypes) }
-        )
-        def ssg = new StaticSiteGeneratorImpl(config)
-        def defaultSpec = new SiteSpec(
-                buildDir: new File('build'),
+                textTypes: [markdownText],
+                templateTypes: [gspTemplate],
+                partTypes: [gspPart],
+
                 textsDir: new File('texts'),
-                templatesDir: new File('templates')
+                templatesDir: new File('templates'),
+                partsDir: new File('parts'),
+
+                textsProviderGetter: { Config config -> new TextFileTextsProvider(config.textTypes, config.textsDir) },
+                templatesProviderGetter: { Config config -> new TemplateFileTemplatesProvider(config.templateTypes, config.templatesDir) },
+                partsProviderGetter: { Config config -> new PartFilePartsProvider(config.partTypes, config.partsDir) }
         )
-        ssg.generate(defaultSpec)
+
+        def ssg = new SimpleStaticSiteGenerator(config)
+        ssg.generate(new File('build'))
     }
 
 }
