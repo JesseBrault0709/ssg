@@ -11,12 +11,12 @@ class FrontMatter {
 
     private final Map<String, List<String>> data
 
-    String getSingle(String key) {
+    String get(String key) {
         data[key][0]
     }
 
     String getAt(String key) {
-        this.getSingle(key)
+        this.get(key)
     }
 
     List<String> getList(String key) {

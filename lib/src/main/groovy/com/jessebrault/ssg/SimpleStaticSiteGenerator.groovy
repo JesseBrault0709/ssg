@@ -62,7 +62,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Render the template using the result of rendering the text earlier
-            def result = template.type.renderer.render(template, renderedText, parts)
+            def result = template.type.renderer.render(template, frontMatter, renderedText, parts)
             logger.debug('result: {}', result)
 
             // Output the result to the outfile, an .html file
