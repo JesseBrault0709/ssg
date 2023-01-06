@@ -18,4 +18,8 @@ import groovy.transform.TupleConstructor
         this.text.type.frontMatterGetter.get(this.text.text)
     }
 
+    String getPath() {
+        this.text.path
+    }
+
 }

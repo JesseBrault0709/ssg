@@ -87,7 +87,7 @@ class StaticSiteGeneratorTests {
 
     @Test
     void outputsSpecialPage() {
-        new FileTreeBuilder(this.specialPagesDir).file('special.gsp', $/<%= texts['test'].render() %>/$)
+        new FileTreeBuilder(this.specialPagesDir).file('special.gsp', $/<%= texts.find { it.path == 'test' }.render() %>/$)
         new FileTreeBuilder(this.templatesDir).file('template.gsp', '<%= 1 + 1 %>')
         new FileTreeBuilder(this.textsDir).file('test.md', '---\ntemplate: template.gsp\n---\nHello, World!')
 
