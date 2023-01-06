@@ -16,6 +16,9 @@ dependencies {
     /**
      * Logging
      */
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl
     runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
 

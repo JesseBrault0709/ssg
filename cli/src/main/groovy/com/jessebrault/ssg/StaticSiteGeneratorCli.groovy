@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.buildscript.GroovyBuildScriptRunner
 import com.jessebrault.ssg.part.GspPartRenderer
 import com.jessebrault.ssg.part.PartFilePartsProvider
 import com.jessebrault.ssg.part.PartType
@@ -13,8 +14,12 @@ import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
 import com.jessebrault.ssg.text.MarkdownTextRenderer
 import com.jessebrault.ssg.text.TextType
 import com.jessebrault.ssg.text.TextFileTextsProvider
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class StaticSiteGeneratorCli {
+
+    private static final Logger logger = LoggerFactory.getLogger(StaticSiteGeneratorCli)
 
     static void main(String[] args) {
         def markdownText = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
@@ -38,6 +43,16 @@ class StaticSiteGeneratorCli {
                 partsProviderGetter: { Config config -> new PartFilePartsProvider(config.partTypes, config.partsDir) },
                 specialPagesProviderGetter: { Config config -> new SpecialPageFileSpecialPagesProvider(config.specialPageTypes, config.specialPagesDir) }
         )
+
+        def globals = [:]
+
+        if (new File('build.groovy').exists()) {
+            logger.info('found buildScript: build.groovy')
+            def buildScriptRunner = new GroovyBuildScriptRunner()
+            buildScriptRunner.runBuildScript(config, globals)
+            logger.info('after running buildScript, config: {}', config)
+            logger.info('after running buildScript, globals: {}', globals)
+        }
 
         def ssg = new SimpleStaticSiteGenerator(config)
         ssg.generate(new File('build'))
