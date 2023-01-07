@@ -50,8 +50,8 @@ class StaticSiteGeneratorCli {
             logger.info('found buildScript: build.groovy')
             def buildScriptRunner = new GroovyBuildScriptRunner()
             buildScriptRunner.runBuildScript(config, globals)
-            logger.info('after running buildScript, config: {}', config)
-            logger.info('after running buildScript, globals: {}', globals)
+            logger.debug('after running buildScript, config: {}', config)
+            logger.debug('after running buildScript, globals: {}', globals)
         }
 
         def ssg = new SimpleStaticSiteGenerator(config)
