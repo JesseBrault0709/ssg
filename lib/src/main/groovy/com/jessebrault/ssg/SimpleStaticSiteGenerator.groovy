@@ -1,9 +1,5 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.part.PartsProvider
-import com.jessebrault.ssg.specialpage.SpecialPagesProvider
-import com.jessebrault.ssg.template.TemplatesProvider
-import com.jessebrault.ssg.text.TextsProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
@@ -22,8 +18,8 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     }
 
     @Override
-    void generate(File buildDir) {
-        logger.trace(enter, 'buildDir: {}', buildDir)
+    void generate(File buildDir, Map globals) {
+        logger.trace(enter, 'buildDir: {}, globals: {}', buildDir, globals)
 
         // Get all texts, templates, parts, and specialPages
         def texts = this.config.textProviders.collectMany { it.getTextFiles() }
@@ -50,7 +46,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             logger.info('processing text: {}', it.path)
 
             // Render the text (i.e., transform text to html)
-            def renderedText = it.type.renderer.render(it.text)
+            def renderedText = it.type.renderer.render(it.text, globals)
             logger.debug('renderedText: {}', renderedText)
 
             // Extract frontMatter from text
@@ -75,7 +71,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Render the template using the result of rendering the text earlier
-            def result = template.type.renderer.render(template, frontMatter, renderedText, parts)
+            def result = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)
             logger.debug('result: {}', result)
 
             // Output the result to the outfile, an .html file
@@ -86,7 +82,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         specialPages.each {
             logger.info('processing specialPage: {}', it)
 
-            def result = it.type.renderer.render(it.text, texts, parts)
+            def result = it.type.renderer.render(it.text, texts, parts, globals)
             logger.info('result: {}', result)
 
             // Output result to file

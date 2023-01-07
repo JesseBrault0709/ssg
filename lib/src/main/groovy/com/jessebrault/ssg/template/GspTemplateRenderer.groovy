@@ -11,11 +11,18 @@ class GspTemplateRenderer implements TemplateRenderer {
     private static final TemplateEngine engine = new GStringTemplateEngine()
 
     @Override
-    String render(Template template, FrontMatter frontMatter, String text, Collection<Part> parts) {
+    String render(
+            Template template,
+            FrontMatter frontMatter,
+            String text,
+            Collection<Part> parts,
+            Map globals
+    ) {
         engine.createTemplate(template.text).make([
                 frontMatter: frontMatter,
-                text: text,
-                parts: new EmbeddablePartsMap(parts)
+                globals: globals,
+                parts: new EmbeddablePartsMap(parts, globals),
+                text: text
         ])
     }
 

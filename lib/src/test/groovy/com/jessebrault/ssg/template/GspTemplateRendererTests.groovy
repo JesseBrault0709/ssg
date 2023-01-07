@@ -24,7 +24,7 @@ class GspTemplateRendererTests {
                 new PartType(['.gsp'], new GspPartRenderer()),
                 'Hello, $person!'
         )
-        def r = this.renderer.render(template, new FrontMatter([:]), '', [part])
+        def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
         assertEquals('Hello, World!', r)
     }
 
@@ -35,7 +35,7 @@ class GspTemplateRendererTests {
                 null,
                 null
         )
-        def r = this.renderer.render(template, new FrontMatter([title: ['Hello!']]), '', [])
+        def r = this.renderer.render(template, new FrontMatter([title: ['Hello!']]), '', [], [:])
         assertEquals('Hello!', r)
     }
 

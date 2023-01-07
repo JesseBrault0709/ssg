@@ -8,9 +8,9 @@ class EmbeddableTextsCollection {
     @Delegate
     private final Collection<EmbeddableText> embeddableTexts = []
 
-    EmbeddableTextsCollection(Collection<Text> texts) {
+    EmbeddableTextsCollection(Collection<Text> texts, Map globals) {
         Objects.requireNonNull(texts).each {
-            this << new EmbeddableText(it)
+            this << new EmbeddableText(it, globals)
         }
     }
 

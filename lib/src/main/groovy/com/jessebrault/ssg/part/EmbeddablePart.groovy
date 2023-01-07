@@ -6,9 +6,10 @@ import groovy.transform.TupleConstructor
  class EmbeddablePart {
 
     private final Part part
+    private final Map globals
 
     String render(Map binding) {
-        part.type.renderer.render(part.text, binding)
+        part.type.renderer.render(this.part.text, binding, this.globals)
     }
 
 }

@@ -12,10 +12,11 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
     private static final TemplateEngine engine = new GStringTemplateEngine()
 
     @Override
-    String render(String text, Collection<Text> texts, Collection<Part> parts) {
+    String render(String text, Collection<Text> texts, Collection<Part> parts, Map globals) {
         engine.createTemplate(text).make([
-                texts: new EmbeddableTextsCollection(texts),
-                parts: new EmbeddablePartsMap(parts)
+                globals: globals,
+                parts: new EmbeddablePartsMap(parts, globals),
+                texts: new EmbeddableTextsCollection(texts, globals)
         ])
     }
 

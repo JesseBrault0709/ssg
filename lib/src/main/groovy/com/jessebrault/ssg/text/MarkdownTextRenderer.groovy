@@ -12,7 +12,7 @@ class MarkdownTextRenderer implements TextRenderer {
     private static final HtmlRenderer htmlRenderer = HtmlRenderer.builder().build()
 
     @Override
-    String render(String text) {
+    String render(String text, Map globals) {
         htmlRenderer.render(parser.parse(text))
     }
 

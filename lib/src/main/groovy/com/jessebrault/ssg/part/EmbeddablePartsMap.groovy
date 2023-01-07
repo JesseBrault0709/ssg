@@ -8,10 +8,10 @@ class EmbeddablePartsMap {
     @Delegate
     private final Map<String, EmbeddablePart> partsMap = [:]
 
-    EmbeddablePartsMap(Collection<Part> parts) {
+    EmbeddablePartsMap(Collection<Part> parts, Map globals) {
         Objects.requireNonNull(parts)
         parts.each {
-            this.put(it.name, new EmbeddablePart(it))
+            this.put(it.name, new EmbeddablePart(it, globals))
         }
     }
 

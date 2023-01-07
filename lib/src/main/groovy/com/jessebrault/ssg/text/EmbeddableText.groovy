@@ -7,10 +7,11 @@ import groovy.transform.TupleConstructor
  class EmbeddableText {
 
     private final Text text
+    private final Map globals
 
     @Memoized
     String render() {
-        this.text.type.renderer.render(this.text.text)
+        this.text.type.renderer.render(this.text.text, globals)
     }
 
     @Memoized

@@ -60,7 +60,7 @@ class StaticSiteGeneratorTests {
         new File(this.templatesDir, 'test.gsp').write('<%= text %>')
 
         def buildDir = File.createTempDir()
-        this.ssg.generate(buildDir)
+        this.ssg.generate(buildDir, [:])
 
         def outFile = new File(buildDir, 'test.html')
         assertTrue(outFile.exists())
@@ -78,7 +78,7 @@ class StaticSiteGeneratorTests {
         new File(this.templatesDir, 'nested.gsp').write('<%= text %>')
 
         def buildDir = File.createTempDir()
-        this.ssg.generate(buildDir)
+        this.ssg.generate(buildDir, [:])
 
         def outFile = new File(new File(buildDir, 'nested'), 'nested.html')
         assertTrue(outFile.exists())
@@ -92,7 +92,7 @@ class StaticSiteGeneratorTests {
         new FileTreeBuilder(this.textsDir).file('test.md', '---\ntemplate: template.gsp\n---\nHello, World!')
 
         def buildDir = File.createTempDir()
-        this.ssg.generate(buildDir)
+        this.ssg.generate(buildDir, [:])
 
         def outFile = new File(buildDir, 'special.html')
         assertTrue(outFile.exists())
