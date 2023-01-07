@@ -16,17 +16,9 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     private final Config config
-    private final TextsProvider textsProvider
-    private final TemplatesProvider templatesProvider
-    private final PartsProvider partsProvider
-    private final SpecialPagesProvider specialPagesProvider
 
     SimpleStaticSiteGenerator(Config config) {
         this.config = config
-        this.textsProvider = config.textsProviderGetter.apply(config)
-        this.templatesProvider = config.templatesProviderGetter.apply(config)
-        this.partsProvider = config.partsProviderGetter.apply(config)
-        this.specialPagesProvider = config.specialPagesProviderGetter.apply(config)
     }
 
     @Override
@@ -34,10 +26,10 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         logger.trace(enter, 'buildDir: {}', buildDir)
 
         // Get all texts, templates, parts, and specialPages
-        def texts = this.textsProvider.getTextFiles()
-        def templates = this.templatesProvider.getTemplates()
-        def parts = this.partsProvider.getParts()
-        def specialPages = this.specialPagesProvider.getSpecialPages()
+        def texts = this.config.textProviders.collectMany { it.getTextFiles() }
+        def templates = this.config.templatesProviders.collectMany { it.getTemplates() }
+        def parts = this.config.partsProviders.collectMany { it.getParts() }
+        def specialPages = this.config.specialPagesProviders.collectMany { it.getSpecialPages() }
 
         logger.debug('\n\ttexts: {}\n\ttemplates: {}\n\tparts: {}\n\tspecialPages: {}', texts, templates, parts, specialPages)
 

@@ -35,21 +35,21 @@ class StaticSiteGeneratorTests {
         this.partsDir = File.createTempDir()
         this.specialPagesDir = File.createTempDir()
 
+        def markdownTextType = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
+        def gspTemplateType = new TemplateType(['.gsp'], new GspTemplateRenderer())
+        def gspPartType = new PartType(['.gsp'], new GspPartRenderer())
+        def gspSpecialPageType = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
+
+        def textsProvider = new TextFileTextsProvider([markdownTextType], this.textsDir)
+        def templatesProvider = new TemplateFileTemplatesProvider([gspTemplateType], this.templatesDir)
+        def partsProvider = new PartFilePartsProvider([gspPartType], this.partsDir)
+        def specialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPageType], this.specialPagesDir)
+
         def config = new Config(
-                textTypes: [new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())],
-                templateTypes: [new TemplateType(['.gsp'], new GspTemplateRenderer())],
-                partTypes: [new PartType(['.gsp'], new GspPartRenderer())],
-                specialPageTypes: [new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())],
-
-                textsDir: this.textsDir,
-                templatesDir: this.templatesDir,
-                partsDir: this.partsDir,
-                specialPagesDir: this.specialPagesDir,
-
-                textsProviderGetter: { Config config -> new TextFileTextsProvider(config.textTypes, config.textsDir) },
-                templatesProviderGetter: { Config config -> new TemplateFileTemplatesProvider(config.templateTypes, config.templatesDir) },
-                partsProviderGetter: { Config config -> new PartFilePartsProvider(config.partTypes, config.partsDir) },
-                specialPagesProviderGetter: { Config config -> new SpecialPageFileSpecialPagesProvider(config.specialPageTypes, config.specialPagesDir) }
+                textProviders: [textsProvider],
+                templatesProviders: [templatesProvider],
+                partsProviders: [partsProvider],
+                specialPagesProviders: [specialPagesProvider]
         )
         this.ssg = new SimpleStaticSiteGenerator(config)
     }

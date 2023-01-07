@@ -27,21 +27,16 @@ class StaticSiteGeneratorCli {
         def gspPart = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPage = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
 
+        def defaultTextsProvider = new TextFileTextsProvider([markdownText], new File('texts'))
+        def defaultTemplatesProvider = new TemplateFileTemplatesProvider([gspTemplate], new File('templates'))
+        def defaultPartsProvider = new PartFilePartsProvider([gspPart], new File('parts'))
+        def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPage], new File('specialPages'))
+
         def config = new Config(
-                textTypes: [markdownText],
-                templateTypes: [gspTemplate],
-                partTypes: [gspPart],
-                specialPageTypes: [gspSpecialPage],
-
-                textsDir: new File('texts'),
-                templatesDir: new File('templates'),
-                partsDir: new File('parts'),
-                specialPagesDir: new File('specialPages'),
-
-                textsProviderGetter: { Config config -> new TextFileTextsProvider(config.textTypes, config.textsDir) },
-                templatesProviderGetter: { Config config -> new TemplateFileTemplatesProvider(config.templateTypes, config.templatesDir) },
-                partsProviderGetter: { Config config -> new PartFilePartsProvider(config.partTypes, config.partsDir) },
-                specialPagesProviderGetter: { Config config -> new SpecialPageFileSpecialPagesProvider(config.specialPageTypes, config.specialPagesDir) }
+                textProviders: [defaultTextsProvider],
+                templatesProviders: [defaultTemplatesProvider],
+                partsProviders: [defaultPartsProvider],
+                specialPagesProviders: [defaultSpecialPagesProvider]
         )
 
         def globals = [:]
