@@ -17,8 +17,7 @@ import com.jessebrault.ssg.text.TextType
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.apache.logging.log4j.core.config.Configuration
-import org.apache.logging.log4j.spi.LoggerContext
+import org.apache.logging.log4j.core.LoggerContext
 import picocli.CommandLine
 
 import java.util.concurrent.Callable
@@ -33,22 +32,30 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
     private static final Logger logger = LogManager.getLogger(StaticSiteGeneratorCli)
 
-    static class LogLevel {
-        @CommandLine.Option(names = ['--info']) boolean info
-        @CommandLine.Option(names = ['--debug']) boolean debug
-        @CommandLine.Option(names = ['--trace']) boolean trace
+    private static class LogLevel {
+
+        @CommandLine.Option(names = ['--info'], description = 'Log at INFO level.')
+        boolean info
+
+        @CommandLine.Option(names = ['--debug'], description = 'Log at DEBUG level.')
+        boolean debug
+
+        @CommandLine.Option(names = ['--trace'], description = 'Log at TRACE level.')
+        boolean trace
+
     }
 
     static void main(String[] args) {
         System.exit(new CommandLine(StaticSiteGeneratorCli).execute(args))
     }
 
-    @CommandLine.ArgGroup(exclusive = true)
+    @CommandLine.ArgGroup(exclusive = true, heading = 'Log Level')
     private LogLevel logLevel
 
     @Override
     Integer call() throws Exception {
-        def context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false)
+        // Setup Loggers
+        def context = (LoggerContext) LogManager.getContext(false)
         def configuration = context.getConfiguration()
         def rootLoggerConfig = configuration.getRootLogger()
 
@@ -64,6 +71,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
         context.updateLoggers()
 
+        // Configure
         def markdownText = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
         def gspTemplate = new TemplateType(['.gsp'], new GspTemplateRenderer())
         def gspPart = new PartType(['.gsp'], new GspPartRenderer())
@@ -83,6 +91,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
         def globals = [:]
 
+        // Run build script, if applicable
         if (new File('build.groovy').exists()) {
             logger.info('found buildScript: build.groovy')
             def buildScriptRunner = new GroovyBuildScriptRunner()
@@ -91,8 +100,11 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
             logger.debug('after running buildScript, globals: {}', globals)
         }
 
+        // Generate
         def ssg = new SimpleStaticSiteGenerator(config)
         ssg.generate(new File('build'), globals)
+
+        // Exit
         return 0
     }
 
