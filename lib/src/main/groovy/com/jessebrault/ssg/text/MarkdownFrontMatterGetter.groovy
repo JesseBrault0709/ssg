@@ -21,9 +21,9 @@ class MarkdownFrontMatterGetter implements FrontMatterGetter {
             def node = parser.parse(text.text)
             def v = new YamlFrontMatterVisitor()
             node.accept(v)
-            new Tuple2([], new FrontMatter(v.data))
+            new Tuple2([], new FrontMatter(text, v.data))
         } catch (Exception e) {
-            new Tuple2<>([new Diagnostic("An exception occured while parsing frontMatter for ${ text.path }:\n${ e }", e)], new FrontMatter([:]))
+            new Tuple2<>([new Diagnostic("An exception occured while parsing frontMatter for ${ text.path }:\n${ e }", e)], new FrontMatter(text, [:]))
         }
     }
 

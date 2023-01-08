@@ -13,13 +13,14 @@ class FrontMatter {
 
     private static final Logger logger = LoggerFactory.getLogger(FrontMatter)
 
+    private final Text text
     private final Map<String, List<String>> data
 
     String get(String key) {
         if (data[key] != null) {
             data[key][0]
         } else {
-            logger.warn('no entry for key in frontMatter, returning empty string: {}', key)
+            logger.warn('in {} no entry for key {} in frontMatter, returning empty string', this.text, key)
             ''
         }
     }
@@ -32,14 +33,14 @@ class FrontMatter {
         if (data[key] != null) {
             data[key]
         } else {
-            logger.warn('no entry for key in frontMatter, returning empty list: {}', key)
+            logger.warn('in {} no entry for key {} in frontMatter, returning empty list: {}', this.text, key)
             []
         }
     }
 
     @Override
     String toString() {
-        "FrontMatter(data: ${ this.data })"
+        "FrontMatter(text: ${ this.text }, data: ${ this.data })"
     }
 
 }

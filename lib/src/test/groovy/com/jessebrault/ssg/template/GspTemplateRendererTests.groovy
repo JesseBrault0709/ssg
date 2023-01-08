@@ -32,7 +32,7 @@ class GspTemplateRendererTests {
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, null)
 
-        def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
+        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [part], [:])
         assertTrue(r.v1.size() == 0)
         assertEquals('Hello, World!', r.v2)
     }
@@ -49,7 +49,7 @@ class GspTemplateRendererTests {
         def partType = new PartType([], partRenderer)
         def part = new Part('greeting', partType, null)
 
-        def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
+        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [part], [:])
         assertTrue(r.v1.size() == 0)
         assertEquals('Hello, World!', r.v2)
     }
@@ -57,7 +57,7 @@ class GspTemplateRendererTests {
     @Test
     void rendersFrontMatter() {
         def template = new Template("<%= frontMatter['title'] %>", null, null)
-        def r = this.renderer.render(template, new FrontMatter([title: ['Hello!']]), '', [], [:])
+        def r = this.renderer.render(template, new FrontMatter(null, [title: ['Hello!']]), '', [], [:])
         assertTrue(r.v1.size() == 0)
         assertEquals('Hello!', r.v2)
     }
@@ -65,7 +65,7 @@ class GspTemplateRendererTests {
     @Test
     void rendersGlobal() {
         def template = new Template("<%= globals['test'] %>", null, null)
-        def r = this.renderer.render(template, new FrontMatter([:]), '', [], [test: 'Hello, World!'])
+        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [], [test: 'Hello, World!'])
         assertTrue(r.v1.size() == 0)
         assertEquals('Hello, World!', r.v2)
     }
@@ -73,7 +73,7 @@ class GspTemplateRendererTests {
     @Test
     void rendersText() {
         def template = new Template('<%= text %>', null, null)
-        def r = this.renderer.render(template, new FrontMatter([:]), 'Hello, World!', [], [:])
+        def r = this.renderer.render(template, new FrontMatter(null, [:]), 'Hello, World!', [], [:])
         assertTrue(r.v1.size() == 0)
         assertEquals('Hello, World!', r.v2)
     }
