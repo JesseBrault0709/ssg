@@ -9,9 +9,10 @@ class GspPartRenderer implements PartRenderer {
 
     @Override
     String render(String partText, Map binding, Map globals) {
-        def bindingCopy = new LinkedHashMap(binding)
-        bindingCopy['globals'] = globals
-        engine.createTemplate(partText).make(bindingCopy)
+        engine.createTemplate(partText).make([
+                binding: binding,
+                globals: globals
+        ])
     }
 
 }

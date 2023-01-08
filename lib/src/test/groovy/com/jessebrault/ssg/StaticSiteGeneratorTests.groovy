@@ -7,12 +7,12 @@ import com.jessebrault.ssg.specialpage.GspSpecialPageRenderer
 import com.jessebrault.ssg.specialpage.SpecialPageFileSpecialPagesProvider
 import com.jessebrault.ssg.specialpage.SpecialPageType
 import com.jessebrault.ssg.template.GspTemplateRenderer
-import com.jessebrault.ssg.template.TemplateType
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
+import com.jessebrault.ssg.template.TemplateType
 import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
 import com.jessebrault.ssg.text.MarkdownTextRenderer
-import com.jessebrault.ssg.text.TextType
 import com.jessebrault.ssg.text.TextFileTextsProvider
+import com.jessebrault.ssg.text.TextType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

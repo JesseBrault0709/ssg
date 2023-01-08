@@ -13,30 +13,48 @@ class GspTemplateRendererTests {
     private final TemplateRenderer renderer = new GspTemplateRenderer()
 
     @Test
-    void rendersPart() {
+    void rendersPartWithNoBinding() {
         def template = new Template(
-                "<%= parts['greeting'].render([person: 'World']) %>",
+                "<%= parts['test'].render() %>",
                 null,
                 null
         )
-        def part = new Part(
-                'greeting',
-                new PartType(['.gsp'], new GspPartRenderer()),
-                'Hello, $person!'
-        )
+        def part = new Part('test', new PartType(['.gsp'], new GspPartRenderer()), 'Hello, World!')
         def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
         assertEquals('Hello, World!', r)
     }
 
     @Test
-    void frontMatter() {
+    void rendersPartWithBinding() {
         def template = new Template(
-                "<%= frontMatter['title'] %>",
+                "<%= parts['greeting'].render([person: 'World']) %>",
                 null,
                 null
         )
+        def part = new Part('greeting', new PartType(['.gsp'], new GspPartRenderer()), 'Hello, $binding.person!')
+        def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
+        assertEquals('Hello, World!', r)
+    }
+
+    @Test
+    void rendersFrontMatter() {
+        def template = new Template("<%= frontMatter['title'] %>", null, null)
         def r = this.renderer.render(template, new FrontMatter([title: ['Hello!']]), '', [], [:])
         assertEquals('Hello!', r)
+    }
+
+    @Test
+    void rendersGlobal() {
+        def template = new Template("<%= globals['test'] %>", null, null)
+        def r = this.renderer.render(template, new FrontMatter([:]), '', [], [test: 'Hello, World!'])
+        assertEquals('Hello, World!', r)
+    }
+
+    @Test
+    void rendersText() {
+        def template = new Template('<%= text %>', null, null)
+        def r = this.renderer.render(template, new FrontMatter([:]), 'Hello, World!', [], [:])
+        assertEquals('Hello, World!', r)
     }
 
 }

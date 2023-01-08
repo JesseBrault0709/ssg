@@ -1,9 +1,11 @@
 package com.jessebrault.ssg.text
 
 import groovy.transform.Memoized
+import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(includeFields = true, defaults = false)
+@NullCheck
  class EmbeddableText {
 
     private final Text text

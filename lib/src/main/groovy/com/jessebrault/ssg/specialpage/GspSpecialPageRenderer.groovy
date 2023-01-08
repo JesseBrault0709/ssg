@@ -13,6 +13,11 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
 
     @Override
     String render(String text, Collection<Text> texts, Collection<Part> parts, Map globals) {
+        Objects.requireNonNull(text)
+        Objects.requireNonNull(texts)
+        Objects.requireNonNull(parts)
+        Objects.requireNonNull(globals)
+
         engine.createTemplate(text).make([
                 globals: globals,
                 parts: new EmbeddablePartsMap(parts, globals),
