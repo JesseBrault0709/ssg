@@ -44,4 +44,9 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider {
         specialPages
     }
 
+    @Override
+    Collection<SpecialPageType> getSpecialPageTypes() {
+        this.specialPageTypes
+    }
+
 }

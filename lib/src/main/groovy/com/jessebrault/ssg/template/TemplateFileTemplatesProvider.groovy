@@ -41,4 +41,9 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
         templates
     }
 
+    @Override
+    Collection<TemplateType> getTemplateTypes() {
+        this.templateTypes
+    }
+
 }

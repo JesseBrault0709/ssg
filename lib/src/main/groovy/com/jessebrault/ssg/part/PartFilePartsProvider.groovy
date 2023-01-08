@@ -42,4 +42,9 @@ class PartFilePartsProvider implements PartsProvider {
         parts
     }
 
+    @Override
+    Collection<PartType> getPartTypes() {
+        this.partTypes
+    }
+
 }

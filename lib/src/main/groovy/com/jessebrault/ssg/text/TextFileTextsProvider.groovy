@@ -44,4 +44,9 @@ class TextFileTextsProvider implements TextsProvider {
         textFiles
     }
 
+    @Override
+    Collection<TextType> getTextTypes() {
+        this.textTypes
+    }
+
 }
