@@ -1,5 +1,7 @@
 package com.jessebrault.ssg.text
 
+import com.jessebrault.ssg.Diagnostic
+
 interface FrontMatterGetter {
-    FrontMatter get(String text)
+    Tuple2<Collection<Diagnostic>, FrontMatter> get(Text text)
 }

@@ -8,19 +8,32 @@ import groovy.transform.TupleConstructor
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
- class EmbeddableText {
+class EmbeddableText {
 
     private final Text text
     private final Map globals
+    private final Closure onDiagnostics
 
     @Memoized
     String render() {
-        this.text.type.renderer.render(this.text.text, globals)
+        def result = this.text.type.renderer.render(this.text, globals)
+        if (result.v1.size() > 0) {
+            this.onDiagnostics.call(result.v1)
+            ''
+        } else {
+            result.v2
+        }
     }
 
     @Memoized
     FrontMatter getFrontMatter() {
-        this.text.type.frontMatterGetter.get(this.text.text)
+        def result = this.text.type.frontMatterGetter.get(this.text)
+        if (result.v1.size() > 0) {
+            this.onDiagnostics.call(result.v1)
+            new FrontMatter([:])
+        } else {
+            result.v2
+        }
     }
 
     String getPath() {

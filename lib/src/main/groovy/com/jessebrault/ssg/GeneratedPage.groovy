@@ -1,21 +1,20 @@
-package com.jessebrault.ssg.template
+package com.jessebrault.ssg
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@TupleConstructor(defaults = false)
+@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode
-class Template {
+class GeneratedPage {
 
-    String text
     String path
-    TemplateType type
+    String html
 
     @Override
     String toString() {
-        "Template(path: ${ this.path }, type: ${ this.type })"
+        "GeneratedPage(path: ${ this.path })"
     }
 
 }

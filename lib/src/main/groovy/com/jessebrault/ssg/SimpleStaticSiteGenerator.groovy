@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.text.FrontMatter
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -20,8 +21,8 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private final Config config
 
     @Override
-    void generate(File buildDir, Map globals) {
-        logger.trace(enter, 'buildDir: {}, globals: {}', buildDir, globals)
+    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Map globals) {
+        logger.trace(enter, 'globals: {}', globals)
 
         // Get all texts, templates, parts, and specialPages
         def texts = this.config.textProviders.collectMany { it.getTextFiles() }
@@ -31,64 +32,91 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
         logger.debug('\n\ttexts: {}\n\ttemplates: {}\n\tparts: {}\n\tspecialPages: {}', texts, templates, parts, specialPages)
 
-        // Define output function
-        def outputPage = { String path, String result ->
-            def outFile = new File(buildDir, path + '.html')
-            if (outFile.exists()) {
-                logger.info('outFile {} already exists, deleting', outFile)
-                outFile.delete()
-            }
-            outFile.createParentDirectories()
-            logger.info('writing result to {}', outFile)
-            outFile.write(result)
-        }
+        Collection<Diagnostic> diagnostics = []
+        Collection<GeneratedPage> generatedPages = []
 
         // Generate pages from each text
         texts.each {
+            logger.trace(enter, 'text: {}', it)
             logger.info('processing text: {}', it.path)
 
             // Render the text (i.e., transform text to html)
-            def renderedText = it.type.renderer.render(it.text, globals)
+            def textRenderResult = it.type.renderer.render(it, globals)
+            String renderedText
+            if (textRenderResult.v1.size() > 0) {
+                logger.debug('diagnostics for rendering {}: {}', it.path, textRenderResult.v1)
+                diagnostics.addAll(textRenderResult.v1)
+                logger.trace(exit, '')
+                return
+            } else {
+                renderedText = textRenderResult.v2
+                logger.debug('renderedText: {}', renderedText)
+            }
 
             // Extract frontMatter from text
-            def frontMatter = it.type.frontMatterGetter.get(it.text)
-            logger.debug('frontMatter: {}', frontMatter)
+            def frontMatterResult = it.type.frontMatterGetter.get(it)
+            FrontMatter frontMatter
+            if (frontMatterResult.v1.size() > 0) {
+                logger.debug('diagnostics for getting frontMatter for {}: {}', it.path, frontMatterResult.v1)
+                diagnostics.addAll(frontMatterResult.v1)
+                logger.trace(exit, '')
+                return
+            } else {
+                frontMatter = frontMatterResult.v2
+                logger.debug('frontMatter: {}', frontMatter)
+            }
 
             // Find the appropriate template from the frontMatter
             def desiredTemplate = frontMatter['template']
             logger.debug('desiredTemplate name: {}', desiredTemplate)
-            if (desiredTemplate == null) {
-                throw new IllegalArgumentException('in text ' + it.path + ' frontMatter.template must not be null')
+            if (desiredTemplate == null || desiredTemplate.isEmpty() || desiredTemplate.isBlank()) {
+                diagnostics << new Diagnostic('in textFile ' + it.path + ' frontMatter.template must not be empty, blank, or missing', null)
+                logger.trace(exit, '')
+                return
             }
-            if (desiredTemplate.isEmpty() || desiredTemplate.isBlank()) {
-                throw new IllegalArgumentException('in text ' + it.path + ' frontMatter.template must not be empty, blank, or missing')
-            }
-            def template = templates.find {
-                it.relativePath == desiredTemplate
-            }
-            logger.debug('template: {}', template)
+            def template = templates.find { it.path == desiredTemplate }
             if (template == null) {
-                throw new IllegalArgumentException('in textFile' + it.path + ' unknown template: ' + desiredTemplate)
+                diagnostics << new Diagnostic('in textFile' + it.path + ' frontMatter.template references an unknown template: ' + desiredTemplate, null)
+                logger.trace(exit, '')
+                return
             }
+            logger.debug('found template: {}', template)
 
             // Render the template using the result of rendering the text earlier
-            def result = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)
+            def templateRenderResult = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)
+            String renderedTemplate
+            if (templateRenderResult.v1.size() > 0) {
+                diagnostics.addAll(templateRenderResult.v1)
+                logger.trace(exit, '')
+                return
+            } else {
+                renderedTemplate = templateRenderResult.v2
+            }
 
-            // Output the result to the outfile, an .html file
-            outputPage(it.path, result)
+            // Create a GeneratedPage
+            generatedPages << new GeneratedPage(it.path, renderedTemplate)
         }
 
         // Generate special pages
         specialPages.each {
-            logger.info('processing specialPage: {}', it)
+            logger.info('processing specialPage: {}', it.path)
 
-            def result = it.type.renderer.render(it.text, texts, parts, globals)
+            def specialPageRenderResult = it.type.renderer.render(it, texts, parts, globals)
+            String renderedSpecialPage
+            if (specialPageRenderResult.v1.size() > 0) {
+                diagnostics.addAll(specialPageRenderResult.v1)
+                logger.trace(exit, '')
+                return
+            } else {
+                renderedSpecialPage = specialPageRenderResult.v2
+            }
 
-            // Output result to file
-            outputPage(it.path, result)
+            // Create a GeneratedPage
+            generatedPages << new GeneratedPage(it.path, renderedSpecialPage)
         }
 
-        logger.trace(exit, '')
+        logger.trace(exit, '\n\tdiagnostics: {}\n\tgeneratedPages: {}', diagnostics, generatedPages)
+        new Tuple2<>(diagnostics, generatedPages)
     }
 
     @Override

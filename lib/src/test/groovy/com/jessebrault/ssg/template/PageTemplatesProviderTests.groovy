@@ -25,7 +25,7 @@ class PageTemplatesProviderTests {
         def r = this.templatesProvider.getTemplates()
         assertEquals(1, r.size())
         def t0 = r[0]
-        assertEquals('test.gsp', t0.relativePath)
+        assertEquals('test.gsp', t0.path)
         assertEquals('<% out << text %>', t0.text)
         assertEquals(gspType, t0.type)
     }
@@ -41,7 +41,7 @@ class PageTemplatesProviderTests {
         def r = this.templatesProvider.getTemplates()
         assertEquals(1, r.size())
         def t0 = r[0]
-        assertEquals('nested/nested.gsp', t0.relativePath)
+        assertEquals('nested/nested.gsp', t0.path)
         assertEquals('<%= text %>', t0.text)
         assertEquals(gspType, t0.type)
     }

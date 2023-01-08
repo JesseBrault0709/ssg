@@ -102,10 +102,22 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
         // Generate
         def ssg = new SimpleStaticSiteGenerator(config)
-        ssg.generate(new File('build'), globals)
+        def result = ssg.generate(globals)
 
-        // Exit
-        return 0
+        if (result.v1.size() > 0) {
+            result.v1.each {
+                logger.error(it.message)
+            }
+            return 1
+        } else {
+            def buildDir = new File('build')
+            result.v2.each {
+                def target = new File(buildDir, it.path + '.html')
+                target.createParentDirectories()
+                target.write(it.html)
+            }
+            return 0
+        }
     }
 
 }

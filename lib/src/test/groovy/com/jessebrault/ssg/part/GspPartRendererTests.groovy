@@ -3,6 +3,7 @@ package com.jessebrault.ssg.part
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class GspPartRendererTests {
 
@@ -10,20 +11,26 @@ class GspPartRendererTests {
 
     @Test
     void rendersWithNoBindingOrGlobals() {
-        def r = this.renderer.render('Hello, World!', [:], [:])
-        assertEquals('Hello, World!', r)
+        def part = new Part('', null, 'Hello, World!')
+        def r = this.renderer.render(part, [:], [:])
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
     @Test
     void rendersWithBinding() {
-        def r = this.renderer.render("<%= binding['greeting'] %>", [greeting: 'Hello, World!'], [:])
-        assertEquals('Hello, World!', r)
+        def part = new Part('', null, "<%= binding['greeting'] %>")
+        def r = this.renderer.render(part, [greeting: 'Hello, World!'], [:])
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
     @Test
     void rendersWithGlobals() {
-        def r = this.renderer.render("<%= globals['greeting'] %>", [:], [greeting: 'Hello, World!'])
-        assertEquals('Hello, World!', r)
+        def part = new Part(null, null, "<%= globals['greeting'] %>")
+        def r = this.renderer.render(part, [:], [greeting: 'Hello, World!'])
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
 }

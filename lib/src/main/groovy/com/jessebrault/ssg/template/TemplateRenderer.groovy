@@ -1,11 +1,12 @@
 package com.jessebrault.ssg.template
 
+import com.jessebrault.ssg.Diagnostic
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.text.FrontMatter
 
 interface TemplateRenderer {
 
-    String render(
+    Tuple2<Collection<Diagnostic>, String> render(
             Template template,
             FrontMatter frontMatter,
             String text,

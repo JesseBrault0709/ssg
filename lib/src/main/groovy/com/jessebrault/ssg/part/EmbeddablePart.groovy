@@ -11,9 +11,16 @@ class EmbeddablePart {
 
     private final Part part
     private final Map globals
+    private final Closure onDiagnostics
 
     String render(Map binding = [:]) {
-        part.type.renderer.render(this.part.text, binding, this.globals)
+        def result = part.type.renderer.render(this.part, binding, this.globals)
+        if (result.v1.size() > 0) {
+            this.onDiagnostics.call(result.v1)
+            ''
+        } else {
+            result.v2
+        }
     }
 
     @Override

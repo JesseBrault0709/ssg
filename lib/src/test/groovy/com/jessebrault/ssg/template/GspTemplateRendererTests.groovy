@@ -10,6 +10,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.argThat
 import static org.mockito.Mockito.when
@@ -27,12 +28,13 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), any(), any())).thenReturn('Hello, World!')
+        when(partRenderer.render(any(), any(), any())).thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, null)
 
         def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
-        assertEquals('Hello, World!', r)
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
     @Test
@@ -43,33 +45,37 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any())).thenReturn('Hello, World!')
+        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any())).thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('greeting', partType, null)
 
         def r = this.renderer.render(template, new FrontMatter([:]), '', [part], [:])
-        assertEquals('Hello, World!', r)
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
     @Test
     void rendersFrontMatter() {
         def template = new Template("<%= frontMatter['title'] %>", null, null)
         def r = this.renderer.render(template, new FrontMatter([title: ['Hello!']]), '', [], [:])
-        assertEquals('Hello!', r)
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello!', r.v2)
     }
 
     @Test
     void rendersGlobal() {
         def template = new Template("<%= globals['test'] %>", null, null)
         def r = this.renderer.render(template, new FrontMatter([:]), '', [], [test: 'Hello, World!'])
-        assertEquals('Hello, World!', r)
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
     @Test
     void rendersText() {
         def template = new Template('<%= text %>', null, null)
         def r = this.renderer.render(template, new FrontMatter([:]), 'Hello, World!', [], [:])
-        assertEquals('Hello, World!', r)
+        assertTrue(r.v1.size() == 0)
+        assertEquals('Hello, World!', r.v2)
     }
 
 }

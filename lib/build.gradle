@@ -19,6 +19,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.commonmark/commonmark-ext-yaml-front-matter
     implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.21.0'
 
+    /**
+     * Logging
+     */
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:1.7.36'
 

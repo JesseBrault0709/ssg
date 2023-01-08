@@ -1,13 +1,7 @@
 package com.jessebrault.ssg.text
 
+import com.jessebrault.ssg.Diagnostic
+
 interface TextRenderer {
-
-    /**
-     * Renders the text from its raw form to html.
-     *
-     * @param text in raw form
-     * @return the rendered text in html
-     */
-    String render(String text, Map globals)
-
+    Tuple2<Collection<Diagnostic>, String> render(Text text, Map globals)
 }

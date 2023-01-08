@@ -1,5 +1,5 @@
 package com.jessebrault.ssg
 
 interface StaticSiteGenerator {
-    void generate(File buildDir, Map globals)
+    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Map globals)
 }
