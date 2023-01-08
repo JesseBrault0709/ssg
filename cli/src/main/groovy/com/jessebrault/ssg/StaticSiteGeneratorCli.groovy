@@ -52,11 +52,11 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         def configuration = context.getConfiguration()
         def rootLoggerConfig = configuration.getRootLogger()
 
-        if (this.logLevel.info) {
+        if (this.logLevel?.info) {
             rootLoggerConfig.level = Level.INFO
-        } else if (this.logLevel.debug) {
+        } else if (this.logLevel?.debug) {
             rootLoggerConfig.level = Level.DEBUG
-        } else if (this.logLevel.trace) {
+        } else if (this.logLevel?.trace) {
             rootLoggerConfig.level = Level.TRACE
         } else {
             rootLoggerConfig.level = Level.WARN
