@@ -13,11 +13,11 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateFileTemplatesProvider)
 
-    private final Collection<TemplateType> types
+    private final Collection<TemplateType> templateTypes
     private final File templatesDir
 
     private TemplateType getType(File file) {
-        this.types.find {
+        this.templateTypes.find {
             it.extensions.contains(new FileNameHandler(file).getExtension())
         }
     }
