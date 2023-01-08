@@ -3,8 +3,8 @@
     <Appenders>
         <Console name="standard" target="SYSTEM_OUT">
             <PatternLayout>
-                <MarkerPatternSelector defaultPattern="%-5level %logger{1}: %msg%n%ex">
-                    <PatternMatch key="FLOW" pattern="%-5level %logger{1} %M %L: %markerSimpleName %msg%n%ex" />
+                <MarkerPatternSelector defaultPattern="%highlight{%-5level} %logger{1}: %msg%n%ex">
+                    <PatternMatch key="FLOW" pattern="%highlight{%-5level} %logger{1}: %markerSimpleName %msg%n%ex" />
                 </MarkerPatternSelector>
             </PatternLayout>
         </Console>

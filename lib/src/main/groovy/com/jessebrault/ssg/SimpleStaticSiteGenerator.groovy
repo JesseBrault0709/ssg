@@ -49,7 +49,6 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
             // Render the text (i.e., transform text to html)
             def renderedText = it.type.renderer.render(it.text, globals)
-            logger.debug('renderedText: {}', renderedText)
 
             // Extract frontMatter from text
             def frontMatter = it.type.frontMatterGetter.get(it.text)
@@ -74,7 +73,6 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
             // Render the template using the result of rendering the text earlier
             def result = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)
-            logger.debug('result: {}', result)
 
             // Output the result to the outfile, an .html file
             outputPage(it.path, result)
@@ -85,7 +83,6 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             logger.info('processing specialPage: {}', it)
 
             def result = it.type.renderer.render(it.text, texts, parts, globals)
-            logger.info('result: {}', result)
 
             // Output result to file
             outputPage(it.path, result)
