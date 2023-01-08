@@ -5,7 +5,9 @@ import com.jessebrault.ssg.part.EmbeddablePartsMap
 import com.jessebrault.ssg.text.FrontMatter
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
+import groovy.transform.EqualsAndHashCode
 
+@EqualsAndHashCode
 class GspTemplateRenderer implements TemplateRenderer {
 
     private static final TemplateEngine engine = new GStringTemplateEngine()
@@ -24,6 +26,11 @@ class GspTemplateRenderer implements TemplateRenderer {
                 parts: new EmbeddablePartsMap(parts, globals),
                 text: text
         ])
+    }
+
+    @Override
+    String toString() {
+        "GspTemplateRenderer()"
     }
 
 }

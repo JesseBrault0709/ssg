@@ -1,13 +1,20 @@
 package com.jessebrault.ssg.part
 
-import groovy.transform.Canonical
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@Canonical
 @TupleConstructor(defaults = false)
 @NullCheck
+@EqualsAndHashCode
 class PartType {
-    Collection<String> extensions
+
+    Collection<String> ids
     PartRenderer renderer
+
+    @Override
+    String toString() {
+        "PartType(ids: ${ this.ids }, renderer: ${ this.renderer })"
+    }
+
 }

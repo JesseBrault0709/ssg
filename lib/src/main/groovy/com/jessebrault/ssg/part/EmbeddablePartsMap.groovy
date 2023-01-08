@@ -1,8 +1,8 @@
 package com.jessebrault.ssg.part
 
-import groovy.transform.ToString
+import groovy.transform.EqualsAndHashCode
 
-@ToString(includeFields = true)
+@EqualsAndHashCode(includeFields = true)
 class EmbeddablePartsMap {
 
     @Delegate
@@ -11,8 +11,13 @@ class EmbeddablePartsMap {
     EmbeddablePartsMap(Collection<Part> parts, Map globals) {
         Objects.requireNonNull(parts)
         parts.each {
-            this.put(it.name, new EmbeddablePart(it, globals))
+            this.put(it.path, new EmbeddablePart(it, globals))
         }
+    }
+
+    @Override
+    String toString() {
+        "EmbeddablePartsMap(partsMap: ${ this.partsMap })"
     }
 
 }

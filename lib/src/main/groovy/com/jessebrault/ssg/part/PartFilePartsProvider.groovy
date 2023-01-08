@@ -2,6 +2,7 @@ package com.jessebrault.ssg.part
 
 import com.jessebrault.ssg.util.FileNameHandler
 import groovy.io.FileType
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
 class PartFilePartsProvider implements PartsProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(PartFilePartsProvider)
@@ -18,7 +20,7 @@ class PartFilePartsProvider implements PartsProvider {
 
     private PartType getPartType(File file) {
         partTypes.find {
-            it.extensions.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(new FileNameHandler(file).getExtension())
         }
     }
 
@@ -45,6 +47,11 @@ class PartFilePartsProvider implements PartsProvider {
     @Override
     Collection<PartType> getPartTypes() {
         this.partTypes
+    }
+
+    @Override
+    String toString() {
+        "PartFilePartsProvider(partsDir: ${ this.partsDir }, partTypes: ${ this.partTypes })"
     }
 
 }

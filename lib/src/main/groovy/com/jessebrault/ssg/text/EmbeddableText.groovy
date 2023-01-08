@@ -1,11 +1,13 @@
 package com.jessebrault.ssg.text
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.Memoized
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
  class EmbeddableText {
 
     private final Text text
@@ -23,6 +25,11 @@ import groovy.transform.TupleConstructor
 
     String getPath() {
         this.text.path
+    }
+
+    @Override
+    String toString() {
+        "EmbeddableText(text: ${ this.text }, globals: ${ this.globals })"
     }
 
 }

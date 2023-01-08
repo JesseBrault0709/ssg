@@ -1,8 +1,8 @@
 package com.jessebrault.ssg.text
 
-import groovy.transform.ToString
+import groovy.transform.EqualsAndHashCode
 
-@ToString(includeFields = true)
+@EqualsAndHashCode(includeFields = true)
 class EmbeddableTextsCollection {
 
     @Delegate
@@ -14,6 +14,9 @@ class EmbeddableTextsCollection {
         }
     }
 
-
+    @Override
+    String toString() {
+        "EmbeddableTextsCollection(embeddableTexts: ${ this.embeddableTexts })"
+    }
 
 }

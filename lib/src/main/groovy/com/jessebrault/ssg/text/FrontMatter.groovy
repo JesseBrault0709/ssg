@@ -1,14 +1,14 @@
 package com.jessebrault.ssg.text
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
-@ToString(includeFields = true)
+@EqualsAndHashCode(includeFields = true)
 class FrontMatter {
 
     private static final Logger logger = LoggerFactory.getLogger(FrontMatter)
@@ -35,6 +35,11 @@ class FrontMatter {
             logger.warn('no entry for key in frontMatter, returning empty list: {}', key)
             []
         }
+    }
+
+    @Override
+    String toString() {
+        "FrontMatter(data: ${ this.data })"
     }
 
 }

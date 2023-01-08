@@ -1,14 +1,21 @@
 package com.jessebrault.ssg.text
 
-import groovy.transform.Canonical
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@Canonical
 @TupleConstructor(defaults = false)
 @NullCheck
+@EqualsAndHashCode
 class TextType {
+
     Collection<String> ids
     TextRenderer renderer
     FrontMatterGetter frontMatterGetter
+
+    @Override
+    String toString() {
+        "TextType(ids: ${ this.ids }, renderer: ${ this.renderer }, frontMatterGetter: ${ this.renderer })"
+    }
+
 }

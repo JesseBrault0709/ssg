@@ -1,10 +1,16 @@
 package com.jessebrault.ssg
 
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.NullCheck
+import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory
 
+@TupleConstructor(includeFields = true)
+@NullCheck
+@EqualsAndHashCode(includeFields = true)
 class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleStaticSiteGenerator)
@@ -12,10 +18,6 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     private final Config config
-
-    SimpleStaticSiteGenerator(Config config) {
-        this.config = config
-    }
 
     @Override
     void generate(File buildDir, Map globals) {
@@ -90,6 +92,11 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         }
 
         logger.trace(exit, '')
+    }
+
+    @Override
+    String toString() {
+        "SimpleStaticSiteGenerator()"
     }
 
 }

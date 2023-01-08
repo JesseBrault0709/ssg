@@ -2,6 +2,7 @@ package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.util.FileNameHandler
 import groovy.io.FileType
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
 class TemplateFileTemplatesProvider implements TemplatesProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateFileTemplatesProvider)
@@ -18,7 +20,7 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
 
     private TemplateType getType(File file) {
         this.templateTypes.find {
-            it.extensions.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(new FileNameHandler(file).getExtension())
         }
     }
 
@@ -44,6 +46,11 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
     @Override
     Collection<TemplateType> getTemplateTypes() {
         this.templateTypes
+    }
+
+    @Override
+    String toString() {
+        "TemplateFileTemplatesProvider(templatesDir: ${ this.templatesDir }, templateTypes: ${ this.templateTypes })"
     }
 
 }

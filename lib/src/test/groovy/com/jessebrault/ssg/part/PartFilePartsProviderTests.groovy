@@ -27,7 +27,7 @@ class PartFilePartsProviderTests {
         def r = this.partsProvider.getParts()
         assertEquals(1, r.size())
         def p0 = r[0]
-        assertEquals('testPart.gsp', p0.name)
+        assertEquals('testPart.gsp', p0.path)
         assertEquals(gspPartType, p0.type)
         assertEquals('Hello <%= name %>!', p0.text)
     }
@@ -43,7 +43,7 @@ class PartFilePartsProviderTests {
         def r = this.partsProvider.getParts()
         assertEquals(1, r.size())
         def p0 = r[0]
-        assertEquals('nested/testPart.gsp', p0.name)
+        assertEquals('nested/testPart.gsp', p0.path)
         assertEquals(gspPartType, p0.type)
         assertEquals('Hello, World!', p0.text)
     }

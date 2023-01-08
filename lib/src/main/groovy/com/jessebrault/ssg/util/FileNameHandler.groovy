@@ -1,10 +1,12 @@
 package com.jessebrault.ssg.util
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
 class FileNameHandler {
 
     private final File file
@@ -20,6 +22,11 @@ class FileNameHandler {
 
     String getWithoutExtension() {
         this.file.name.substring(0, this.file.name.lastIndexOf('.'))
+    }
+
+    @Override
+    String toString() {
+        "FileNameHandler(file: ${ this.file })"
     }
 
 }

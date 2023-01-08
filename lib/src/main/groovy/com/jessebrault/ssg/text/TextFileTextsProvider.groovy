@@ -3,6 +3,7 @@ package com.jessebrault.ssg.text
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
 class TextFileTextsProvider implements TextsProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileTextsProvider)
@@ -47,6 +49,11 @@ class TextFileTextsProvider implements TextsProvider {
     @Override
     Collection<TextType> getTextTypes() {
         this.textTypes
+    }
+
+    @Override
+    String toString() {
+        "TextFileTextsProvider(textsDir: ${ this.textsDir }, textTypes: ${ this.textTypes })"
     }
 
 }

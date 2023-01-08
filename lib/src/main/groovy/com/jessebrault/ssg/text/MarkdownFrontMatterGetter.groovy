@@ -1,9 +1,11 @@
 package com.jessebrault.ssg.text
 
+import groovy.transform.EqualsAndHashCode
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
 import org.commonmark.parser.Parser
 
+@EqualsAndHashCode
 class MarkdownFrontMatterGetter implements FrontMatterGetter {
 
     private static final Parser parser = Parser.builder()
@@ -16,6 +18,11 @@ class MarkdownFrontMatterGetter implements FrontMatterGetter {
         def v = new YamlFrontMatterVisitor()
         node.accept(v)
         new FrontMatter(v.data)
+    }
+
+    @Override
+    String toString() {
+        "MarkdownFrontMatterGetter()"
     }
 
 }

@@ -3,6 +3,7 @@ package com.jessebrault.ssg.specialpage
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 import org.slf4j.Logger
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
+@EqualsAndHashCode(includeFields = true)
 class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(SpecialPageFileSpecialPagesProvider)
@@ -47,6 +49,11 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider {
     @Override
     Collection<SpecialPageType> getSpecialPageTypes() {
         this.specialPageTypes
+    }
+
+    @Override
+    String toString() {
+        "SpecialPageFileSpecialPagesProvider(specialPagesDir: ${ this.specialPagesDir }, specialPageTypes: ${ this.specialPageTypes })"
     }
 
 }

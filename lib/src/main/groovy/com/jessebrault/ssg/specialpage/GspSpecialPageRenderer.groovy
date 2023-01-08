@@ -6,7 +6,9 @@ import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.text.Text
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
+import groovy.transform.EqualsAndHashCode
 
+@EqualsAndHashCode
 class GspSpecialPageRenderer implements SpecialPageRenderer {
 
     private static final TemplateEngine engine = new GStringTemplateEngine()
@@ -23,6 +25,11 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
                 parts: new EmbeddablePartsMap(parts, globals),
                 texts: new EmbeddableTextsCollection(texts, globals)
         ])
+    }
+
+    @Override
+    String toString() {
+        "GspSpecialPageRenderer()"
     }
 
 }
