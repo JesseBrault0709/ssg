@@ -18,7 +18,7 @@ abstract class BuildScriptBase extends Script {
     ) {
         def buildClosureDelegate = new BuildClosureDelegate().tap {
             // Default values for Build properties
-            name = 'build' + currentBuildNumber
+            name = 'build' + this.currentBuildNumber
             config = new Config(defaultConfig)
             globals = new LinkedHashMap(defaultGlobals)
             outDir = new File(name)
@@ -27,7 +27,7 @@ abstract class BuildScriptBase extends Script {
         buildClosure.setResolveStrategy(Closure.DELEGATE_FIRST)
         buildClosure.run()
         this.builds << new Build(buildClosureDelegate.name, buildClosureDelegate.config, buildClosureDelegate.globals, buildClosureDelegate.outDir)
-        currentBuildNumber++
+        this.currentBuildNumber++
     }
 
 }
