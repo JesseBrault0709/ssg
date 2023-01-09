@@ -18,20 +18,21 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker enter = MarkerFactory.getMarker('ENTER')
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
-    private final Config config
-
     @Override
-    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Map globals) {
-        logger.trace(enter, 'globals: {}', globals)
+    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Build build) {
+        logger.trace(enter, 'build: {}', build)
+
+        def config = build.config
 
         // Get all texts, templates, parts, and specialPages
-        def texts = this.config.textProviders.collectMany { it.getTextFiles() }
-        def templates = this.config.templatesProviders.collectMany { it.getTemplates() }
-        def parts = this.config.partsProviders.collectMany { it.getParts() }
-        def specialPages = this.config.specialPagesProviders.collectMany { it.getSpecialPages() }
+        def texts = config.textProviders.collectMany { it.getTextFiles() }
+        def templates = config.templatesProviders.collectMany { it.getTemplates() }
+        def parts = config.partsProviders.collectMany { it.getParts() }
+        def specialPages = config.specialPagesProviders.collectMany { it.getSpecialPages() }
 
         logger.debug('\n\ttexts: {}\n\ttemplates: {}\n\tparts: {}\n\tspecialPages: {}', texts, templates, parts, specialPages)
 
+        def globals = build.globals
         Collection<Diagnostic> diagnostics = []
         Collection<GeneratedPage> generatedPages = []
 

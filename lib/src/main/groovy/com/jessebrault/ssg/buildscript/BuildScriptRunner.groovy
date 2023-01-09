@@ -1,7 +1,8 @@
 package com.jessebrault.ssg.buildscript
 
+import com.jessebrault.ssg.Build
 import com.jessebrault.ssg.Config
 
 interface BuildScriptRunner {
-    void runBuildScript(Config config, Map globals)
+    Collection<Build> runBuildScript(String relativePath, Config defaultConfig, Map defaultGlobals)
 }

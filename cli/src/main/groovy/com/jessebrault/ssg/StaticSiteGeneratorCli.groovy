@@ -32,7 +32,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
     private static final Logger logger = LogManager.getLogger(StaticSiteGeneratorCli)
 
-    private static class LogLevel {
+    static class LogLevel {
 
         @CommandLine.Option(names = ['--info'], description = 'Log at INFO level.')
         boolean info
@@ -50,10 +50,12 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
     }
 
     @CommandLine.ArgGroup(exclusive = true, heading = 'Log Level')
-    private LogLevel logLevel
+    LogLevel logLevel
 
     @Override
-    Integer call() throws Exception {
+    Integer call() {
+        logger.traceEntry()
+
         // Setup Loggers
         def context = (LoggerContext) LogManager.getContext(false)
         def configuration = context.getConfiguration()
@@ -82,42 +84,51 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         def defaultPartsProvider = new PartFilePartsProvider([gspPart], new File('parts'))
         def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPage], new File('specialPages'))
 
-        def config = new Config(
+        def defaultConfig = new Config(
                 textProviders: [defaultTextsProvider],
                 templatesProviders: [defaultTemplatesProvider],
                 partsProviders: [defaultPartsProvider],
                 specialPagesProviders: [defaultSpecialPagesProvider]
         )
+        def defaultGlobals = [:]
 
-        def globals = [:]
+        Collection<Build> builds = []
 
         // Run build script, if applicable
-        if (new File('build.groovy').exists()) {
-            logger.info('found buildScript: build.groovy')
+        if (new File('ssgBuilds.groovy').exists()) {
+            logger.info('found buildScript: ssgBuilds.groovy')
             def buildScriptRunner = new GroovyBuildScriptRunner()
-            buildScriptRunner.runBuildScript(config, globals)
-            logger.debug('after running buildScript, config: {}', config)
-            logger.debug('after running buildScript, globals: {}', globals)
+            builds.addAll(buildScriptRunner.runBuildScript('ssgBuilds.groovy', defaultConfig, defaultGlobals))
+            logger.debug('after running ssgBuilds.groovy, builds: {}', builds)
         }
 
-        // Generate
-        def ssg = new SimpleStaticSiteGenerator(config)
-        def result = ssg.generate(globals)
-
-        if (result.v1.size() > 0) {
-            result.v1.each {
-                logger.error(it.message)
-            }
-            return 1
-        } else {
-            def buildDir = new File('build')
-            result.v2.each {
-                def target = new File(buildDir, it.path + '.html')
-                target.createParentDirectories()
-                target.write(it.html)
-            }
-            return 0
+        if (builds.empty) {
+            // Add default build
+            builds << new Build('default', defaultConfig, defaultGlobals, new File('build'))
         }
+
+        // Get ssg object
+        def ssg = new SimpleStaticSiteGenerator()
+
+        def hadDiagnostics = false
+        // Do each build
+        builds.each {
+            def result = ssg.generate(it)
+            if (result.v1.size() > 0) {
+                hadDiagnostics = true
+                result.v1.each {
+                    logger.error(it.message)
+                }
+            } else {
+                result.v2.each { GeneratedPage generatedPage ->
+                    def target = new File(it.outDir, generatedPage.path + '.html')
+                    target.createParentDirectories()
+                    target.write(generatedPage.html)
+                }
+            }
+        }
+
+        logger.traceExit(hadDiagnostics ? 1 : 0)
     }
 
 }

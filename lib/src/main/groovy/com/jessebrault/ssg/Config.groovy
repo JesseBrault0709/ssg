@@ -10,7 +10,7 @@ import groovy.transform.MapConstructor
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@TupleConstructor
+@TupleConstructor(force = true)
 @MapConstructor
 @NullCheck
 @EqualsAndHashCode
@@ -20,6 +20,21 @@ class Config {
     Collection<TemplatesProvider> templatesProviders
     Collection<PartsProvider> partsProviders
     Collection<SpecialPagesProvider> specialPagesProviders
+
+    Config(Config source) {
+        this.textProviders = [].tap {
+            addAll(source.textProviders)
+        }
+        this.templatesProviders = [].tap {
+            addAll(source.templatesProviders)
+        }
+        this.partsProviders = [].tap {
+            addAll(source.partsProviders)
+        }
+        this.specialPagesProviders = [].tap {
+            addAll(source.specialPagesProviders)
+        }
+    }
 
     String toString() {
         "Config(textProviders: ${ this.textProviders }, templatesProviders: ${ this.templatesProviders }, " +
