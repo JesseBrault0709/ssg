@@ -10,7 +10,7 @@ abstract class BuildScriptBase extends Script {
 
     Collection<Build> builds = []
 
-    private int currentBuildNumber = 0
+    protected int currentBuildNumber = 0
 
     void build(
             @DelegatesTo(value = BuildClosureDelegate, strategy = Closure.DELEGATE_FIRST)
