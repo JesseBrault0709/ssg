@@ -35,7 +35,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
     private static final Logger logger = LogManager.getLogger(StaticSiteGeneratorCli)
 
     static void main(String[] args) {
-        new CommandLine(StaticSiteGeneratorCli)
+        System.exit(new CommandLine(StaticSiteGeneratorCli).execute(args))
     }
 
     static class LogLevel {
