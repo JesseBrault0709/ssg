@@ -159,8 +159,12 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         def watchService = FileSystems.getDefault().newWatchService()
         Map<WatchKey, Path> watchKeys = [:]
 
-        // Our Closure to register a path
+        // Our Closure to register a directory path
         def registerPath = { Path path ->
+            if (!Files.isDirectory(path)) {
+                throw new IllegalArgumentException('path must be a directory, given: ' + path)
+            }
+            logger.debug('registering dir with path: {}', path)
             def watchKey = path.register(
                     watchService,
                     StandardWatchEventKinds.ENTRY_CREATE,
@@ -168,6 +172,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
                     StandardWatchEventKinds.ENTRY_MODIFY
             )
             watchKeys[watchKey] = path
+            logger.debug('watchKeys: {}', watchKeys)
         }
 
         // Get all base watchableDirs
@@ -199,12 +204,15 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
                     assert it instanceof WatchEvent<Path>
                     def childName = it.context()
                     def childPath = path.resolve(childName)
-                    logger.debug('childName: {}, childPath: {}', childName, childPath)
                     if (it.kind() == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(childPath)) {
-                        logger.debug('registering dir with path: {}', childPath)
                         registerPath(childPath)
                     } else if (Files.isRegularFile(childPath)) {
                         logger.debug('detected {} for regularFile with path {}', it.kind(), childPath)
+                        def t = new Thread({
+                            generate(builds, ssg)
+                        })
+                        t.setName('workerThread')
+                        t.start()
                     }
                 }
             }
