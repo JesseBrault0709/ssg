@@ -21,6 +21,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     @Override
     Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Build build) {
         logger.trace(enter, 'build: {}', build)
+        logger.info('processing build with name: {}', build.name)
 
         def config = build.config
 
