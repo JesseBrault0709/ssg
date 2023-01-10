@@ -203,6 +203,8 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
                     if (it.kind() == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(childPath)) {
                         logger.debug('registering dir with path: {}', childPath)
                         registerPath(childPath)
+                    } else if (Files.isRegularFile(childPath)) {
+                        logger.debug('detected {} for regularFile with path {}', it.kind(), childPath)
                     }
                 }
             }
