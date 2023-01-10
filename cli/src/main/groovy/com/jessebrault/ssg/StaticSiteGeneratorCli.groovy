@@ -192,6 +192,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
             watchKey.pollEvents().each {
                 logger.debug('watchEvent: {}', it)
             }
+            watchKey.reset()
         }
 
         //noinspection GroovyUnreachableStatement
