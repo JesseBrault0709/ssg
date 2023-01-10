@@ -2,22 +2,27 @@ package com.jessebrault.ssg.text
 
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
+import com.jessebrault.ssg.WatchableProvider
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TextFileTextsProvider implements TextsProvider {
+class TextFileTextsProvider implements TextsProvider, WatchableProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileTextsProvider)
 
     private final Collection<TextType> textTypes
     private final File textsDir
+
+    TextFileTextsProvider(Collection<TextType> textTypes, File textsDir) {
+        this.textTypes = textTypes
+        this.textsDir = textsDir
+        this.watchableDir = this.textsDir
+    }
 
     private TextType getTextType(File file) {
         this.textTypes.find {

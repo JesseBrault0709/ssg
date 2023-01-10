@@ -20,6 +20,8 @@ import org.apache.logging.log4j.Logger
 import org.apache.logging.log4j.core.LoggerContext
 import picocli.CommandLine
 
+import java.nio.file.FileSystems
+import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.Callable
 
 @CommandLine.Command(
@@ -31,6 +33,10 @@ import java.util.concurrent.Callable
 class StaticSiteGeneratorCli implements Callable<Integer> {
 
     private static final Logger logger = LogManager.getLogger(StaticSiteGeneratorCli)
+
+    static void main(String[] args) {
+        new CommandLine(StaticSiteGeneratorCli)
+    }
 
     static class LogLevel {
 
@@ -45,12 +51,11 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
 
     }
 
-    static void main(String[] args) {
-        System.exit(new CommandLine(StaticSiteGeneratorCli).execute(args))
-    }
-
     @CommandLine.ArgGroup(exclusive = true, heading = 'Log Level')
     LogLevel logLevel
+
+    @CommandLine.Option(names = ['-w', '--watch'], description = 'Run in watch mode.')
+    boolean watch
 
     @Override
     Integer call() {
@@ -110,6 +115,16 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         // Get ssg object
         def ssg = new SimpleStaticSiteGenerator()
 
+        if (this.watch) {
+            watch(builds, ssg)
+        } else {
+            generate(builds, ssg)
+        }
+    }
+
+    private static Integer generate(Collection<Build> builds, StaticSiteGenerator ssg) {
+        logger.traceEntry('builds: {}, ssg: {}', builds, ssg)
+
         def hadDiagnostics = false
         // Do each build
         builds.each {
@@ -129,6 +144,57 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         }
 
         logger.traceExit(hadDiagnostics ? 1 : 0)
+    }
+
+    private static Integer watch(Collection<Build> builds, StaticSiteGenerator ssg) {
+        logger.traceEntry('builds: {}, ssg: {}', builds, ssg)
+
+        Collection<WatchableProvider> watchableProviders = []
+
+        builds.each {
+            it.config.textProviders.each {
+                if (it instanceof WatchableProvider) {
+                    watchableProviders << it
+                }
+            }
+            it.config.templatesProviders.each {
+                if (it instanceof WatchableProvider) {
+                    watchableProviders << it
+                }
+            }
+            it.config.partsProviders.each {
+                if (it instanceof WatchableProvider) {
+                    watchableProviders << it
+                }
+            }
+            it.config.specialPagesProviders.each {
+                if (it instanceof WatchableProvider) {
+                    watchableProviders << it
+                }
+            }
+        }
+
+        def watchService = FileSystems.getDefault().newWatchService()
+
+        watchableProviders.each {
+            it.watchableDir.toPath().register(
+                    watchService,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY
+            )
+        }
+
+        //noinspection GroovyInfiniteLoopStatement
+        while (true) {
+            def watchKey = watchService.take()
+            watchKey.pollEvents().each {
+                logger.debug('watchEvent: {}', it)
+            }
+        }
+
+        //noinspection GroovyUnreachableStatement
+        logger.traceExit(0)
     }
 
 }
