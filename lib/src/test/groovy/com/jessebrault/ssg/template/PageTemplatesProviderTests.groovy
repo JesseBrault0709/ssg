@@ -22,7 +22,7 @@ class PageTemplatesProviderTests {
     void findsTemplate() {
         new File(this.templatesDir, 'test.gsp').write('<% out << text %>')
 
-        def r = this.templatesProvider.getTemplates()
+        def r = this.templatesProvider.provide()
         assertEquals(1, r.size())
         def t0 = r[0]
         assertEquals('test.gsp', t0.path)
@@ -38,7 +38,7 @@ class PageTemplatesProviderTests {
             }
         }
 
-        def r = this.templatesProvider.getTemplates()
+        def r = this.templatesProvider.provide()
         assertEquals(1, r.size())
         def t0 = r[0]
         assertEquals('nested/nested.gsp', t0.path)
@@ -52,7 +52,7 @@ class PageTemplatesProviderTests {
             write('Ignored!')
         }
 
-        def r = this.templatesProvider.getTemplates()
+        def r = this.templatesProvider.provide()
         assertEquals(0, r.size())
     }
 

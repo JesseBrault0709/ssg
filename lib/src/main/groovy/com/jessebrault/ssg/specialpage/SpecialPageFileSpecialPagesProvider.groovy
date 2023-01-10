@@ -1,23 +1,28 @@
 package com.jessebrault.ssg.specialpage
 
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider {
+class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider, WithWatchableDir {
 
     private static final Logger logger = LoggerFactory.getLogger(SpecialPageFileSpecialPagesProvider)
 
     private final Collection<SpecialPageType> specialPageTypes
     private final File specialPagesDir
+
+    SpecialPageFileSpecialPagesProvider(Collection<SpecialPageType> specialPageTypes, File specialPagesDir) {
+        this.specialPageTypes = specialPageTypes
+        this.specialPagesDir = specialPagesDir
+        this.watchableDir = this.specialPagesDir
+    }
 
     private SpecialPageType getSpecialPageType(File file) {
         this.specialPageTypes.find {
@@ -26,7 +31,7 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider {
     }
 
     @Override
-    Collection<SpecialPage> getSpecialPages() {
+    Collection<SpecialPage> provide() {
         if (!this.specialPagesDir.isDirectory()) {
             throw new IllegalArgumentException('specialPagesDir must be a directory')
         }

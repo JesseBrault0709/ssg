@@ -1,22 +1,27 @@
 package com.jessebrault.ssg.template
 
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.util.FileNameHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TemplateFileTemplatesProvider implements TemplatesProvider {
+class TemplateFileTemplatesProvider implements TemplatesProvider, WithWatchableDir {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateFileTemplatesProvider)
 
     private final Collection<TemplateType> templateTypes
     private final File templatesDir
+
+    TemplateFileTemplatesProvider(Collection<TemplateType> templateTypes, File templatesDir) {
+        this.templateTypes = templateTypes
+        this.templatesDir = templatesDir
+        this.watchableDir = this.templatesDir
+    }
 
     private TemplateType getType(File file) {
         this.templateTypes.find {
@@ -25,7 +30,7 @@ class TemplateFileTemplatesProvider implements TemplatesProvider {
     }
 
     @Override
-    Collection<Template> getTemplates() {
+    Collection<Template> provide() {
         if (!this.templatesDir.isDirectory()) {
             throw new IllegalArgumentException('templatesDir must be a directory')
         }

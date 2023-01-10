@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.specialpage
 
-interface SpecialPagesProvider {
-    Collection<SpecialPage> getSpecialPages()
+import com.jessebrault.ssg.provider.Provider
+
+interface SpecialPagesProvider extends Provider<Collection<SpecialPage>> {
     Collection<SpecialPageType> getSpecialPageTypes()
 }

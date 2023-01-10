@@ -1,23 +1,31 @@
 package com.jessebrault.ssg.text
 
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TextFileTextsProvider implements TextsProvider {
+class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileTextsProvider)
 
     private final Collection<TextType> textTypes
     private final File textsDir
+
+    TextFileTextsProvider(Collection<TextType> textTypes, File textsDir) {
+        this.textTypes = textTypes
+        this.textsDir = textsDir
+        if (!this.textsDir.isDirectory()) {
+            throw new IllegalArgumentException('textsDir must be a directory, given: ' + this.textsDir)
+        }
+        this.watchableDir = this.textsDir
+    }
 
     private TextType getTextType(File file) {
         this.textTypes.find {
@@ -26,11 +34,7 @@ class TextFileTextsProvider implements TextsProvider {
     }
 
     @Override
-    Collection<Text> getTextFiles() {
-        if (!this.textsDir.isDirectory()) {
-            throw new IllegalArgumentException('textsDir must be a directory')
-        }
-
+    Collection<Text> provide() {
         def textFiles = []
         this.textsDir.eachFileRecurse(FileType.FILES) {
             def type = this.getTextType(it)
