@@ -24,7 +24,7 @@ class PartFilePartsProviderTests {
             write('Hello <%= name %>!')
         }
 
-        def r = this.partsProvider.getParts()
+        def r = this.partsProvider.provide()
         assertEquals(1, r.size())
         def p0 = r[0]
         assertEquals('testPart.gsp', p0.path)
@@ -40,7 +40,7 @@ class PartFilePartsProviderTests {
             }
         }
 
-        def r = this.partsProvider.getParts()
+        def r = this.partsProvider.provide()
         assertEquals(1, r.size())
         def p0 = r[0]
         assertEquals('nested/testPart.gsp', p0.path)
@@ -54,7 +54,7 @@ class PartFilePartsProviderTests {
             write 'Ignored!'
         }
 
-        def r = this.partsProvider.getParts()
+        def r = this.partsProvider.provide()
         assertEquals(0, r.size())
     }
 

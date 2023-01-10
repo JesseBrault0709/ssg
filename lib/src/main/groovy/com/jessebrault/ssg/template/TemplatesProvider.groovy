@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.template
 
-interface TemplatesProvider {
-    Collection<Template> getTemplates()
+import com.jessebrault.ssg.provider.Provider
+
+interface TemplatesProvider extends Provider<Collection<Template>> {
     Collection<TemplateType> getTemplateTypes()
 }

@@ -1,22 +1,27 @@
 package com.jessebrault.ssg.part
 
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.util.FileNameHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class PartFilePartsProvider implements PartsProvider {
+class PartFilePartsProvider implements PartsProvider, WithWatchableDir {
 
     private static final Logger logger = LoggerFactory.getLogger(PartFilePartsProvider)
 
     private final Collection<PartType> partTypes
     private final File partsDir
+
+    PartFilePartsProvider(Collection<PartType> partTypes, File partsDir) {
+        this.partTypes = partTypes
+        this.partsDir = partsDir
+        this.watchableDir = this.partsDir
+    }
 
     private PartType getPartType(File file) {
         partTypes.find {
@@ -25,7 +30,7 @@ class PartFilePartsProvider implements PartsProvider {
     }
 
     @Override
-    Collection<Part> getParts() {
+    Collection<Part> provide() {
         if (!partsDir.isDirectory()) {
             throw new IllegalArgumentException('partsDir must be a directory')
         }

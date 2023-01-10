@@ -23,7 +23,7 @@ class SpecialPageFileSpecialPagesProviderTests {
         new FileTreeBuilder(this.specialPagesDir)
                 .file('test.gsp', '<%= "Hello, World!" %>')
 
-        def r = this.specialPagesProvider.getSpecialPages()
+        def r = this.specialPagesProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
         assertEquals('test', f0.path)
@@ -37,7 +37,7 @@ class SpecialPageFileSpecialPagesProviderTests {
             file('nested.gsp', '<%= "Hello, World!" %>')
         }
 
-        def r = this.specialPagesProvider.getSpecialPages()
+        def r = this.specialPagesProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
         assertEquals('nested/nested', f0.path)
@@ -49,7 +49,7 @@ class SpecialPageFileSpecialPagesProviderTests {
     void ignoresUnsupportedFile() {
         new FileTreeBuilder(this.specialPagesDir).file('.ignored', 'Ignored!')
 
-        def r = this.specialPagesProvider.getSpecialPages()
+        def r = this.specialPagesProvider.provide()
         assertEquals(0, r.size())
     }
 

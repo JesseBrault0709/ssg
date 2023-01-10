@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.part
 
-interface PartsProvider {
-    Collection<Part> getParts()
+import com.jessebrault.ssg.provider.Provider
+
+interface PartsProvider extends Provider<Collection<Part>> {
     Collection<PartType> getPartTypes()
 }
