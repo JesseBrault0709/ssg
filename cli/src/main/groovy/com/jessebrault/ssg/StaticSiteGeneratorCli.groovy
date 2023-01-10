@@ -188,6 +188,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         //noinspection GroovyInfiniteLoopStatement
         while (true) {
             def watchKey = watchService.take()
+            logger.debug('watchKey: {}', watchKey)
             watchKey.pollEvents().each {
                 logger.debug('watchEvent: {}', it)
             }
