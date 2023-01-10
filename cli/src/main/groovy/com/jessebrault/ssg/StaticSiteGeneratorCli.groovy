@@ -122,6 +122,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         def ssg = new SimpleStaticSiteGenerator()
 
         if (this.watch) {
+            generate(builds, ssg)
             watch(builds, ssg)
         } else {
             generate(builds, ssg)
