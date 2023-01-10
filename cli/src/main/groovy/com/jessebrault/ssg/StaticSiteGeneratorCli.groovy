@@ -183,6 +183,21 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
                     watchableProviders << it
                 }
             }
+            it.config.templatesProviders.each {
+                if (it instanceof WithWatchableDir) {
+                    watchableProviders << it
+                }
+            }
+            it.config.partsProviders.each {
+                if (it instanceof WithWatchableDir) {
+                    watchableProviders << it
+                }
+            }
+            it.config.specialPagesProviders.each {
+                if (it instanceof WithWatchableDir) {
+                    watchableProviders << it
+                }
+            }
         }
         // register them and their child directories using the Closure above
         watchableProviders.each {
