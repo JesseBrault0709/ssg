@@ -22,7 +22,7 @@ class TextFileTextsProviderTests {
     void findsFile() {
         new FileTreeBuilder(this.textsDir).file('test.md', '**Hello, World!**')
 
-        def r = this.textsProvider.getTextFiles()
+        def r = this.textsProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
         assertEquals('test', f0.path)
@@ -36,7 +36,7 @@ class TextFileTextsProviderTests {
             file('nested.md', '**Hello!**')
         }
 
-        def r = this.textsProvider.getTextFiles()
+        def r = this.textsProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
         assertEquals('nested/nested', f0.path)
@@ -48,7 +48,7 @@ class TextFileTextsProviderTests {
     void ignoresUnsupportedFile() {
         new FileTreeBuilder(this.textsDir).file('.ignored', 'Ignored!')
 
-        def r = this.textsProvider.getTextFiles()
+        def r = this.textsProvider.provide()
         assertEquals(0, r.size())
     }
 

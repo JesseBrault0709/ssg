@@ -1,8 +1,8 @@
 package com.jessebrault.ssg.text
 
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.util.FileNameHandler
 import com.jessebrault.ssg.util.RelativePathHandler
-import com.jessebrault.ssg.WatchableProvider
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TextFileTextsProvider implements TextsProvider, WatchableProvider {
+class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileTextsProvider)
 
@@ -21,6 +21,9 @@ class TextFileTextsProvider implements TextsProvider, WatchableProvider {
     TextFileTextsProvider(Collection<TextType> textTypes, File textsDir) {
         this.textTypes = textTypes
         this.textsDir = textsDir
+        if (!this.textsDir.isDirectory()) {
+            throw new IllegalArgumentException('textsDir must be a directory, given: ' + this.textsDir)
+        }
         this.watchableDir = this.textsDir
     }
 
@@ -31,11 +34,7 @@ class TextFileTextsProvider implements TextsProvider, WatchableProvider {
     }
 
     @Override
-    Collection<Text> getTextFiles() {
-        if (!this.textsDir.isDirectory()) {
-            throw new IllegalArgumentException('textsDir must be a directory')
-        }
-
+    Collection<Text> provide() {
         def textFiles = []
         this.textsDir.eachFileRecurse(FileType.FILES) {
             def type = this.getTextType(it)

@@ -26,7 +26,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         def config = build.config
 
         // Get all texts, templates, parts, and specialPages
-        def texts = config.textProviders.collectMany { it.getTextFiles() }
+        def texts = config.textProviders.collectMany { it.provide() }
         def templates = config.templatesProviders.collectMany { it.getTemplates() }
         def parts = config.partsProviders.collectMany { it.getParts() }
         def specialPages = config.specialPagesProviders.collectMany { it.getSpecialPages() }

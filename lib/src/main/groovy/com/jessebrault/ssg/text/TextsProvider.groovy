@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.text
 
-interface TextsProvider {
-    Collection<Text> getTextFiles()
+import com.jessebrault.ssg.provider.Provider
+
+interface TextsProvider extends Provider<Collection<Text>> {
     Collection<TextType> getTextTypes()
 }

@@ -4,6 +4,7 @@ import com.jessebrault.ssg.buildscript.GroovyBuildScriptRunner
 import com.jessebrault.ssg.part.GspPartRenderer
 import com.jessebrault.ssg.part.PartFilePartsProvider
 import com.jessebrault.ssg.part.PartType
+import com.jessebrault.ssg.provider.WithWatchableDir
 import com.jessebrault.ssg.specialpage.GspSpecialPageRenderer
 import com.jessebrault.ssg.specialpage.SpecialPageFileSpecialPagesProvider
 import com.jessebrault.ssg.specialpage.SpecialPageType
@@ -14,6 +15,7 @@ import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
 import com.jessebrault.ssg.text.MarkdownTextRenderer
 import com.jessebrault.ssg.text.TextFileTextsProvider
 import com.jessebrault.ssg.text.TextType
+import groovy.io.FileType
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -21,7 +23,11 @@ import org.apache.logging.log4j.core.LoggerContext
 import picocli.CommandLine
 
 import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchEvent
+import java.nio.file.WatchKey
 import java.util.concurrent.Callable
 
 @CommandLine.Command(
@@ -149,50 +155,62 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
     private static Integer watch(Collection<Build> builds, StaticSiteGenerator ssg) {
         logger.traceEntry('builds: {}, ssg: {}', builds, ssg)
 
-        Collection<WatchableProvider> watchableProviders = []
-
-        builds.each {
-            it.config.textProviders.each {
-                if (it instanceof WatchableProvider) {
-                    watchableProviders << it
-                }
-            }
-            it.config.templatesProviders.each {
-                if (it instanceof WatchableProvider) {
-                    watchableProviders << it
-                }
-            }
-            it.config.partsProviders.each {
-                if (it instanceof WatchableProvider) {
-                    watchableProviders << it
-                }
-            }
-            it.config.specialPagesProviders.each {
-                if (it instanceof WatchableProvider) {
-                    watchableProviders << it
-                }
-            }
-        }
-
+        // Setup watchService and watchKeys
         def watchService = FileSystems.getDefault().newWatchService()
+        Map<WatchKey, Path> watchKeys = [:]
 
-        watchableProviders.each {
-            it.watchableDir.toPath().register(
+        // Our Closure to register a path
+        def registerPath = { Path path ->
+            def watchKey = path.register(
                     watchService,
                     StandardWatchEventKinds.ENTRY_CREATE,
                     StandardWatchEventKinds.ENTRY_DELETE,
                     StandardWatchEventKinds.ENTRY_MODIFY
             )
+            watchKeys[watchKey] = path
+        }
+
+        // Get all base watchableDirs
+        Collection<WithWatchableDir> watchableProviders = []
+        builds.each {
+            it.config.textProviders.each {
+                if (it instanceof WithWatchableDir) {
+                    watchableProviders << it
+                }
+            }
+        }
+        // register them and their child directories using the Closure above
+        watchableProviders.each {
+            def baseDirFile = it.watchableDir
+            registerPath(baseDirFile.toPath())
+            baseDirFile.eachFile(FileType.DIRECTORIES) {
+                registerPath(it.toPath())
+            }
         }
 
         //noinspection GroovyInfiniteLoopStatement
         while (true) {
             def watchKey = watchService.take()
-            logger.debug('watchKey: {}', watchKey)
-            watchKey.pollEvents().each {
-                logger.debug('watchEvent: {}', it)
+            def path = watchKeys[watchKey]
+            if (path == null) {
+                logger.warn('unexpected watchKey: {}', watchKey)
+            } else {
+                watchKey.pollEvents().each {
+                    assert it instanceof WatchEvent<Path>
+                    def childName = it.context()
+                    def childPath = path.resolve(childName)
+                    logger.debug('childName: {}, childPath: {}', childName, childPath)
+                    if (it.kind() == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(childPath)) {
+                        logger.debug('registering dir with path: {}', childPath)
+                        registerPath(childPath)
+                    }
+                }
             }
-            watchKey.reset()
+            def valid = watchKey.reset()
+            if (!valid) {
+                def removedPath = watchKeys.remove(watchKey)
+                logger.debug('removed path: {}', removedPath)
+            }
         }
 
         //noinspection GroovyUnreachableStatement
