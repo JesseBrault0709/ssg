@@ -1,8 +1,8 @@
 package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.Diagnostic
-import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.part.EmbeddablePartsMap
+import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.text.FrontMatter
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
