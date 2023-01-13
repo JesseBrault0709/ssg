@@ -17,8 +17,8 @@ class FrontMatter {
     private final Map<String, List<String>> data
 
     String get(String key) {
-        if (data[key] != null) {
-            data[key][0]
+        if (this.data[key] != null) {
+            this.data[key][0]
         } else {
             logger.warn('in {} no entry for key {} in frontMatter, returning empty string', this.text, key)
             ''
@@ -36,6 +36,14 @@ class FrontMatter {
             logger.warn('in {} no entry for key {} in frontMatter, returning empty list: {}', this.text, key)
             []
         }
+    }
+
+    Optional<String> find(String key) {
+        Optional.ofNullable(this.data[key]?[0])
+    }
+
+    Optional<List<String>> findList(String key) {
+        Optional.ofNullable(this.data[key])
     }
 
     @Override

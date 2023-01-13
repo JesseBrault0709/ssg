@@ -37,23 +37,10 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         Collection<Diagnostic> diagnostics = []
         Collection<GeneratedPage> generatedPages = []
 
-        // Generate pages from each text
+        // Generate pages from each text, but only those that have a 'template' frontMatter field with a valid value
         texts.each {
             logger.trace(enter, 'text: {}', it)
             logger.info('processing text: {}', it.path)
-
-            // Render the text (i.e., transform text to html)
-            def textRenderResult = it.type.renderer.render(it, globals)
-            String renderedText
-            if (textRenderResult.v1.size() > 0) {
-                logger.debug('diagnostics for rendering {}: {}', it.path, textRenderResult.v1)
-                diagnostics.addAll(textRenderResult.v1)
-                logger.trace(exit, '')
-                return
-            } else {
-                renderedText = textRenderResult.v2
-                logger.debug('renderedText: {}', renderedText)
-            }
 
             // Extract frontMatter from text
             def frontMatterResult = it.type.frontMatterGetter.get(it)
@@ -69,20 +56,31 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Find the appropriate template from the frontMatter
-            def desiredTemplate = frontMatter['template']
-            logger.debug('desiredTemplate name: {}', desiredTemplate)
-            if (desiredTemplate == null || desiredTemplate.isEmpty() || desiredTemplate.isBlank()) {
-                diagnostics << new Diagnostic('in textFile ' + it.path + ' frontMatter.template must not be empty, blank, or missing', null)
-                logger.trace(exit, '')
+            def desiredTemplate = frontMatter.find('template')
+            if (desiredTemplate.isEmpty()) {
+                logger.info('{} has no \'template\' key in its frontMatter; skipping generation')
                 return
             }
-            def template = templates.find { it.path == desiredTemplate }
+            def template = templates.find { it.path == desiredTemplate.get() }
             if (template == null) {
                 diagnostics << new Diagnostic('in textFile' + it.path + ' frontMatter.template references an unknown template: ' + desiredTemplate, null)
                 logger.trace(exit, '')
                 return
             }
             logger.debug('found template: {}', template)
+
+            // Render the text (i.e., transform text to html)
+            def textRenderResult = it.type.renderer.render(it, globals)
+            String renderedText
+            if (textRenderResult.v1.size() > 0) {
+                logger.debug('diagnostics for rendering {}: {}', it.path, textRenderResult.v1)
+                diagnostics.addAll(textRenderResult.v1)
+                logger.trace(exit, '')
+                return
+            } else {
+                renderedText = textRenderResult.v2
+                logger.debug('renderedText: {}', renderedText)
+            }
 
             // Render the template using the result of rendering the text earlier
             def templateRenderResult = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)

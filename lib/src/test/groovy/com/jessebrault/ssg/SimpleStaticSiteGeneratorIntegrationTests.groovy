@@ -113,4 +113,12 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         assertEquals('<p>Hello, World!</p>\n', specialPage.html)
     }
 
+    @Test
+    void doesNotGenerateIfNoTemplateInFrontMatter() {
+        new File(this.textsDir, 'test.md').write('Hello, World!')
+        def result = this.ssg.generate(this.build)
+        assertEquals(0, result.v1.size())
+        assertEquals(0, result.v2.size())
+    }
+
 }
