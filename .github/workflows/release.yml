@@ -22,7 +22,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: cli/build/distributions/*
+          artifacts: 'cli/build/distributions/*'
           name: ${{ env.GITHUB_REF_NAME }}
           tag: ${{ env.GITHUB_REF_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
