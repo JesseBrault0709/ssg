@@ -33,22 +33,23 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider, WithW
     @Override
     Collection<SpecialPage> provide() {
         if (!this.specialPagesDir.isDirectory()) {
-            throw new IllegalArgumentException('specialPagesDir must be a directory')
-        }
-
-        def specialPages = []
-        this.specialPagesDir.eachFileRecurse(FileType.FILES) {
-            def type = this.getSpecialPageType(it)
-            if (type != null) {
-                def relativePath = this.specialPagesDir.relativePath(it)
-                def path = new RelativePathHandler(relativePath).getWithoutExtension()
-                logger.info('found specialPage {} with type {}', path, type)
-                specialPages << new SpecialPage(it.text, path, type)
-            } else {
-                logger.warn('ignoring {} since there is no specialPageType for it', it)
+            logger.warn('specialPagesDir {} does not exist or is not a directory; skipping and providing no SpecialPages', this.specialPagesDir)
+            []
+        } else {
+            def specialPages = []
+            this.specialPagesDir.eachFileRecurse(FileType.FILES) {
+                def type = this.getSpecialPageType(it)
+                if (type != null) {
+                    def relativePath = this.specialPagesDir.relativePath(it)
+                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
+                    logger.info('found specialPage {} with type {}', path, type)
+                    specialPages << new SpecialPage(it.text, path, type)
+                } else {
+                    logger.warn('ignoring {} since there is no specialPageType for it', it)
+                }
             }
+            specialPages
         }
-        specialPages
     }
 
     @Override

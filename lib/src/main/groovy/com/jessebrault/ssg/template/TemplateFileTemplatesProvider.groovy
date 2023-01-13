@@ -32,20 +32,22 @@ class TemplateFileTemplatesProvider implements TemplatesProvider, WithWatchableD
     @Override
     Collection<Template> provide() {
         if (!this.templatesDir.isDirectory()) {
-            throw new IllegalArgumentException('templatesDir must be a directory')
-        }
-        def templates = []
-        this.templatesDir.eachFileRecurse(FileType.FILES) {
-            def type = this.getType(it)
-            if (type != null) {
-                def relativePath = this.templatesDir.relativePath(it)
-                logger.debug('found template {}', relativePath)
-                templates << new Template(it.text, relativePath, type)
-            } else {
-                logger.warn('ignoring {} because there is no templateType for it', it)
+            logger.warn('templatesDir {} does not exist or is not a directory; skipping and providing no Templates', this.templatesDir)
+            []
+        } else {
+            def templates = []
+            this.templatesDir.eachFileRecurse(FileType.FILES) {
+                def type = this.getType(it)
+                if (type != null) {
+                    def relativePath = this.templatesDir.relativePath(it)
+                    logger.debug('found template {}', relativePath)
+                    templates << new Template(it.text, relativePath, type)
+                } else {
+                    logger.warn('ignoring {} because there is no templateType for it', it)
+                }
             }
+            templates
         }
-        templates
     }
 
     @Override

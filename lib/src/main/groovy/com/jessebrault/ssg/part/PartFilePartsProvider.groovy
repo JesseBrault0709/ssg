@@ -24,7 +24,7 @@ class PartFilePartsProvider implements PartsProvider, WithWatchableDir {
     }
 
     private PartType getPartType(File file) {
-        partTypes.find {
+        this.partTypes.find {
             it.ids.contains(new FileNameHandler(file).getExtension())
         }
     }
@@ -32,21 +32,22 @@ class PartFilePartsProvider implements PartsProvider, WithWatchableDir {
     @Override
     Collection<Part> provide() {
         if (!partsDir.isDirectory()) {
-            throw new IllegalArgumentException('partsDir must be a directory')
-        }
-
-        def parts = []
-        partsDir.eachFileRecurse(FileType.FILES) {
-            def type = this.getPartType(it)
-            if (type != null) {
-                def relativePath = this.partsDir.relativePath(it)
-                logger.debug('found part {}', relativePath)
-                parts << new Part(relativePath, type, it.text)
-            } else {
-                logger.warn('ignoring {} since there is no partType for it', it)
+            logger.warn('partsDir {} does not exist or is not a directory; skipping and providing no Parts', this.partsDir)
+            []
+        } else {
+            def parts = []
+            this.partsDir.eachFileRecurse(FileType.FILES) {
+                def type = this.getPartType(it)
+                if (type != null) {
+                    def relativePath = this.partsDir.relativePath(it)
+                    logger.debug('found part {}', relativePath)
+                    parts << new Part(relativePath, type, it.text)
+                } else {
+                    logger.warn('ignoring {} since there is no partType for it', it)
+                }
             }
+            parts
         }
-        parts
     }
 
     @Override

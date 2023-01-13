@@ -21,9 +21,6 @@ class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
     TextFileTextsProvider(Collection<TextType> textTypes, File textsDir) {
         this.textTypes = textTypes
         this.textsDir = textsDir
-        if (!this.textsDir.isDirectory()) {
-            throw new IllegalArgumentException('textsDir must be a directory, given: ' + this.textsDir)
-        }
         this.watchableDir = this.textsDir
     }
 
@@ -35,19 +32,24 @@ class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
 
     @Override
     Collection<Text> provide() {
-        def textFiles = []
-        this.textsDir.eachFileRecurse(FileType.FILES) {
-            def type = this.getTextType(it)
-            if (type != null) {
-                def relativePath = this.textsDir.relativePath(it)
-                def path = new RelativePathHandler(relativePath).getWithoutExtension()
-                logger.debug('found textFile {} with type {}', path, type)
-                textFiles << new Text(it.text, path, type)
-            } else {
-                logger.warn('ignoring {} because there is no textType for it', it)
+        if (!this.textsDir.isDirectory()) {
+            logger.warn('textsDir {} does not exist or is not a directory; skipping and providing no Texts', this.textsDir)
+            []
+        } else {
+            def textFiles = []
+            this.textsDir.eachFileRecurse(FileType.FILES) {
+                def type = this.getTextType(it)
+                if (type != null) {
+                    def relativePath = this.textsDir.relativePath(it)
+                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
+                    logger.debug('found textFile {} with type {}', path, type)
+                    textFiles << new Text(it.text, path, type)
+                } else {
+                    logger.warn('ignoring {} because there is no textType for it', it)
+                }
             }
+            textFiles
         }
-        textFiles
     }
 
     @Override
