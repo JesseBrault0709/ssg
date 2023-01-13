@@ -18,7 +18,7 @@ jobs:
       - name: Gradle Test
         run: ./gradlew test
       - name: Gradle Install
-        run: ./gradlew :cli:install
+        run: ./gradlew :cli:assembleDist
       - name: Release
         uses: ncipollo/release-action@v1
         with:
