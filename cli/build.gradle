@@ -40,6 +40,17 @@ dependencies {
 
 application {
     mainClassName = 'com.jessebrault.ssg.StaticSiteGeneratorCli'
+    applicationName = 'ssg'
+}
+
+jar {
+    archivesBaseName = "ssg-cli"
+}
+
+distributions {
+    main {
+        distributionBaseName = 'ssg'
+    }
 }
 
 test {
