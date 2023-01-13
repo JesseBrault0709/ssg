@@ -12,10 +12,11 @@ class TextType {
     Collection<String> ids
     TextRenderer renderer
     FrontMatterGetter frontMatterGetter
+    ExcerptGetter excerptGetter
 
     @Override
     String toString() {
-        "TextType(ids: ${ this.ids }, renderer: ${ this.renderer }, frontMatterGetter: ${ this.renderer })"
+        "TextType(ids: ${ this.ids }, renderer: ${ this.renderer }, frontMatterGetter: ${ this.renderer }, excerptGetter: ${ this.excerptGetter })"
     }
 
 }

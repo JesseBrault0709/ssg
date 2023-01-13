@@ -9,6 +9,7 @@ import com.jessebrault.ssg.specialpage.SpecialPageType
 import com.jessebrault.ssg.template.GspTemplateRenderer
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.template.TemplateType
+import com.jessebrault.ssg.text.MarkdownExcerptGetter
 import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
 import com.jessebrault.ssg.text.MarkdownTextRenderer
 import com.jessebrault.ssg.text.TextFileTextsProvider
@@ -35,7 +36,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         this.partsDir = File.createTempDir()
         this.specialPagesDir = File.createTempDir()
 
-        def markdownTextType = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
+        def markdownTextType = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter(), new MarkdownExcerptGetter())
         def gspTemplateType = new TemplateType(['.gsp'], new GspTemplateRenderer())
         def gspPartType = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPageType = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())

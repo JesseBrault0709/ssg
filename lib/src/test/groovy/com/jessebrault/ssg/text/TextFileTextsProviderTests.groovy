@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class TextFileTextsProviderTests {
 
-    private static final TextType markdownType = new TextType(['.md'], null, null)
+    private static final TextType markdownType = new TextType(['.md'], null, null, null)
 
     private File textsDir
     private TextsProvider textsProvider

@@ -30,7 +30,18 @@ class EmbeddableText {
         def result = this.text.type.frontMatterGetter.get(this.text)
         if (result.v1.size() > 0) {
             this.onDiagnostics.call(result.v1)
-            new FrontMatter([:])
+            new FrontMatter(this.text, [:])
+        } else {
+            result.v2
+        }
+    }
+
+    @Memoized
+    String getExcerpt(int limit) {
+        def result = this.text.type.excerptGetter.getExcerpt(this.text, limit)
+        if (result.v1.size() > 0) {
+            this.onDiagnostics.call(result.v1)
+            ''
         } else {
             result.v2
         }

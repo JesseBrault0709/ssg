@@ -4,6 +4,7 @@ import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.part.PartRenderer
 import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.text.FrontMatterGetter
+import com.jessebrault.ssg.text.MarkdownExcerptGetter
 import com.jessebrault.ssg.text.Text
 import com.jessebrault.ssg.text.TextRenderer
 import com.jessebrault.ssg.text.TextType
@@ -59,7 +60,7 @@ class GspSpecialPageRendererTests {
     @Test
     void rendersText(@Mock TextRenderer textRenderer, @Mock FrontMatterGetter frontMatterGetter) {
         when(textRenderer.render(any(), any())).thenReturn(new Tuple2<>([], '<p><strong>Hello, World!</strong></p>\n'))
-        def textType = new TextType([], textRenderer, frontMatterGetter)
+        def textType = new TextType([], textRenderer, frontMatterGetter, new MarkdownExcerptGetter())
         def text = new Text('', 'test', textType)
 
         def specialPage = new SpecialPage("<%= texts.find { it.path == 'test' }.render() %>", null, null)

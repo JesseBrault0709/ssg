@@ -11,6 +11,7 @@ import com.jessebrault.ssg.specialpage.SpecialPageType
 import com.jessebrault.ssg.template.GspTemplateRenderer
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.template.TemplateType
+import com.jessebrault.ssg.text.MarkdownExcerptGetter
 import com.jessebrault.ssg.text.MarkdownFrontMatterGetter
 import com.jessebrault.ssg.text.MarkdownTextRenderer
 import com.jessebrault.ssg.text.TextFileTextsProvider
@@ -85,7 +86,7 @@ class StaticSiteGeneratorCli implements Callable<Integer> {
         context.updateLoggers()
 
         // Configure
-        def markdownText = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter())
+        def markdownText = new TextType(['.md'], new MarkdownTextRenderer(), new MarkdownFrontMatterGetter(), new MarkdownExcerptGetter())
         def gspTemplate = new TemplateType(['.gsp'], new GspTemplateRenderer())
         def gspPart = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPage = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
