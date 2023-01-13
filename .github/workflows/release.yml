@@ -1,10 +1,8 @@
 name: StaticSiteGenerator Release
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*'
-      - 'v*.*.*-SNAPSHOT'
+      - *
 jobs:
   release:
     runs-on: ubuntu-latest
