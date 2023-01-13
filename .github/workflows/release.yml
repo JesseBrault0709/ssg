@@ -1,0 +1,26 @@
+name: StaticSiteGenerator Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-SNAPSHOT'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 19
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: gradle
+      - name: Gradle Test
+        run: ./gradlew test
+      - name: Gradle Install
+        run: ./gradlew :cli:install
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: cli/build/distributions/*
