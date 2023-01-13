@@ -58,7 +58,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             // Find the appropriate template from the frontMatter
             def desiredTemplate = frontMatter.find('template')
             if (desiredTemplate.isEmpty()) {
-                logger.info('{} has no \'template\' key in its frontMatter; skipping generation')
+                logger.info('{} has no \'template\' key in its frontMatter; skipping generation', it)
                 return
             }
             def template = templates.find { it.path == desiredTemplate.get() }
