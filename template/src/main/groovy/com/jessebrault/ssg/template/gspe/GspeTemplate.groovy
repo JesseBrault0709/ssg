@@ -1,6 +1,5 @@
 package com.jessebrault.ssg.template.gspe
 
-
 import groovy.text.Template
 
 class GspeTemplate implements Template {
