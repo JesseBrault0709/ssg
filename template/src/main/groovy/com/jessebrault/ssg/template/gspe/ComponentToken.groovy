@@ -32,4 +32,9 @@ class ComponentToken {
     Type type
     String text
 
+    @Override
+    String toString() {
+        "ComponentToken(${ this.type }, ${ this.text })"
+    }
+
 }

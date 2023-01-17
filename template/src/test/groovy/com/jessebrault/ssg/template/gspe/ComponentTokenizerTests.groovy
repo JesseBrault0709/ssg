@@ -1,107 +1,164 @@
 package com.jessebrault.ssg.template.gspe
 
 import org.junit.jupiter.api.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import static com.jessebrault.ssg.template.gspe.ComponentToken.Type.*
-
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class ComponentTokenizerTests {
 
+    private static final Logger logger = LoggerFactory.getLogger(ComponentTokenizerTests)
+
+    private static class TokenSpec {
+
+        ComponentToken.Type type
+        String text
+
+        TokenSpec(ComponentToken.Type type, String text = null) {
+            this.type = Objects.requireNonNull(type)
+            this.text = text
+        }
+
+        void compare(ComponentToken actual) {
+            assertEquals(this.type, actual.type)
+            if (this.text != null) {
+                assertEquals(this.text, actual.text)
+            }
+        }
+
+        @Override
+        String toString() {
+            "TokenSpec(${ this.type }, ${ this.text })"
+        }
+
+    }
+
+    private static class TesterConfigurator {
+
+        Queue<TokenSpec> specs = new LinkedList<>()
+
+        void expect(ComponentToken.Type type, String text) {
+            this.specs << new TokenSpec(type, text)
+        }
+
+        void expect(ComponentToken.Type type) {
+            this.specs << new TokenSpec(type)
+        }
+
+    }
+
     private final ComponentTokenizer tokenizer = new ComponentTokenizer()
+
+    private void test(
+            String src,
+            @DelegatesTo(value = TesterConfigurator, strategy = Closure.DELEGATE_FIRST)
+            Closure<Void> configure
+    ) {
+        def configurator = new TesterConfigurator()
+        configure.setDelegate(configurator)
+        configure.setResolveStrategy(Closure.DELEGATE_FIRST)
+        configure()
+
+        def r = this.tokenizer.tokenize(src)
+        logger.debug('r: {}', r)
+        logger.debug('configurator.specs: {}', configurator.specs)
+
+        assertEquals(configurator.specs.size(), r.size())
+
+        def resultIterator = r.iterator()
+        configurator.specs.each {
+            assertTrue(resultIterator.hasNext())
+            it.compare(resultIterator.next())
+        }
+    }
 
     @Test
     void selfClosingComponent() {
-        def r = this.tokenizer.tokenize('<Test />')
-        assertEquals(4, r.size())
-        assertEquals(LT, r[0].type)
-        assertEquals(IDENTIFIER, r[1].type)
-        assertEquals('Test', r[1].text)
-        assertEquals(FORWARD_SLASH, r[2].type)
-        assertEquals(GT, r[3].type)
+        this.test('<Test />') {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect FORWARD_SLASH
+            expect GT
+        }
     }
 
     @Test
     void selfClosingComponentWithDoubleQuotedString() {
-        def r = this.tokenizer.tokenize('<Test key="value" />')
-        assertEquals(9, r.size())
-
-        assertEquals(LT, r[0].type)
-
-        assertEquals(IDENTIFIER, r[1].type)
-        assertEquals('Test', r[1].text)
-
-        assertEquals(KEY, r[2].type)
-        assertEquals('key', r[2].text)
-
-        assertEquals(EQUALS, r[3].type)
-
-        assertEquals(DOUBLE_QUOTE, r[4].type)
-
-        assertEquals(STRING, r[5].type)
-        assertEquals('value', r[5].text)
-
-        assertEquals(DOUBLE_QUOTE, r[6].type)
-
-        assertEquals(FORWARD_SLASH, r[7].type)
-
-        assertEquals(GT, r[8].type)
+        this.test('<Test key="value" />') {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect KEY, 'key'
+            expect EQUALS
+            expect DOUBLE_QUOTE
+            expect STRING, 'value'
+            expect DOUBLE_QUOTE
+            expect FORWARD_SLASH
+            expect GT
+        }
     }
 
     @Test
     void selfClosingComponentWithSingleQuotedString() {
-        def r = this.tokenizer.tokenize("<Test key='value' />")
-        assertEquals(9, r.size())
-
-        assertEquals(LT, r[0].type)
-
-        assertEquals(IDENTIFIER, r[1].type)
-        assertEquals('Test', r[1].text)
-
-        assertEquals(KEY, r[2].type)
-        assertEquals('key', r[2].text)
-
-        assertEquals(EQUALS, r[3].type)
-
-        assertEquals(SINGLE_QUOTE, r[4].type)
-
-        assertEquals(STRING, r[5].type)
-        assertEquals('value', r[5].text)
-
-        assertEquals(SINGLE_QUOTE, r[6].type)
-
-        assertEquals(FORWARD_SLASH, r[7].type)
-
-        assertEquals(GT, r[8].type)
+        this.test("<Test key='value' />") {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect KEY, 'key'
+            expect EQUALS
+            expect SINGLE_QUOTE
+            expect STRING, 'value'
+            expect SINGLE_QUOTE
+            expect FORWARD_SLASH
+            expect GT
+        }
     }
 
     @Test
     void componentWithSimpleDollarGroovy() {
-        def r = this.tokenizer.tokenize('<Test key=${ test } />')
-        assertEquals(10, r.size())
+        this.test('<Test key=${ test } />') {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect KEY, 'key'
+            expect EQUALS
+            expect DOLLAR
+            expect CURLY_OPEN
+            expect GROOVY, ' test '
+            expect CURLY_CLOSE
+            expect FORWARD_SLASH
+            expect GT
+        }
+    }
 
-        assertEquals(LT, r[0].type)
+    @Test
+    void dollarGroovyNestedBraces() {
+        this.test('<Test key=${ test.each { it.test() } } />') {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect KEY, 'key'
+            expect EQUALS
+            expect DOLLAR
+            expect CURLY_OPEN
+            expect GROOVY, ' test.each { it.test() } '
+            expect CURLY_CLOSE
+            expect FORWARD_SLASH
+            expect GT
+        }
+    }
 
-        assertEquals(IDENTIFIER, r[1].type)
-        assertEquals('Test', r[1].text)
-
-        assertEquals(KEY, r[2].type)
-        assertEquals('key', r[2].text)
-
-        assertEquals(EQUALS, r[3].type)
-
-        assertEquals(DOLLAR, r[4].type)
-
-        assertEquals(CURLY_OPEN, r[5].type)
-
-        assertEquals(GROOVY, r[6].type)
-        assertEquals(' test ', r[6].text)
-
-        assertEquals(CURLY_CLOSE, r[7].type)
-
-        assertEquals(FORWARD_SLASH, r[8].type)
-
-        assertEquals(GT, r[9].type)
+    @Test
+    void dollarReference() {
+        this.test('<Test key=$test />') {
+            expect LT
+            expect IDENTIFIER, 'Test'
+            expect KEY, 'key'
+            expect EQUALS
+            expect DOLLAR
+            expect GROOVY_IDENTIFIER, 'test'
+            expect FORWARD_SLASH
+            expect GT
+        }
     }
 
 }

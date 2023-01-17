@@ -32,6 +32,8 @@ class ComponentTokenizer {
 
     static enum State {
         START,
+        IDENTIFIER,
+        KEYS_AND_VALUES,
         DOUBLE_QUOTE_STRING,
         SINGLE_QUOTE_STRING,
         DOLLAR_GROOVY,
@@ -50,14 +52,26 @@ class ComponentTokenizer {
             initialState = State.START
 
             whileIn(State.START) {
-                on lessThan exec {
+                on lessThan shiftTo State.IDENTIFIER exec {
                     tokens << new ComponentToken(Type.LT, it)
                 }
+                onNoMatch() exec {
+                    throw new IllegalArgumentException()
+                }
+            }
+
+            whileIn(State.IDENTIFIER) {
+                on identifier shiftTo State.KEYS_AND_VALUES exec {
+                    tokens << new ComponentToken(Type.IDENTIFIER, it)
+                }
+                onNoMatch() exec {
+                    throw new IllegalArgumentException()
+                }
+            }
+
+            whileIn(State.KEYS_AND_VALUES) {
                 on greaterThan shiftTo State.DONE exec {
                     tokens << new ComponentToken(Type.GT, it)
-                }
-                on identifier exec {
-                    tokens << new ComponentToken(Type.IDENTIFIER, it)
                 }
                 on whitespace exec { }
                 on key exec {
@@ -95,7 +109,7 @@ class ComponentTokenizer {
                 on doubleQuoteStringContent exec {
                     tokens << new ComponentToken(Type.STRING, it)
                 }
-                on doubleQuote shiftTo State.START exec {
+                on doubleQuote shiftTo State.KEYS_AND_VALUES exec {
                     tokens << new ComponentToken(Type.DOUBLE_QUOTE, it)
                 }
                 onNoMatch() exec {
@@ -107,7 +121,7 @@ class ComponentTokenizer {
                 on singleQuoteStringContent exec {
                     tokens << new ComponentToken(Type.STRING, it)
                 }
-                on singleQuote shiftTo State.START exec {
+                on singleQuote shiftTo State.KEYS_AND_VALUES exec {
                     tokens << new ComponentToken(Type.SINGLE_QUOTE, it)
                 }
                 onNoMatch() exec {
@@ -136,7 +150,7 @@ class ComponentTokenizer {
                         }
                     }
                     b.toString()
-                } shiftTo State.START exec { String s ->
+                } shiftTo State.KEYS_AND_VALUES exec { String s ->
                     tokens << new ComponentToken(Type.GROOVY, s.substring(0, s.length() - 1))
                     tokens << new ComponentToken(Type.CURLY_CLOSE, '}')
                 }
@@ -146,7 +160,7 @@ class ComponentTokenizer {
             }
 
             whileIn(State.EXPRESSION_SCRIPTLET_GROOVY) {
-                on expressionScriptletGroovy shiftTo State.START exec { String s ->
+                on expressionScriptletGroovy shiftTo State.KEYS_AND_VALUES exec { String s ->
                     tokens << new ComponentToken(Type.GROOVY, s.substring(0, s.length() - 2))
                     tokens << new ComponentToken(Type.PERCENT, '%')
                     tokens << new ComponentToken(Type.GT, '>')
