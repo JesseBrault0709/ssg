@@ -1,0 +1,29 @@
+plugins {
+    id 'com.jessebrault.jbarchiva'
+    id 'groovy'
+}
+
+group 'com.jessebrault.ssg'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.apache.groovy/groovy
+    implementation 'org.apache.groovy:groovy:4.0.7'
+
+    /**
+     * TESTING
+     */
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+test {
+    useJUnitPlatform()
+}

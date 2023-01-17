@@ -1,4 +1,0 @@
-subprojects {
-    group = 'com.jessebrault.ssg'
-    version = '0.0.1'
-}
