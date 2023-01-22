@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.template.gspe
+package com.jessebrault.ssg.template.gspe.component
 
 
 import java.lang.annotation.Retention

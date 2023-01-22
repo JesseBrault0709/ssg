@@ -6,7 +6,6 @@ import groovy.transform.TupleConstructor
 import java.util.function.Function
 import java.util.regex.Pattern
 
-@PackageScope
 @TupleConstructor(includeFields = true, defaults = false)
 class PatternFunction implements Function<String, String> {
 

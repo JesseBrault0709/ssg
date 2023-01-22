@@ -1,10 +1,11 @@
-package com.jessebrault.ssg.template.gspe
+package com.jessebrault.ssg.template.gspe.component
+
 
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static com.jessebrault.ssg.template.gspe.ComponentToken.Type.*
+import static com.jessebrault.ssg.template.gspe.component.ComponentToken.Type.*
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 

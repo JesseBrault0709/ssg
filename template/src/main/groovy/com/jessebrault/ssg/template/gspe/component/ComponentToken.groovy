@@ -1,8 +1,8 @@
-package com.jessebrault.ssg.template.gspe
+package com.jessebrault.ssg.template.gspe.component
 
 import groovy.transform.TupleConstructor
 
-@TupleConstructor(defaults = false)
+@TupleConstructor
 class ComponentToken {
 
     enum Type {

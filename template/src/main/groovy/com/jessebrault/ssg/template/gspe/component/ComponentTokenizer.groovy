@@ -1,7 +1,8 @@
-package com.jessebrault.ssg.template.gspe
+package com.jessebrault.ssg.template.gspe.component
 
 import com.jessebrault.fsm.function.FunctionFsmBuilder
 import com.jessebrault.fsm.function.FunctionFsmBuilderImpl
+import com.jessebrault.ssg.template.gspe.PatternFunction
 
 import static ComponentToken.Type
 

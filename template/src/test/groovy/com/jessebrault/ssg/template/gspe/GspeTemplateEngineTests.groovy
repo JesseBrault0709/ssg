@@ -1,6 +1,6 @@
 package com.jessebrault.ssg.template.gspe
 
-
+import com.jessebrault.ssg.template.gspe.component.Component
 import groovy.text.TemplateEngine
 import org.junit.jupiter.api.Test
 

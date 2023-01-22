@@ -1,6 +1,6 @@
 package components
 
-import com.jessebrault.ssg.template.gspe.Component
+import com.jessebrault.ssg.template.gspe.component.Component
 
 class Greeting implements Component {
 
