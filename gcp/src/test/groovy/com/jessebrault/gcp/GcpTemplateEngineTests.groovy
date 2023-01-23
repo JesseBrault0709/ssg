@@ -1,17 +1,16 @@
 package com.jessebrault.gcp
 
-import com.jessebrault.gcp.GspeTemplate
-import com.jessebrault.gcp.GspeTemplateEngine
+
 import com.jessebrault.gcp.component.Component
 import groovy.text.TemplateEngine
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-class GspeTemplateEngineTests {
+class GcpTemplateEngineTests {
 
-    private final TemplateEngine engine = new GspeTemplateEngine(new GspeTemplateEngine.Configuration(
-            { new GspeTemplate() },
+    private final TemplateEngine engine = new GcpTemplateEngine(new GcpTemplateEngine.Configuration(
+            { new GcpTemplate() },
             [],
             []
     ))
@@ -65,7 +64,7 @@ class GspeTemplateEngineTests {
         assertEquals('Hello, World!', r)
     }
 
-    static class CustomBaseTemplate extends GspeTemplate {
+    static class CustomBaseTemplate extends GcpTemplate {
 
         def greeting = 'Greetings!'
         def name = 'Jesse'
@@ -80,8 +79,8 @@ class GspeTemplateEngineTests {
     @Test
     void baseTemplateMethodsPresent() {
         def src = '<%= greet() %>'
-        def configuration = new GspeTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Hello, World!', r)
     }
@@ -89,8 +88,8 @@ class GspeTemplateEngineTests {
     @Test
     void baseTemplatePropertiesPresent() {
         def src = '<%= this.greeting %>'
-        def configuration = new GspeTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Greetings!', r)
     }
@@ -98,8 +97,8 @@ class GspeTemplateEngineTests {
     @Test
     void bindingOverridesCustomBaseTemplate() {
         def src = '<%= greet() %>'
-        def configuration = new GspeTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make([greet: { "Hello, Person!" }]).toString()
         assertEquals('Hello, Person!', r)
     }
@@ -116,8 +115,8 @@ class GspeTemplateEngineTests {
     @Test
     void selfClosingComponent() {
         def src = '<Greeter greeting="Hello" person="World" />'
-        def configuration = new GspeTemplateEngine.Configuration({ new GspeTemplate() }, [], [new Greeter()])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new GcpTemplate() }, [], [new Greeter()])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Hello, World!', r)
     }
@@ -125,8 +124,8 @@ class GspeTemplateEngineTests {
     @Test
     void componentWithGStringAttrValue() {
         def src = '<Greeter greeting="Hello" person="person number ${ 13 }" />'
-        def configuration = new GspeTemplateEngine.Configuration({ new GspeTemplate() }, [], [new Greeter()])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new GcpTemplate() }, [], [new Greeter()])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Hello, person number 13!', r)
     }
@@ -134,8 +133,8 @@ class GspeTemplateEngineTests {
     @Test
     void componentWithGStringAttrValueCanAccessBinding() {
         def src = '<Greeter greeting="Hello" person="person named ${ name }" />'
-        def configuration = new GspeTemplateEngine.Configuration({ new GspeTemplate() }, [], [new Greeter()])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new GcpTemplate() }, [], [new Greeter()])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make([name: 'Jesse']).toString()
         assertEquals('Hello, person named Jesse!', r)
     }
@@ -143,8 +142,8 @@ class GspeTemplateEngineTests {
     @Test
     void componentWithGStringAttrValueCanAccessBaseTemplateMethod() {
         def src = '<Greeter greeting="Hello" person="person named ${ getName() }" />'
-        def configuration = new GspeTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [new Greeter()])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [new Greeter()])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Hello, person named Jesse!', r)
     }
@@ -152,8 +151,8 @@ class GspeTemplateEngineTests {
     @Test
     void componentWithGStringAttrValueCanAccessBaseTemplateProperty() {
         def src = '<Greeter greeting="Hello" person="person named ${ this.name }" />'
-        def configuration = new GspeTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [new Greeter()])
-        def engine = new GspeTemplateEngine(configuration)
+        def configuration = new GcpTemplateEngine.Configuration({ new CustomBaseTemplate() }, [], [new Greeter()])
+        def engine = new GcpTemplateEngine(configuration)
         def r = engine.createTemplate(src).make().toString()
         assertEquals('Hello, person named Jesse!', r)
     }

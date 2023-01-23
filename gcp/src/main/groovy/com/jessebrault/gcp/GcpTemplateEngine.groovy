@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Supplier
 
-final class GspeTemplateEngine extends TemplateEngine {
+final class GcpTemplateEngine extends TemplateEngine {
 
-    private static final Logger logger = LoggerFactory.getLogger(GspeTemplateEngine)
+    private static final Logger logger = LoggerFactory.getLogger(GcpTemplateEngine)
 
     @TupleConstructor(defaults = false)
     static class Configuration {
-        Supplier<GspeTemplate> ssgTemplateSupplier
+        Supplier<GcpTemplate> ssgTemplateSupplier
         Collection<URL> componentDirUrls
         Collection<Component> components
     }
@@ -28,7 +28,7 @@ final class GspeTemplateEngine extends TemplateEngine {
     private final AtomicInteger templateCount = new AtomicInteger(0)
     private final GroovyScriptEngine scriptEngine
 
-    GspeTemplateEngine(Configuration configuration) {
+    GcpTemplateEngine(Configuration configuration) {
         this.configuration = configuration
         this.scriptEngine = new GroovyScriptEngine([this.scriptsDir.toURI().toURL()] as URL[])
     }

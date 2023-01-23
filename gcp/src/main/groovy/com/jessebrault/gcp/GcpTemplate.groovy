@@ -3,7 +3,7 @@ package com.jessebrault.gcp
 import com.jessebrault.gcp.component.ComponentsContainer
 import groovy.text.Template
 
-class GspeTemplate implements Template {
+class GcpTemplate implements Template {
 
     Closure templateClosure
     ComponentsContainer components
