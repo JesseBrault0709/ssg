@@ -123,10 +123,7 @@ class ComponentTokenizerTests {
             expect IDENTIFIER, 'Test'
             expect KEY, 'key'
             expect EQUALS
-            expect DOLLAR
-            expect CURLY_OPEN
             expect GROOVY, ' test '
-            expect CURLY_CLOSE
             expect FORWARD_SLASH
             expect GT
         }
@@ -139,10 +136,7 @@ class ComponentTokenizerTests {
             expect IDENTIFIER, 'Test'
             expect KEY, 'key'
             expect EQUALS
-            expect DOLLAR
-            expect CURLY_OPEN
             expect GROOVY, ' test.each { it.test() } '
-            expect CURLY_CLOSE
             expect FORWARD_SLASH
             expect GT
         }
@@ -155,7 +149,6 @@ class ComponentTokenizerTests {
             expect IDENTIFIER, 'Test'
             expect KEY, 'key'
             expect EQUALS
-            expect DOLLAR
             expect GROOVY_IDENTIFIER, 'test'
             expect FORWARD_SLASH
             expect GT

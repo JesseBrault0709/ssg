@@ -1,10 +1,6 @@
 package com.jessebrault.ssg.template.gspe.component
 
-import com.jessebrault.ssg.template.gspe.component.node.ComponentNode
-import com.jessebrault.ssg.template.gspe.component.node.GStringValue
-import com.jessebrault.ssg.template.gspe.component.node.KeyAndValue
-import com.jessebrault.ssg.template.gspe.component.node.KeysAndValues
-import com.jessebrault.ssg.template.gspe.component.node.Node
+import com.jessebrault.ssg.template.gspe.component.node.*
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FirstParam
 import groovy.transform.stc.SimpleType
@@ -68,7 +64,7 @@ class ComponentParserTests {
 
         def <T extends Node> void expect(
                 Class<T> childNodeClass,
-                @DelegatesTo(value = NodeTester, strategy = Closure.DELEGATE_ONLY)
+                @DelegatesTo(value = NodeTester, strategy = Closure.DELEGATE_FIRST)
                 @ClosureParams(FirstParam.FirstGenericType)
                 Closure<Void> furtherTests
         ) {
@@ -84,7 +80,7 @@ class ComponentParserTests {
     private final ComponentParser parser = new ComponentParser()
 
     private void selfClosing(
-            List<ComponentToken> tokens,
+            Queue<ComponentToken> tokens,
             @DelegatesTo(value = NodeTester, strategy = Closure.DELEGATE_FIRST)
             @ClosureParams(value = SimpleType, options = ['com.jessebrault.ssg.template.gspe.component.node.ComponentNode'])
             Closure<Void> tests
@@ -99,12 +95,12 @@ class ComponentParserTests {
 
     @Test
     void selfClosingNoKeysOrValues() {
-        this.selfClosing([
+        this.selfClosing(new LinkedList<>([
                 new ComponentToken(LT),
                 new ComponentToken(IDENTIFIER, 'Test'),
                 new ComponentToken(FORWARD_SLASH),
                 new ComponentToken(GT)
-        ]) {
+        ])) {
             assertEquals('Test', it.identifier)
             expect(KeysAndValues) {
                 assertEquals(0, it.children.size())
@@ -114,7 +110,7 @@ class ComponentParserTests {
 
     @Test
     void selfClosingWithGStringValue() {
-        this.selfClosing([
+        this.selfClosing(new LinkedList<>([
                 new ComponentToken(LT),
                 new ComponentToken(IDENTIFIER, 'Test'),
                 new ComponentToken(KEY, 'test'),
@@ -124,7 +120,7 @@ class ComponentParserTests {
                 new ComponentToken(DOUBLE_QUOTE),
                 new ComponentToken(FORWARD_SLASH),
                 new ComponentToken(GT)
-        ]) {
+        ])) {
             assertEquals('Test', it.identifier)
             expect(KeysAndValues) {
                 expect(KeyAndValue) {

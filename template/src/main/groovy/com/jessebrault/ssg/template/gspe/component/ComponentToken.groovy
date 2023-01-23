@@ -14,10 +14,7 @@ class ComponentToken {
         DOUBLE_QUOTE,
         SINGLE_QUOTE,
         STRING,
-        DOLLAR,
-        CURLY_OPEN,
         GROOVY,
-        CURLY_CLOSE,
         GROOVY_IDENTIFIER,
         PERCENT,
         FORWARD_SLASH

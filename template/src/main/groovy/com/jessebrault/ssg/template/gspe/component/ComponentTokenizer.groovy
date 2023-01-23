@@ -37,7 +37,6 @@ class ComponentTokenizer {
         KEYS_AND_VALUES,
         DOUBLE_QUOTE_STRING,
         SINGLE_QUOTE_STRING,
-        DOLLAR_GROOVY,
         EXPRESSION_SCRIPTLET_GROOVY,
         DONE
     }
@@ -88,15 +87,11 @@ class ComponentTokenizer {
                     tokens << new ComponentToken(Type.SINGLE_QUOTE, it)
                 }
                 on dollarReference exec { String s ->
-                    tokens << new ComponentToken(Type.DOLLAR, s[0])
-                    tokens << new ComponentToken(Type.GROOVY_IDENTIFIER, s.substring(1))
+                    tokens << new ComponentToken(Type.GROOVY_IDENTIFIER, s.substring(1)) // skip opening $
                 }
-                on dollarOpen shiftTo State.DOLLAR_GROOVY exec { String s ->
-                    tokens << new ComponentToken(Type.DOLLAR, s[0])
-                    tokens << new ComponentToken(Type.CURLY_OPEN, s[1])
-                }
-                on DollarGroovyParser.&parse exec {
-
+                //noinspection GroovyAssignabilityCheck // for some reason IntelliJ is confused by this
+                on DollarGroovyParser::parse exec { String s ->
+                    tokens << new ComponentToken(Type.GROOVY, s.substring(2, s.length() - 1))
                 }
                 on percent shiftTo State.EXPRESSION_SCRIPTLET_GROOVY exec {
                     tokens << new ComponentToken(Type.PERCENT, it)
@@ -127,16 +122,6 @@ class ComponentTokenizer {
                 }
                 on singleQuote shiftTo State.KEYS_AND_VALUES exec {
                     tokens << new ComponentToken(Type.SINGLE_QUOTE, it)
-                }
-                onNoMatch() exec {
-                    throw new IllegalArgumentException()
-                }
-            }
-
-            whileIn(State.DOLLAR_GROOVY) {
-                on DollarGroovyParser.&parse shiftTo State.KEYS_AND_VALUES exec { String s ->
-                    tokens << new ComponentToken(Type.GROOVY, s.substring(0, s.length() - 1))
-                    tokens << new ComponentToken(Type.CURLY_CLOSE, '}')
                 }
                 onNoMatch() exec {
                     throw new IllegalArgumentException()

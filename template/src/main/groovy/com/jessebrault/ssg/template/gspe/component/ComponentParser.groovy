@@ -142,16 +142,16 @@ class ComponentParser {
             return this.doubleQuoteStringValue()
         } else if (this.peek(SINGLE_QUOTE)) {
             return this.singleQuoteStringValue()
-        } else if (this.peek(DOLLAR) && this.peekSecond(GROOVY_IDENTIFIER)) {
+        } else if (this.peek(GROOVY_IDENTIFIER)) {
             return this.dollarReferenceValue()
-        } else if (this.peek(DOLLAR) && this.peekSecond(CURLY_OPEN)) {
+        } else if (this.peek(GROOVY)) {
             return this.dollarScriptletValue()
         } else if (this.peek(LT) && this.peekSecond(PERCENT) && this.peekThird(EQUALS)) {
             return this.expressionScriptletValue()
         } else if (this.peek(LT) && this.peekSecond(PERCENT)) {
             return this.scriptletValue()
         } else {
-            error([DOUBLE_QUOTE, SINGLE_QUOTE, DOLLAR, LT], this.tokens.poll())
+            error([DOUBLE_QUOTE, SINGLE_QUOTE, GROOVY_IDENTIFIER, GROOVY, LT], this.tokens.poll())
         }
         throw new RuntimeException('should not get here')
     }
@@ -176,21 +176,17 @@ class ComponentParser {
         }
     }
 
-    @PeekBefore([DOLLAR, GROOVY_IDENTIFIER])
+    @PeekBefore([GROOVY_IDENTIFIER])
     private DollarReferenceValue dollarReferenceValue() {
-        this.expect(DOLLAR)
         def groovyIdentifierToken = this.expect(GROOVY_IDENTIFIER)
         new DollarReferenceValue().tap {
             reference = groovyIdentifierToken.text
         }
     }
 
-    @PeekBefore([DOLLAR, CURLY_OPEN])
+    @PeekBefore([GROOVY])
     private DollarScriptletValue dollarScriptletValue() {
-        this.expect(DOLLAR)
-        this.expect(CURLY_OPEN)
         def groovyToken = this.expect(GROOVY)
-        this.expect(CURLY_CLOSE)
         new DollarScriptletValue().tap {
             scriptlet = groovyToken.text
         }
