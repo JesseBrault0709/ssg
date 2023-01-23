@@ -95,6 +95,9 @@ class ComponentTokenizer {
                     tokens << new ComponentToken(Type.DOLLAR, s[0])
                     tokens << new ComponentToken(Type.CURLY_OPEN, s[1])
                 }
+                on DollarGroovyParser.&parse exec {
+
+                }
                 on percent shiftTo State.EXPRESSION_SCRIPTLET_GROOVY exec {
                     tokens << new ComponentToken(Type.PERCENT, it)
                 }
@@ -131,27 +134,7 @@ class ComponentTokenizer {
             }
 
             whileIn(State.DOLLAR_GROOVY) {
-                on { String input ->
-                    def b = new StringBuilder()
-                    def openCurlyCount = 1
-                    def iterator = input.iterator() as Iterator<String>
-                    while (iterator.hasNext()) {
-                        def c0 = iterator.next()
-                        if (c0 == '{') {
-                            b << c0
-                            openCurlyCount++
-                        } else if (c0 == '}') {
-                            b << c0
-                            openCurlyCount--
-                            if (openCurlyCount == 0) {
-                                break
-                            }
-                        } else {
-                            b << c0
-                        }
-                    }
-                    b.toString()
-                } shiftTo State.KEYS_AND_VALUES exec { String s ->
+                on DollarGroovyParser.&parse shiftTo State.KEYS_AND_VALUES exec { String s ->
                     tokens << new ComponentToken(Type.GROOVY, s.substring(0, s.length() - 1))
                     tokens << new ComponentToken(Type.CURLY_CLOSE, '}')
                 }
