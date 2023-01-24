@@ -3,4 +3,7 @@
     <Head val=${ frontMatter.test } val=$test val="Hello!" val='Hello!'>
         <meta val=${ binding.someVar } />
     </Head>
+    <body>
+
+    </body>
 </html>
