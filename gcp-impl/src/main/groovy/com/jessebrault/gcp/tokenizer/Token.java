@@ -5,26 +5,33 @@ import java.util.Collection;
 public final class Token {
 
     public enum Type {
-        LESS_THAN,
-        GREATER_THAN,
-        PERCENT,
-        EQUALS,
-        DOUBLE_QUOTE,
-        SINGLE_QUOTE,
-        FORWARD_SLASH,
-        IDENTIFIER,
-        CAPITALIZED_IDENTIFIER,
-        DOT,
-        WORD,
-        WHITESPACE,
-        NEWLINE,
-        STRING,
-        SCRIPTLET,
+        TEXT,
 
         DOLLAR,
         GROOVY_REFERENCE,
         CURLY_OPEN,
-        CURLY_CLOSE
+        SCRIPTLET,
+        CURLY_CLOSE,
+        BLOCK_SCRIPTLET_OPEN,
+        EXPRESSION_SCRIPTLET_OPEN,
+        SCRIPTLET_CLOSE,
+
+        CLASS_NAME,
+        PACKAGE_NAME,
+        DOT,
+
+        WHITESPACE,
+
+        KEY,
+        EQUALS,
+
+        DOUBLE_QUOTE,
+        STRING,
+        SINGLE_QUOTE,
+
+        COMPONENT_START,
+        FORWARD_SLASH,
+        COMPONENT_END,
         ;
 
         boolean isAnyOf(Collection<Type> types) {

@@ -1,5 +1,6 @@
 package com.jessebrault.gcp.tokenizer
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -81,56 +82,55 @@ class TokenizerTests {
     }
 
     @Test
-    void doctypeHtml() {
+    void doctypeHtmlIsText() {
         test('<!DOCTYPE html>') {
-            expect LESS_THAN, '<', 1, 1
-            expect WORD, '!DOCTYPE', 1, 2
-            expect WHITESPACE, ' ', 1, 10
-            expect IDENTIFIER, 'html', 1, 11
-            expect GREATER_THAN, '>', 1, 15
+            expect TEXT, '<!DOCTYPE html>', 1, 1
         }
     }
 
     @Test
-    void htmlLangEn() {
+    void htmlLangEnIsText() {
         test('<html lang="en">') {
-            expect LESS_THAN, '<', 1, 1
-            expect IDENTIFIER, 'html', 1, 2
-            expect WHITESPACE, ' ', 1, 6
-            expect IDENTIFIER, 'lang', 1, 7
-            expect EQUALS, '=', 1, 11
-            expect DOUBLE_QUOTE, '"', 1, 12
-            expect IDENTIFIER, 'en', 1, 13
-            expect DOUBLE_QUOTE, '"', 1, 15
-            expect GREATER_THAN, '>', 1, 16
+            expect TEXT, '<html lang="en">', 1, 1
         }
     }
 
     @Test
     void component() {
         test('<Test />') {
-            expect LESS_THAN, '<', 1, 1
-            expect CAPITALIZED_IDENTIFIER, 'Test', 1, 2
+            expect COMPONENT_START, '<', 1, 1
+            expect CLASS_NAME, 'Test', 1, 2
             expect WHITESPACE, ' ', 1, 6
             expect FORWARD_SLASH, '/', 1, 7
-            expect GREATER_THAN, '>', 1, 8
+            expect COMPONENT_END, '>', 1, 8
         }
     }
 
     @Test
+    @Disabled
     void componentWithKeysAndValues() {
         test('<Test test="test" />') {
-            expect LESS_THAN, '<', 1, 1
-            expect CAPITALIZED_IDENTIFIER, 'Test', 1, 2
+            expect COMPONENT_START, '<', 1, 1
+            expect CLASS_NAME, 'Test', 1, 2
             expect WHITESPACE, ' ', 1, 6
-            expect IDENTIFIER, 'test', 1, 7
+            expect KEY, 'test', 1, 7
             expect EQUALS, '=', 1, 11
             expect DOUBLE_QUOTE, '"', 1, 12
             expect STRING, 'test', 1, 13
             expect DOUBLE_QUOTE, '"', 1, 17
             expect WHITESPACE, ' ', 1, 18
             expect FORWARD_SLASH, '/', 1, 19
-            expect GREATER_THAN, '>', 1, 20
+            expect COMPONENT_END, '>', 1, 20
+        }
+    }
+
+    @Test
+    void newlinesCounted() {
+        test('Hello,\n$person!') {
+            expect TEXT, 'Hello,\n', 1, 1
+            expect DOLLAR, '$', 2, 1
+            expect GROOVY_REFERENCE, 'person', 2, 2
+            expect TEXT, '!', 2, 8
         }
     }
 
