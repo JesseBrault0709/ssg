@@ -57,7 +57,7 @@ final class TokenizerFsm {
     /**
      * Whitespace
      */
-    private static final PatternMatcher whitespace = new PatternMatcher(Pattern.compile("^[\\s&&[^\n\r]]+"));
+    private static final PatternMatcher whitespace = new PatternMatcher(Pattern.compile("^\\s+"));
 
     /**
      * Keys and values
@@ -66,6 +66,10 @@ final class TokenizerFsm {
             Pattern.compile("^[\\p{L}0-9_$]+")
     );
     private static final PatternMatcher equals = new PatternMatcher(Pattern.compile("^="));
+    private static final PatternMatcher singleQuoteString = new PatternMatcher(
+            Pattern.compile("^(')((?:[\\w\\W&&[^\\\\'\\n\\r]]|\\\\['nrbfst\\\\u])*)(')")
+    );
+    private static final GStringMatcher gString = new GStringMatcher();
 
     /**
      * Component ends
@@ -147,8 +151,16 @@ final class TokenizerFsm {
                     sc.on(equals).exec(o -> {
                        acc.accumulate(EQUALS, o.entire());
                     });
-                    // sc.on(gString)
-                    // sc.on(singleQuoteString)
+                    sc.on(gString).exec(o -> {
+                        acc.accumulate(DOUBLE_QUOTE, o.part(1));
+                        acc.accumulate(STRING, o.part(2));
+                        acc.accumulate(DOUBLE_QUOTE, o.part(3));
+                    });
+                    sc.on(singleQuoteString).exec(o -> {
+                       acc.accumulate(SINGLE_QUOTE, o.part(1));
+                       acc.accumulate(STRING, o.part(2));
+                       acc.accumulate(SINGLE_QUOTE, o.part(3));
+                    });
                     sc.on(dollarReference).exec(o -> {
                         acc.accumulate(DOLLAR, o.part(1));
                         acc.accumulate(GROOVY_REFERENCE, o.part(2));

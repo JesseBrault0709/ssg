@@ -7,10 +7,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-/**
- * NOT THREAD SAFE
- */
 final class DollarScriptletMatcher implements Function<String, FsmOutput> {
 
     private static final Logger logger = LoggerFactory.getLogger(DollarScriptletMatcher.class);
@@ -59,65 +57,46 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
         NO_STRING, G_STRING, SINGLE_QUOTE_STRING
     }
 
-    private static final class Counter {
+    private static final class StringCharIterator implements Iterator<String> {
 
-        private int count = 0;
+        private final String s;
+        private int cur;
 
-        public void increment() {
-            this.count++;
-        }
-
-        public void decrement() {
-            this.count--;
-        }
-
-        public boolean isZero() {
-            return this.count == 0;
+        public StringCharIterator(String s) {
+            this.s = s;
         }
 
         @Override
-        public String toString() {
-            return "Counter(" + this.count + ")";
+        public boolean hasNext() {
+            return this.cur < s.length();
         }
 
-    }
-
-    private Deque<State> stateStack;
-    private Deque<Counter> counterStack;
-
-    private Counter getCurrentCounter() {
-        final var currentCounter = this.counterStack.peek();
-        if (currentCounter == null) {
-            throw new IllegalStateException("currentCounter is null");
+        @Override
+        public String next() {
+            final var c = String.valueOf(s.charAt(this.cur));
+            this.cur++;
+            return c;
         }
-        return currentCounter;
+
     }
 
     @Override
     public FsmOutput apply(String s) {
-        this.stateStack = new LinkedList<>();
-        this.counterStack = new LinkedList<>();
+        final Deque<State> stateStack = new LinkedList<>();
+        final Deque<Counter> counterStack = new LinkedList<>();
+
+        final Supplier<Counter> currentCounterSupplier = () -> {
+            final var currentCounter = counterStack.peek();
+            if (currentCounter == null) {
+                throw new IllegalStateException("currentCounter is null");
+            }
+            return currentCounter;
+        };
 
         stateStack.push(State.NO_STRING);
         counterStack.push(new Counter());
 
-        final Iterator<String> iterator = new Iterator<>() {
-
-            private int cur;
-
-            @Override
-            public boolean hasNext() {
-                return this.cur < s.length();
-            }
-
-            @Override
-            public String next() {
-                final var c = String.valueOf(s.charAt(this.cur));
-                this.cur++;
-                return c;
-            }
-
-        };
+        final Iterator<String> iterator = new StringCharIterator(s);
 
         final var entireAcc = new StringBuilder();
 
@@ -131,7 +110,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
             return null;
         } else {
             entireAcc.append("{");
-            this.getCurrentCounter().increment();
+            currentCounterSupplier.get().increment();
         }
 
         outer:
@@ -151,24 +130,24 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
 
             if (stateStack.peek() == State.NO_STRING) {
                 switch (c0) {
-                    case "{" -> this.getCurrentCounter().increment();
+                    case "{" -> currentCounterSupplier.get().increment();
                     case "}" -> {
-                        final var currentCounter = this.getCurrentCounter();
+                        final var currentCounter = currentCounterSupplier.get();
                         currentCounter.decrement();
                         if (currentCounter.isZero()) {
-                            if (this.counterStack.size() == 1) {
+                            if (counterStack.size() == 1) {
                                 logger.debug("last Counter is zero; breaking while loop");
                                 break outer;
                             } else {
                                 logger.debug("counterStack.size() is greater than 1 and top Counter is zero; " +
                                         "popping state and counter stacks.");
-                                this.stateStack.pop();
-                                this.counterStack.pop();
+                                stateStack.pop();
+                                counterStack.pop();
                             }
                         }
                     }
-                    case "\"" -> this.stateStack.push(State.G_STRING);
-                    case "'" -> this.stateStack.push(State.SINGLE_QUOTE_STRING);
+                    case "\"" -> stateStack.push(State.G_STRING);
+                    case "'" -> stateStack.push(State.SINGLE_QUOTE_STRING);
                 }
             } else if (stateStack.peek() == State.G_STRING) {
                 switch (c0) {
@@ -185,9 +164,9 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                             final var c1 = iterator.next();
                             entireAcc.append(c1);
                             if (c1.equals("{")) {
-                                this.stateStack.push(State.NO_STRING);
-                                this.counterStack.push(new Counter());
-                                this.getCurrentCounter().increment();
+                                stateStack.push(State.NO_STRING);
+                                counterStack.push(new Counter());
+                                currentCounterSupplier.get().increment();
                             }
                         } else {
                             throw new IllegalArgumentException("Ill-formed dollarScriptlet (ends with a dollar)");
@@ -195,7 +174,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                     }
                     case "\"" -> {
                         logger.debug("popping G_STRING state");
-                        this.stateStack.pop();
+                        stateStack.pop();
                     }
                 }
             } else if (stateStack.peek() == State.SINGLE_QUOTE_STRING) {
@@ -209,7 +188,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                     }
                     case "'" -> {
                         logger.debug("popping SINGLE_QUOTE_STRING state");
-                        this.stateStack.pop();
+                        stateStack.pop();
                     }
                 }
             } else {
