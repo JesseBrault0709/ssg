@@ -1,10 +1,9 @@
 package com.jessebrault.gcp.tokenizer;
 
-import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-final class PatternMatcher implements Function<String, FsmOutput> {
+final class PatternMatcher implements FsmFunction {
 
     private static final class MatchResultFsmOutput implements FsmOutput {
 
@@ -15,13 +14,18 @@ final class PatternMatcher implements Function<String, FsmOutput> {
         }
 
         @Override
-        public String entire() {
-            return this.matchResult.group();
+        public CharSequence entire() {
+            return this.matchResult.group(0);
         }
 
         @Override
-        public String part(int index) {
+        public CharSequence part(int index) {
             return this.matchResult.group(index);
+        }
+
+        @Override
+        public String toString() {
+            return "MatchResultFsmOutput(" + this.entire() + ")";
         }
 
     }
@@ -33,7 +37,7 @@ final class PatternMatcher implements Function<String, FsmOutput> {
     }
 
     @Override
-    public FsmOutput apply(String s) {
+    public FsmOutput apply(CharSequence s) {
         final var m = this.pattern.matcher(s);
         return m.find() ? new MatchResultFsmOutput(m) : null;
     }

@@ -66,7 +66,7 @@ class TokenizerTests {
         configure.setResolveStrategy(Closure.DELEGATE_FIRST)
         configure()
 
-        def r = Tokenizer.tokenize(src)
+        def r = new TokenizerImpl().tokenizeAll(src, Tokenizer.State.TEXT)
         logger.debug('r: {}', r)
         logger.debug('configurator.specs: {}', configurator.specs)
 

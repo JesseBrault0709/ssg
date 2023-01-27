@@ -6,47 +6,37 @@ import org.slf4j.LoggerFactory;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class DollarScriptletMatcher implements Function<String, FsmOutput> {
+final class DollarScriptletMatcher implements FsmFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(DollarScriptletMatcher.class);
 
     private static final class DollarScriptletMatcherOutput implements FsmOutput {
 
-        private final String entire;
-        private final String dollar;
-        private final String openingCurly;
+        private final CharSequence entire;
         private final String scriptlet;
-        private final String closingCurly;
 
         public DollarScriptletMatcherOutput(
                 String entire,
-                String dollar,
-                String openingCurly,
-                String scriptlet,
-                String closingCurly
+                String scriptlet
         ) {
             this.entire = entire;
-            this.dollar = dollar;
-            this.openingCurly = openingCurly;
             this.scriptlet = scriptlet;
-            this.closingCurly = closingCurly;
         }
 
         @Override
-        public String entire() {
+        public CharSequence entire() {
             return this.entire;
         }
 
         @Override
-        public String part(int index) {
+        public CharSequence part(int index) {
             return switch (index) {
-                case 1 -> this.dollar;
-                case 2 -> this.openingCurly;
+                case 1 -> "$";
+                case 2 -> "{";
                 case 3 -> this.scriptlet;
-                case 4 -> this.closingCurly;
+                case 4 -> "}";
                 default -> throw new IllegalArgumentException();
             };
         }
@@ -57,23 +47,23 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
         NO_STRING, G_STRING, SINGLE_QUOTE_STRING
     }
 
-    private static final class StringCharIterator implements Iterator<String> {
+    private static final class CharSequenceIterator implements Iterator<String> {
 
-        private final String s;
+        private final CharSequence input;
         private int cur;
 
-        public StringCharIterator(String s) {
-            this.s = s;
+        public CharSequenceIterator(CharSequence input) {
+            this.input = input;
         }
 
         @Override
         public boolean hasNext() {
-            return this.cur < s.length();
+            return this.cur < input.length();
         }
 
         @Override
         public String next() {
-            final var c = String.valueOf(s.charAt(this.cur));
+            final var c = String.valueOf(input.charAt(this.cur));
             this.cur++;
             return c;
         }
@@ -81,7 +71,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
     }
 
     @Override
-    public FsmOutput apply(String s) {
+    public FsmOutput apply(CharSequence s) {
         final Deque<State> stateStack = new LinkedList<>();
         final Deque<Counter> counterStack = new LinkedList<>();
 
@@ -96,7 +86,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
         stateStack.push(State.NO_STRING);
         counterStack.push(new Counter());
 
-        final Iterator<String> iterator = new StringCharIterator(s);
+        final Iterator<String> iterator = new CharSequenceIterator(s);
 
         final var entireAcc = new StringBuilder();
 
@@ -156,7 +146,9 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                             final var c1 = iterator.next();
                             entireAcc.append(c1);
                         } else {
-                            throw new IllegalArgumentException("Ill-formed dollarScriptlet (backslash followed by nothing)");
+                            throw new IllegalArgumentException(
+                                    "Ill-formed dollarScriptlet (backslash followed by nothing)"
+                            );
                         }
                     }
                     case "$" -> {
@@ -183,7 +175,9 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                         if (iterator.hasNext()) {
                             entireAcc.append(iterator.next());
                         } else {
-                            throw new IllegalArgumentException("Ill-formed dollarScriptlet (backslash followed by nothing)");
+                            throw new IllegalArgumentException(
+                                    "Ill-formed dollarScriptlet (backslash followed by nothing)"
+                            );
                         }
                     }
                     case "'" -> {
@@ -192,7 +186,9 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
                     }
                 }
             } else {
-                throw new IllegalStateException("stateStack contains something which does not equal a state or is null");
+                throw new IllegalStateException(
+                        "stateStack contains something which does not equal a state or is null"
+                );
             }
 
             logger.debug("entireAcc: {}", entireAcc);
@@ -202,10 +198,7 @@ final class DollarScriptletMatcher implements Function<String, FsmOutput> {
 
         return new DollarScriptletMatcherOutput(
                 entireAcc.toString(),
-                "$",
-                "{",
-                entireAcc.substring(2, entireAcc.length() - 1),
-                "}"
+                entireAcc.substring(2, entireAcc.length() - 1)
         );
     }
 

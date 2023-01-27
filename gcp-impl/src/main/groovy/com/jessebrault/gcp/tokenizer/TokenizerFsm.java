@@ -13,78 +13,78 @@ final class TokenizerFsm {
     /**
      * Text
      */
-    private static final PatternMatcher text = new PatternMatcher(
+    private static final FsmFunction text = new PatternMatcher(
             Pattern.compile("^(?:[\\w\\W&&[^<$]]|<(?!%|/?\\p{Lu}|/?[\\p{L}0-9_$]+(?:\\.[\\p{L}0-9_$]+)+)|\\$(?![\\w$]+(?:\\.[\\w$]+)*))+")
     );
 
     /**
      * Gsp dollar reference and scriptlets, also used as component values
      */
-    private static final PatternMatcher dollarReference = new PatternMatcher(
+    private static final FsmFunction dollarReference = new PatternMatcher(
             Pattern.compile("^(\\$)([\\w$]+(?:\\.[\\w$]+)*)")
     );
-    private static final DollarScriptletMatcher dollarScriptlet = new DollarScriptletMatcher();
-    private static final PatternMatcher blockScriptlet = new PatternMatcher(
+    private static final FsmFunction dollarScriptlet = new DollarScriptletMatcher();
+    private static final FsmFunction blockScriptlet = new PatternMatcher(
             Pattern.compile("^(<%)(.*?)(%>)")
     );
-    private static final PatternMatcher expressionScriptlet = new PatternMatcher(
+    private static final FsmFunction expressionScriptlet = new PatternMatcher(
             Pattern.compile("^(<%=)(.*?)(%>)")
     );
 
     /**
      * Component starts
      */
-    private static final PatternMatcher openingComponentStart = new PatternMatcher(
+    private static final FsmFunction openingComponentStart = new PatternMatcher(
             Pattern.compile("^<(?=\\p{Lu}|[\\p{L}0-9_$]+(?:\\.[\\p{L}0-9_$]+)+)")
     );
-    private static final PatternMatcher closingComponentStart = new PatternMatcher(
+    private static final FsmFunction closingComponentStart = new PatternMatcher(
             Pattern.compile("^(<)(/)(?=\\p{Lu}|[\\p{L}0-9_$]+(?:\\.[\\p{L}0-9_$]+)+)")
     );
 
     /**
      * Component names
      */
-    private static final PatternMatcher className = new PatternMatcher(
+    private static final FsmFunction className = new PatternMatcher(
             Pattern.compile("^\\p{Lu}[\\p{L}0-9_$]*")
     );
-    private static final PatternMatcher packageName = new PatternMatcher(
+    private static final FsmFunction packageName = new PatternMatcher(
             Pattern.compile("^[\\p{L}0-9_$]+(?=\\.)")
     );
-    private static final PatternMatcher dot = new PatternMatcher(
+    private static final FsmFunction dot = new PatternMatcher(
             Pattern.compile("^\\.")
     );
 
     /**
      * Whitespace
      */
-    private static final PatternMatcher whitespace = new PatternMatcher(Pattern.compile("^\\s+"));
+    private static final FsmFunction whitespace = new PatternMatcher(Pattern.compile("^\\s+"));
 
     /**
      * Keys and values
      */
-    private static final PatternMatcher key = new PatternMatcher(
+    private static final FsmFunction key = new PatternMatcher(
             Pattern.compile("^[\\p{L}0-9_$]+")
     );
-    private static final PatternMatcher equals = new PatternMatcher(Pattern.compile("^="));
-    private static final PatternMatcher singleQuoteString = new PatternMatcher(
+    private static final FsmFunction equals = new PatternMatcher(Pattern.compile("^="));
+    private static final FsmFunction singleQuoteString = new PatternMatcher(
             Pattern.compile("^(')((?:[\\w\\W&&[^\\\\'\\n\\r]]|\\\\['nrbfst\\\\u])*)(')")
     );
-    private static final GStringMatcher gString = new GStringMatcher();
+    private static final FsmFunction gString = new GStringMatcher();
 
     /**
      * Component ends
      */
-    private static final PatternMatcher forwardSlash = new PatternMatcher(Pattern.compile("^/"));
-    private static final PatternMatcher componentEnd = new PatternMatcher(Pattern.compile("^>"));
+    private static final FsmFunction forwardSlash = new PatternMatcher(Pattern.compile("^/"));
+    private static final FsmFunction componentEnd = new PatternMatcher(Pattern.compile("^>"));
 
-    private static FunctionFsmBuilder<String, TokenizerState, FsmOutput> getFsmBuilder() {
+    private static FunctionFsmBuilder<CharSequence, Tokenizer.State, FsmOutput> getFsmBuilder() {
         return new FunctionFsmBuilderImpl<>();
     }
 
-    public static FunctionFsm<String, TokenizerState, FsmOutput> get(Accumulator acc) {
+    public static FunctionFsm<CharSequence, Tokenizer.State, FsmOutput> get(Accumulator acc, Tokenizer.State state) {
         return getFsmBuilder()
-                .setInitialState(TokenizerState.NORMAL)
-                .whileIn(TokenizerState.NORMAL, sc -> {
+                .setInitialState(state)
+                .whileIn(Tokenizer.State.TEXT, sc -> {
                     sc.on(text).exec(o -> {
                         acc.accumulate(TEXT, o.entire());
                     });
@@ -108,16 +108,16 @@ final class TokenizerFsm {
                         acc.accumulate(SCRIPTLET, o.part(2));
                         acc.accumulate(SCRIPTLET_CLOSE, o.part(3));
                     });
-                    sc.on(openingComponentStart).shiftTo(TokenizerState.COMPONENT_NAME).exec(o ->
+                    sc.on(openingComponentStart).shiftTo(Tokenizer.State.COMPONENT_NAME).exec(o ->
                         acc.accumulate(COMPONENT_START, o.entire())
                     );
-                    sc.on(closingComponentStart).shiftTo(TokenizerState.COMPONENT_NAME).exec(o -> {
+                    sc.on(closingComponentStart).shiftTo(Tokenizer.State.COMPONENT_NAME).exec(o -> {
                         acc.accumulate(COMPONENT_START, o.part(1));
                         acc.accumulate(FORWARD_SLASH, o.part(2));
                     });
                     sc.onNoMatch().exec(input -> { throw new IllegalArgumentException(); });
                 })
-                .whileIn(TokenizerState.COMPONENT_NAME, sc -> {
+                .whileIn(Tokenizer.State.COMPONENT_NAME, sc -> {
                     sc.on(packageName).exec(o -> {
                        acc.accumulate(PACKAGE_NAME, o.entire());
                     });
@@ -130,16 +130,16 @@ final class TokenizerFsm {
                     sc.on(forwardSlash).exec(o -> {
                         acc.accumulate(FORWARD_SLASH, o.entire());
                     });
-                    sc.on(componentEnd).shiftTo(TokenizerState.NORMAL).exec(o -> {
+                    sc.on(componentEnd).shiftTo(Tokenizer.State.TEXT).exec(o -> {
                        acc.accumulate(COMPONENT_END, o.entire());
                     });
-                    sc.on(whitespace).shiftTo(TokenizerState.COMPONENT_KEYS_AND_VALUES).exec(o -> {
+                    sc.on(whitespace).shiftTo(Tokenizer.State.COMPONENT_KEYS_AND_VALUES).exec(o -> {
                         acc.accumulate(WHITESPACE, o.entire());
                     });
                     sc.onNoMatch().exec(input -> { throw new IllegalArgumentException(); });
                 })
-                .whileIn(TokenizerState.COMPONENT_KEYS_AND_VALUES, sc -> {
-                    sc.on(componentEnd).shiftTo(TokenizerState.NORMAL).exec(o -> {
+                .whileIn(Tokenizer.State.COMPONENT_KEYS_AND_VALUES, sc -> {
+                    sc.on(componentEnd).shiftTo(Tokenizer.State.TEXT).exec(o -> {
                         acc.accumulate(COMPONENT_END, o.entire());
                     });
                     sc.on(whitespace).exec(o -> {
@@ -184,7 +184,7 @@ final class TokenizerFsm {
                     sc.on(forwardSlash).exec(o -> {
                         acc.accumulate(FORWARD_SLASH, o.entire());
                     });
-                    sc.on(componentEnd).shiftTo(TokenizerState.NORMAL).exec(o -> {
+                    sc.on(componentEnd).shiftTo(Tokenizer.State.TEXT).exec(o -> {
                         acc.accumulate(COMPONENT_END, o.entire());
                     });
                     sc.onNoMatch().exec(input -> { throw new IllegalArgumentException(); });
@@ -192,6 +192,4 @@ final class TokenizerFsm {
                 .build();
     }
 
-
-    
 }

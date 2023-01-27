@@ -1,6 +1,6 @@
 package com.jessebrault.gcp.tokenizer;
 
 interface FsmOutput {
-    String entire();
-    String part(int index);
+    CharSequence entire();
+    CharSequence part(int index);
 }

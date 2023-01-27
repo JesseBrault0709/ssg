@@ -4,15 +4,14 @@ import com.jessebrault.fsm.stackfunction.StackFunctionFsm;
 import com.jessebrault.fsm.stackfunction.StackFunctionFsmBuilder;
 import com.jessebrault.fsm.stackfunction.StackFunctionFsmBuilderImpl;
 
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
-final class GStringMatcher implements Function<String, FsmOutput> {
+final class GStringMatcher implements FsmFunction {
 
     private static final class GStringMatcherOutput implements FsmOutput {
 
-        private final String entire;
-        private final String contents;
+        private final CharSequence entire;
+        private final CharSequence contents;
 
         public GStringMatcherOutput(String entire, String contents) {
             this.entire = entire;
@@ -20,12 +19,12 @@ final class GStringMatcher implements Function<String, FsmOutput> {
         }
 
         @Override
-        public String entire() {
+        public CharSequence entire() {
             return this.entire;
         }
 
         @Override
-        public String part(int index) {
+        public CharSequence part(int index) {
             return switch(index) {
                 case 1, 3 -> "\"";
                 case 2 -> this.contents;
@@ -47,11 +46,11 @@ final class GStringMatcher implements Function<String, FsmOutput> {
         START, CONTENTS, DONE
     }
 
-    private static StackFunctionFsmBuilder<String, State, FsmOutput> getFsmBuilder() {
+    private static StackFunctionFsmBuilder<CharSequence, State, FsmOutput> getFsmBuilder() {
         return new StackFunctionFsmBuilderImpl<>();
     }
 
-    private static StackFunctionFsm<String, State, FsmOutput> getFsm(StringBuilder acc) {
+    private static StackFunctionFsm<CharSequence, State, FsmOutput> getFsm(StringBuilder acc) {
         return getFsmBuilder()
                 .setInitialState(State.START)
                 .whileIn(State.START, sc -> {
@@ -80,14 +79,14 @@ final class GStringMatcher implements Function<String, FsmOutput> {
     }
 
     @Override
-    public FsmOutput apply(final String s) {
+    public FsmOutput apply(final CharSequence s) {
         final var acc = new StringBuilder();
         final var fsm = getFsm(acc);
 
-        String remaining = s;
+        CharSequence remaining = s;
 
         // Look-ahead
-        if (!remaining.startsWith("\"")) {
+        if (!String.valueOf(remaining.charAt(0)).equals("\"")) {
             return null;
         }
 
@@ -99,7 +98,7 @@ final class GStringMatcher implements Function<String, FsmOutput> {
             if (fsm.getCurrentState() == State.DONE) {
                 break;
             }
-            remaining = remaining.substring(output.entire().length());
+            remaining = remaining.subSequence(output.entire().length(), remaining.length());
         }
 
         final var entire = acc.toString();

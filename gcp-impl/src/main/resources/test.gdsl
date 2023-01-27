@@ -1,0 +1,6 @@
+def ctx = context(filetypes: ['gsp'])
+
+contributor(ctx) {
+    method name: 'foo', params: [bar: 'String'], type: 'int'
+    property name: 'texts', type: 'java.util.List<String>', doc: 'Some texts.'
+}
