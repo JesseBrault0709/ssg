@@ -1,7 +1,0 @@
-<!DOCTYPE html>
-<html>
-    <Head title="Greeting Page" />
-    <body>
-        <Greeting person="World" />
-    </body>
-</html>
