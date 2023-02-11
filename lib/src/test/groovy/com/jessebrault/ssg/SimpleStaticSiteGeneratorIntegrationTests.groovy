@@ -61,7 +61,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
     @Test
     void simple() {
         new File(this.textsDir, 'test.md').write('---\ntemplate: test.gsp\n---\n**Hello, World!**')
-        new File(this.templatesDir, 'test.gsp').write('<%= text %>')
+        new File(this.templatesDir, 'test.gsp').write('<%= text.render() %>')
 
         def result = this.ssg.generate(this.build)
 
@@ -81,7 +81,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
             }
         }
 
-        new File(this.templatesDir, 'nested.gsp').write('<%= text %>')
+        new File(this.templatesDir, 'nested.gsp').write('<%= text.render() %>')
 
         def result = this.ssg.generate(this.build)
 

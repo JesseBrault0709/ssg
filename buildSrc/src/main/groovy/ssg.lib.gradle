@@ -7,6 +7,9 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    api 'org.jetbrains:annotations:24.0.0'
+
     /**
      * Logging
      */

@@ -69,21 +69,14 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
             logger.debug('found template: {}', template)
 
-            // Render the text (i.e., transform text to html)
-            def textRenderResult = it.type.renderer.render(it, globals)
-            String renderedText
-            if (textRenderResult.v1.size() > 0) {
-                logger.debug('diagnostics for rendering {}: {}', it.path, textRenderResult.v1)
-                diagnostics.addAll(textRenderResult.v1)
-                logger.trace(exit, '')
-                return
-            } else {
-                renderedText = textRenderResult.v2
-                logger.debug('renderedText: {}', renderedText)
-            }
-
             // Render the template using the result of rendering the text earlier
-            def templateRenderResult = template.type.renderer.render(template, frontMatter, renderedText, parts, globals)
+            def templateRenderResult = template.type.renderer.render(
+                    template,
+                    frontMatter,
+                    it,
+                    parts,
+                    globals
+            )
             String renderedTemplate
             if (templateRenderResult.v1.size() > 0) {
                 diagnostics.addAll(templateRenderResult.v1)

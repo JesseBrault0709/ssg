@@ -1,8 +1,10 @@
 package com.jessebrault.ssg.part
 
+import com.jessebrault.ssg.text.EmbeddableText
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
+import org.jetbrains.annotations.Nullable
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck
@@ -13,8 +15,16 @@ class EmbeddablePart {
     private final Map globals
     private final Closure onDiagnostics
 
+    @Nullable
+    private final EmbeddableText text
+
     String render(Map binding = [:]) {
-        def result = part.type.renderer.render(this.part, binding, this.globals)
+        def result = part.type.renderer.render(
+                this.part,
+                binding,
+                this.globals,
+                this.text
+        )
         if (result.v1.size() > 0) {
             this.onDiagnostics.call(result.v1)
             ''
