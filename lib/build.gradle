@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.apache.groovy/groovy-templates
-    implementation 'org.apache.groovy:groovy-templates:4.0.7'
+    implementation 'org.apache.groovy:groovy-templates:4.0.9'
 
     // https://mvnrepository.com/artifact/org.commonmark/commonmark
     implementation 'org.commonmark:commonmark:0.21.0'
