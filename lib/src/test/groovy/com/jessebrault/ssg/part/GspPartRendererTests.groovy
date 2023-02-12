@@ -68,4 +68,12 @@ class GspPartRendererTests {
         assertEquals('Hello, World!', r.v2)
     }
 
+    @Test
+    void tagBuilderAvailable() {
+        def part = new Part('', null, '<%= tagBuilder.test() %>')
+        def r = this.renderer.render(part, [:], [:], null)
+        assertTrue(r.v1.isEmpty())
+        assertEquals('<test />', r.v2)
+    }
+
 }

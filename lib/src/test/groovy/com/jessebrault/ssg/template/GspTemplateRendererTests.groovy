@@ -136,4 +136,18 @@ class GspTemplateRendererTests {
         assertEquals('Hello, World!', r.v2)
     }
 
+    @Test
+    void tagBuilderAvailable() {
+        def template = new Template('<%= tagBuilder.test() %>', null, null)
+        def r = this.renderer.render(
+                template,
+                new FrontMatter(null, [:]),
+                mockBlankText(),
+                [],
+                [:]
+        )
+        assertTrue(r.v1.isEmpty())
+        assertEquals('<test />', r.v2)
+    }
+
 }

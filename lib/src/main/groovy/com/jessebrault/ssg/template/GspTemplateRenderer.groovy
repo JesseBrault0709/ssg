@@ -3,6 +3,7 @@ package com.jessebrault.ssg.template
 import com.jessebrault.ssg.Diagnostic
 import com.jessebrault.ssg.part.EmbeddablePartsMap
 import com.jessebrault.ssg.part.Part
+import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableText
 import com.jessebrault.ssg.text.FrontMatter
 import com.jessebrault.ssg.text.Text
@@ -35,6 +36,7 @@ class GspTemplateRenderer implements TemplateRenderer {
                     frontMatter: frontMatter,
                     globals: globals,
                     parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText),
+                    tagBuilder: new DynamicTagBuilder(),
                     text: embeddableText
             ])
             new Tuple2<>(diagnostics, result.toString())

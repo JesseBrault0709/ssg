@@ -75,4 +75,12 @@ class GspSpecialPageRendererTests {
         assertEquals('<p><strong>Hello, World!</strong></p>\n', r.v2)
     }
 
+    @Test
+    void tagBuilderAvailable() {
+        def specialPage = new SpecialPage('<%= tagBuilder.test() %>', null, null)
+        def r = this.renderer.render(specialPage, [], [], [:])
+        assertTrue(r.v1.isEmpty())
+        assertEquals('<test />', r.v2)
+    }
+
 }

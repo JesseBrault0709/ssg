@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.part
 
 import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableText
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
@@ -26,6 +27,7 @@ class GspPartRenderer implements PartRenderer {
             def result = engine.createTemplate(part.text).make([
                     binding: binding,
                     globals: globals,
+                    tagBuilder: new DynamicTagBuilder(),
                     text: text
             ])
             new Tuple2<>([], result.toString())

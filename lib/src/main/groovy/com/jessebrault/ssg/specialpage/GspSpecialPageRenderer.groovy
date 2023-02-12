@@ -3,6 +3,7 @@ package com.jessebrault.ssg.specialpage
 import com.jessebrault.ssg.Diagnostic
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.part.EmbeddablePartsMap
+import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.text.Text
 import groovy.text.GStringTemplateEngine
@@ -25,6 +26,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
                     parts: new EmbeddablePartsMap(parts, globals, { Collection<Diagnostic> partDiagnostics ->
                         diagnostics.addAll(partDiagnostics)
                     }),
+                    tagBuilder: new DynamicTagBuilder(),
                     texts: new EmbeddableTextsCollection(texts, globals, { Collection<Diagnostic> textDiagnostics ->
                         diagnostics.addAll(textDiagnostics)
                     })
