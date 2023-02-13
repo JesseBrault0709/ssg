@@ -2,14 +2,14 @@
 
 All notable changes to SSG will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to 
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Next/Unreleased
+## Next
 
 ### Added
 
-- A `tagBuilder` of type `DynamicTagBuilder` is available in Templates, SpecialPages, and Parts.
+- A `tagBuilder` object of type [`DynamicTagBuilder`](lib/src/main/groovy/com/jessebrault/ssg/tagbuilder/DynamicTagBuilder.groovy) is available in Templates, SpecialPages, and Parts.
+
     ```groovy
     def simpleTag = tagBuilder.test()
     assert simpleTag == '<test />'
@@ -23,11 +23,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     def tagWithAttributesAndBody = tagBuilder.p([id: 'my-paragraph'], 'Hello, World!')
     assert tagWithAttributesAndBody == '<p id="my-paragraph">Hello, World!</p>'
     ```
-  This is likely most useful for building simple, one-line html/xml tags. 
-  [93687d](https://github.com/JesseBrault0709/ssg/commit/936587d).
-- **Breaking**: the `text` object in Templates is now an instance of `EmbeddableText` instead of `String`. Thus, one must
-  use `text.render()` to obtain the rendered text. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
-- Parts have a `text` object of type `EmbeddableText`. If we are rendering a part called from anything other than a Template
-  (which has an associated text), this will be `null`. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
+    
+  This is likely most useful for building simple, one-line html/xml tags. [93687d](https://github.com/JesseBrault0709/ssg/commit/936587d).
+- Parts have a `text` object of type [`EmbeddableText`](lib/src/main/groovy/com/jessebrault/ssg/text/EmbeddableText.groovy). If one is rendering a Part called from anything other than a Template (which has an associated text), this will be `null`. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
 
-### Fixed
+### Changed
+- **Breaking**: the `text` object in Templates is now an instance of [`EmbeddableText`](lib/src/main/groovy/com/jessebrault/ssg/text/EmbeddableText.groovy) instead of `String`. Thus, one must use `text.render()` to obtain the rendered text. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
+
+### Deprecated
+- The `frontMatter` object in Templates is now deprecated. Use `text.frontMatter` instead.
