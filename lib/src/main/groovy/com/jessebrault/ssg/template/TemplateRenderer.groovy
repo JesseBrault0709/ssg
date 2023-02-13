@@ -12,6 +12,7 @@ interface TemplateRenderer {
      */
     Tuple2<Collection<Diagnostic>, String> render(
             Template template,
+            @Deprecated
             FrontMatter frontMatter,
             Text text,
             Collection<Part> parts,
