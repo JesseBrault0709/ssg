@@ -3,7 +3,6 @@ package com.jessebrault.ssg.part
 import com.jessebrault.ssg.Diagnostic
 import com.jessebrault.ssg.text.*
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
 import static org.junit.jupiter.api.Assertions.assertEquals
