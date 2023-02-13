@@ -18,22 +18,30 @@ class GspPartRenderer implements PartRenderer {
             Part part,
             Map binding,
             Map globals,
-            @Nullable EmbeddableText text = null
+            @Nullable EmbeddableText text = null,
+            Collection<Part> allParts
     ) {
         Objects.requireNonNull(part)
         Objects.requireNonNull(binding)
         Objects.requireNonNull(globals)
+        Objects.requireNonNull(allParts)
+        def embeddedPartDiagnostics = []
         try {
             def result = engine.createTemplate(part.text).make([
                     binding: binding,
                     globals: globals,
+                    parts: new EmbeddablePartsMap(allParts, globals, embeddedPartDiagnostics.&addAll, text),
                     tagBuilder: new DynamicTagBuilder(),
                     text: text
             ])
             new Tuple2<>([], result.toString())
         } catch (Exception e) {
+            def diagnostic = new Diagnostic(
+                    "An exception occurred while rendering part ${ part.path }:\n${ e }",
+                    e
+            )
             new Tuple2<>(
-                    [new Diagnostic("An exception occurred while rendering part ${ part.path }:\n${ e }", e)],
+                    [diagnostic, *embeddedPartDiagnostics],
                     ''
             )
         }

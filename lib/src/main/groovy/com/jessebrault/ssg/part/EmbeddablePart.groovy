@@ -18,12 +18,15 @@ class EmbeddablePart {
     @Nullable
     private final EmbeddableText text
 
+    private final Collection<Part> allParts
+
     String render(Map binding = [:]) {
         def result = part.type.renderer.render(
                 this.part,
                 binding,
                 this.globals,
-                this.text
+                this.text,
+                this.allParts
         )
         if (result.v1.size() > 0) {
             this.onDiagnostics.call(result.v1)

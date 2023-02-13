@@ -10,7 +10,8 @@ interface PartRenderer {
             Part part,
             Map binding,
             Map globals,
-            @Nullable EmbeddableText text
+            @Nullable EmbeddableText text,
+            Collection<Part> allParts
     )
 
 }

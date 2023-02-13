@@ -20,7 +20,7 @@ class EmbeddablePartsMap {
         Objects.requireNonNull(globals)
         Objects.requireNonNull(onDiagnostics)
         parts.each {
-            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text))
+            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text, parts))
         }
     }
 
