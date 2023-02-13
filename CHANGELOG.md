@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Parts have access to all other parts now via `parts`, an object of type [`EmbeddablePartsMap`](lib/src/main/groovy/com/jessebrault/ssg/part/EmbeddablePartsMap.groovy). For example:
+
+    ```gsp
+    // myPart.gsp
+    <% out << parts['otherPart.gsp'].render() %>
+    ```
+    
+  [0e49414](https://github.com/JesseBrault0709/ssg/commit/0e49414).
 - A `tagBuilder` object of type [`DynamicTagBuilder`](lib/src/main/groovy/com/jessebrault/ssg/tagbuilder/DynamicTagBuilder.groovy) is available in Templates, SpecialPages, and Parts.
 
     ```groovy
