@@ -7,6 +7,7 @@ import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableText
 import com.jessebrault.ssg.text.FrontMatter
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.url.PathBasedUrlBuilder
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
@@ -36,9 +37,11 @@ class GspTemplateRenderer implements TemplateRenderer {
             def result = engine.createTemplate(template.text).make([
                     frontMatter: frontMatter,
                     globals: globals,
-                    parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText),
+                    parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText, text.path),
+                    path: text.path,
                     tagBuilder: new DynamicTagBuilder(),
-                    text: embeddableText
+                    text: embeddableText,
+                    urlBuilder: new PathBasedUrlBuilder(text.path)
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {

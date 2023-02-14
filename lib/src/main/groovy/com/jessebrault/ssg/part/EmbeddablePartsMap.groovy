@@ -14,13 +14,14 @@ class EmbeddablePartsMap {
             Collection<Part> parts,
             Map globals,
             Closure onDiagnostics,
-            @Nullable EmbeddableText text = null
+            @Nullable EmbeddableText text = null,
+            String path
     ) {
         Objects.requireNonNull(parts)
         Objects.requireNonNull(globals)
         Objects.requireNonNull(onDiagnostics)
         parts.each {
-            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text, parts))
+            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text, parts, path))
         }
     }
 

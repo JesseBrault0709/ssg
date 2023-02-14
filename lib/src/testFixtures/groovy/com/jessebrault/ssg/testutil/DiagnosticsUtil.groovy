@@ -2,6 +2,8 @@ package com.jessebrault.ssg.testutil
 
 import com.jessebrault.ssg.Diagnostic
 
+import static org.junit.jupiter.api.Assertions.assertTrue
+
 class DiagnosticsUtil {
 
     static Closure<String> getDiagnosticsMessageSupplier(Collection<Diagnostic> diagnostics) {
@@ -13,6 +15,10 @@ class DiagnosticsUtil {
                 "$it.message\n$stackTrace"
             }.join('\n')
         }
+    }
+
+    static void assertEmptyDiagnostics(Tuple2<Collection<Diagnostic>, ?> result) {
+        assertTrue(result.v1.isEmpty(), getDiagnosticsMessageSupplier(result.v1))
     }
 
 }

@@ -11,7 +11,8 @@ interface PartRenderer {
             Map binding,
             Map globals,
             @Nullable EmbeddableText text,
-            Collection<Part> allParts
+            Collection<Part> allParts,
+            String path
     )
 
 }

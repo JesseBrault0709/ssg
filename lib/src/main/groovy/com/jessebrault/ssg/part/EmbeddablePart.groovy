@@ -20,13 +20,16 @@ class EmbeddablePart {
 
     private final Collection<Part> allParts
 
+    private final String path
+
     String render(Map binding = [:]) {
         def result = part.type.renderer.render(
                 this.part,
                 binding,
                 this.globals,
                 this.text,
-                this.allParts
+                this.allParts,
+                this.path
         )
         if (result.v1.size() > 0) {
             this.onDiagnostics.call(result.v1)
