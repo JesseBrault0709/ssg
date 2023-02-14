@@ -4,10 +4,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.mockito.Mockito.mock
 
 class TextFileTextsProviderTests {
 
-    private static final TextType markdownType = new TextType(['.md'], null, null, null)
+    private static final TextType markdownType = new TextType(
+            ['.md'],
+            mock(TextRenderer),
+            mock(FrontMatterGetter),
+            mock(ExcerptGetter)
+    )
 
     private File textsDir
     private TextsProvider textsProvider
@@ -15,7 +21,7 @@ class TextFileTextsProviderTests {
     @BeforeEach
     void beforeEach() {
         this.textsDir = File.createTempDir()
-        this.textsProvider = new TextFileTextsProvider([markdownType], this.textsDir)
+        this.textsProvider = new TextFileTextsProvider(this.textsDir, [markdownType])
     }
 
     @Test
@@ -25,7 +31,7 @@ class TextFileTextsProviderTests {
         def r = this.textsProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
-        assertEquals('test', f0.path)
+        assertEquals('test.md', f0.path)
         assertEquals('**Hello, World!**', f0.text)
         assertEquals(markdownType, f0.type)
     }
@@ -39,7 +45,7 @@ class TextFileTextsProviderTests {
         def r = this.textsProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
-        assertEquals('nested/nested', f0.path)
+        assertEquals('nested/nested.md', f0.path)
         assertEquals('**Hello!**', f0.text)
         assertEquals(markdownType, f0.type)
     }

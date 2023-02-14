@@ -32,10 +32,10 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         def gspPart = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPage = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
 
-        def defaultTextsProvider = new TextFileTextsProvider([markdownText], new File('texts'))
-        def defaultTemplatesProvider = new TemplateFileTemplatesProvider([gspTemplate], new File('templates'))
-        def defaultPartsProvider = new PartFilePartsProvider([gspPart], new File('parts'))
-        def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPage], new File('specialPages'))
+        def defaultTextsProvider = new TextFileTextsProvider(new File('texts'), [markdownText])
+        def defaultTemplatesProvider = new TemplateFileTemplatesProvider(new File('templates'), [gspTemplate])
+        def defaultPartsProvider = new PartFilePartsProvider(new File('parts'), [gspPart])
+        def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider(new File('specialPages'), [gspSpecialPage])
 
         def defaultConfig = new Config(
                 textProviders: [defaultTextsProvider],

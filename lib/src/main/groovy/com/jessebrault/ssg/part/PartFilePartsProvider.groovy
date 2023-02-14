@@ -1,55 +1,38 @@
 package com.jessebrault.ssg.part
 
-import com.jessebrault.ssg.provider.WithWatchableDir
-import groovy.io.FileType
+import com.jessebrault.ssg.provider.AbstractFileCollectionProvider
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static com.jessebrault.ssg.util.ExtensionsUtil.getExtension
-
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class PartFilePartsProvider implements PartsProvider, WithWatchableDir {
+class PartFilePartsProvider extends AbstractFileCollectionProvider<Part> implements PartsProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(PartFilePartsProvider)
 
     private final Collection<PartType> partTypes
-    private final File partsDir
 
-    PartFilePartsProvider(Collection<PartType> partTypes, File partsDir) {
-        this.partTypes = partTypes
-        this.partsDir = partsDir
-        this.watchableDir = this.partsDir
+    PartFilePartsProvider(File partsDir, Collection<PartType> partTypes) {
+        super(partsDir)
+        this.partTypes = Objects.requireNonNull(partTypes)
     }
 
-    private PartType getPartType(File file) {
-        def path = file.path
+    private @Nullable PartType getPartType(String extension) {
         this.partTypes.find {
-            it.ids.contains(getExtension(path))
+            it.ids.contains(extension)
         }
     }
 
     @Override
-    Collection<Part> provide() {
-        if (!partsDir.isDirectory()) {
-            logger.warn('partsDir {} does not exist or is not a directory; skipping and providing no Parts', this.partsDir)
-            []
-        } else {
-            def parts = []
-            this.partsDir.eachFileRecurse(FileType.FILES) {
-                def type = this.getPartType(it)
-                if (type != null) {
-                    def relativePath = this.partsDir.relativePath(it)
-                    logger.debug('found part {}', relativePath)
-                    parts << new Part(relativePath, type, it.text)
-                } else {
-                    logger.warn('ignoring {} since there is no partType for it', it)
-                }
-            }
-            parts
+    protected @Nullable Part transformFileToT(File file, String relativePath, String extension) {
+        def partType = getPartType(extension)
+        if (!partType) {
+            logger.warn('there is no PartType for {}, ignoring', relativePath)
         }
+        partType ? new Part(relativePath, partType, file.text) : null
     }
 
     @Override
@@ -59,7 +42,7 @@ class PartFilePartsProvider implements PartsProvider, WithWatchableDir {
 
     @Override
     String toString() {
-        "PartFilePartsProvider(partsDir: ${ this.partsDir }, partTypes: ${ this.partTypes })"
+        "PartFilePartsProvider(partsDir: ${ this.dir }, partTypes: ${ this.partTypes })"
     }
 
 }

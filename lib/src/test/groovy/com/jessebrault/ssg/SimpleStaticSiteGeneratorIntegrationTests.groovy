@@ -41,10 +41,10 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def gspPartType = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPageType = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
 
-        def textsProvider = new TextFileTextsProvider([markdownTextType], this.textsDir)
-        def templatesProvider = new TemplateFileTemplatesProvider([gspTemplateType], this.templatesDir)
-        def partsProvider = new PartFilePartsProvider([gspPartType], this.partsDir)
-        def specialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPageType], this.specialPagesDir)
+        def textsProvider = new TextFileTextsProvider(this.textsDir, [markdownTextType])
+        def templatesProvider = new TemplateFileTemplatesProvider(this.templatesDir, [gspTemplateType])
+        def partsProvider = new PartFilePartsProvider(this.partsDir, [gspPartType])
+        def specialPagesProvider = new SpecialPageFileSpecialPagesProvider(this.specialPagesDir, [gspSpecialPageType])
 
         def config = new Config(
                 textProviders: [textsProvider],

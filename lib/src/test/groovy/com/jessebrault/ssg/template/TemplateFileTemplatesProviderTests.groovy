@@ -4,10 +4,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.mockito.Mockito.mock
 
-class PageTemplatesProviderTests {
+class TemplateFileTemplatesProviderTests {
 
-    private static final TemplateType gspType = new TemplateType(['.gsp'], null)
+    private static final TemplateType gspType = new TemplateType(['.gsp'], mock(TemplateRenderer))
 
     private File templatesDir
     private TemplatesProvider templatesProvider
@@ -15,7 +16,7 @@ class PageTemplatesProviderTests {
     @BeforeEach
     void beforeEach() {
         this.templatesDir = File.createTempDir()
-        this.templatesProvider =  new TemplateFileTemplatesProvider([gspType], this.templatesDir)
+        this.templatesProvider =  new TemplateFileTemplatesProvider(this.templatesDir, [gspType])
     }
 
     @Test
