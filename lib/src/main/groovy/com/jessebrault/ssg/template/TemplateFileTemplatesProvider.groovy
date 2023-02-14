@@ -1,12 +1,13 @@
 package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.provider.WithWatchableDir
-import com.jessebrault.ssg.util.FileNameHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import static com.jessebrault.ssg.util.ExtensionsUtil.getExtension
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
@@ -24,8 +25,9 @@ class TemplateFileTemplatesProvider implements TemplatesProvider, WithWatchableD
     }
 
     private TemplateType getType(File file) {
+        def path = file.path
         this.templateTypes.find {
-            it.ids.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(getExtension(path))
         }
     }
 

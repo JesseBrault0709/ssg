@@ -1,13 +1,14 @@
 package com.jessebrault.ssg.text
 
 import com.jessebrault.ssg.provider.WithWatchableDir
-import com.jessebrault.ssg.util.FileNameHandler
-import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import static com.jessebrault.ssg.util.ExtensionsUtil.getExtension
+import static com.jessebrault.ssg.util.ExtensionsUtil.stripExtension
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
@@ -25,8 +26,9 @@ class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
     }
 
     private TextType getTextType(File file) {
+        def path = file.path
         this.textTypes.find {
-            it.ids.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(getExtension(path))
         }
     }
 
@@ -41,7 +43,7 @@ class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
                 def type = this.getTextType(it)
                 if (type != null) {
                     def relativePath = this.textsDir.relativePath(it)
-                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
+                    def path = stripExtension(relativePath)
                     logger.debug('found textFile {} with type {}', path, type)
                     textFiles << new Text(it.text, path, type)
                 } else {

@@ -1,13 +1,14 @@
 package com.jessebrault.ssg.specialpage
 
 import com.jessebrault.ssg.provider.WithWatchableDir
-import com.jessebrault.ssg.util.FileNameHandler
-import com.jessebrault.ssg.util.RelativePathHandler
 import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import static com.jessebrault.ssg.util.ExtensionsUtil.getExtension
+import static com.jessebrault.ssg.util.ExtensionsUtil.stripExtension
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
@@ -25,8 +26,9 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider, WithW
     }
 
     private SpecialPageType getSpecialPageType(File file) {
+        def path = file.path
         this.specialPageTypes.find {
-            it.ids.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(getExtension(path))
         }
     }
 
@@ -41,7 +43,7 @@ class SpecialPageFileSpecialPagesProvider implements SpecialPagesProvider, WithW
                 def type = this.getSpecialPageType(it)
                 if (type != null) {
                     def relativePath = this.specialPagesDir.relativePath(it)
-                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
+                    def path = stripExtension(relativePath)
                     logger.info('found specialPage {} with type {}', path, type)
                     specialPages << new SpecialPage(it.text, path, type)
                 } else {
