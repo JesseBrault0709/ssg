@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 abstract class AbstractUrlBuilderTests {
 
-    protected abstract UrlBuilder getUrlBuilder(String fromFile);
+    protected abstract UrlBuilder getUrlBuilder(String targetPath);
 
     @Test
     void upDownDown() {
@@ -27,6 +27,14 @@ abstract class AbstractUrlBuilderTests {
         assertEquals(
                 '../../images/test.jpg',
                 this.getUrlBuilder('posts/old/test.html').relative('images/test.jpg')
+        )
+    }
+
+    @Test
+    void absoluteMatchesTargetPath() {
+        assertEquals(
+                'test/test.html',
+                this.getUrlBuilder('test/test.html').absolute
         )
     }
 
