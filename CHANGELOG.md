@@ -8,7 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Templates, SpecialPages, and Parts all have access to `path` of type `String` representing the path of the 'source' file: either a text file or a special page. In Templates, the 'source' comes from the path of the Text being rendered; in SpecialPages, this comes from the path of the SpecialPage being rendered (i.e., itself); in Parts, this comes from either the Template or SpecialPage which called the Part. 
+- Templates, SpecialPages, and Parts all have access to `targetPath` of type `String` representing the path of the 'output' file. For now, this is always a `.html` file.
+    ```gsp
+    <%
+        // in a template where the source text is 'foo/bar.md'
+        assert targetPath == 'foo/bar.html'
+        
+        // in a special page whose path is 'special.gsp'
+        assert targetPath == 'special.html'
+        
+        // in a part with a source text of 'foo/bar/hello.md'
+        assert targetPath == 'foo/bar/hello.html'
+        
+        // in a part with a source special page of 'foo/bar/baz/special.gsp'
+        assert targetParth == 'foo/bar/baz/special.html'
+    %>
+    ```
+    [6de83df](https://github.com/JesseBrault0709/ssg/commit/6de83df), [06499a9](https://github.com/JesseBrault0709/ssg/commit/06499a9).
+- Templates, SpecialPages, and Parts all have access to `path` of type `String` representing the path of the 'source' file: either a text file or a special page. In Templates, the 'source' comes from the path of the Text being rendered; in SpecialPages, this comes from the path of the SpecialPage being rendered (i.e., itself); in Parts, this comes from either the Template or SpecialPage which called (i.e., embedded) the Part. 
     ```gsp
     <%
         // in a template or part when rendering a text at 'home.md'
@@ -25,14 +42,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Templates, SpecialPages, and Parts all have access to a `urlBuilder` of type [`PathBasedUrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/PathBasedUrlBuilder.groovy) (implementing [`UrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/UrlBuilder.groovy)). Use it like so:
     ```gsp
     <%
-        // when path == 'nested/post.whatever'
+        // when targetPath == 'nested/post.html'
         assert urlBuilder.relative('images/test.jpg') == '../images/test.jpg'
     
-        // when path == 'simple.whatever'
+        // when targetPath == 'simple.html'
         assert urlBuilder.relative('images/test.jpg') == 'images/test.jpg'
     %>
     ```
-  *Nota bene:* likely will break on Windows since `PathBasedUrlBuilder` currently uses Java's `Path` api and paths would be thusly rendered using Windows-style backslashes. [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41).
+  *Nota bene:* likely will break on Windows since `PathBasedUrlBuilder` currently uses Java's `Path` api and paths would be thusly rendered using Windows-style backslashes. This will be explored in the future. [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41).
 - Parts have access to all other parts now via `parts`, an object of type [`EmbeddablePartsMap`](lib/src/main/groovy/com/jessebrault/ssg/part/EmbeddablePartsMap.groovy). For example:
 
     ```gsp
