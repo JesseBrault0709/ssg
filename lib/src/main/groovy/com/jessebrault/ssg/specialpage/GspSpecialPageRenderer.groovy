@@ -1,8 +1,9 @@
 package com.jessebrault.ssg.specialpage
 
 import com.jessebrault.ssg.Diagnostic
-import com.jessebrault.ssg.part.Part
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.EmbeddablePartsMap
+import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.text.Text
@@ -23,6 +24,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             SpecialPage specialPage,
             Collection<Text> texts,
             Collection<Part> parts,
+            SiteSpec siteSpec,
             Map globals,
             String targetPath
     ) {
@@ -30,12 +32,19 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             Collection<Diagnostic> diagnostics = []
             def result = engine.createTemplate(specialPage.text).make([
                     globals: globals,
-                    parts: new EmbeddablePartsMap(parts, globals, diagnostics.&addAll, specialPage.path, targetPath),
+                    parts: new EmbeddablePartsMap(
+                            parts,
+                            siteSpec,
+                            globals,
+                            diagnostics.&addAll,
+                            specialPage.path,
+                            targetPath
+                    ),
                     path: specialPage.path,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     texts: new EmbeddableTextsCollection(texts, globals, diagnostics.&addAll),
-                    urlBuilder: new PathBasedUrlBuilder(targetPath)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {

@@ -53,9 +53,10 @@ class SimpleStaticSiteGeneratorIntegrationTests {
                 partsProviders: [partsProvider],
                 specialPagesProviders: [specialPagesProvider]
         )
+        def siteSpec = new SiteSpec('Test Site', 'https://test.com')
         def globals = [:]
 
-        this.build = new Build('testBuild', config, globals, new File('build'))
+        this.build = new Build('testBuild', config, siteSpec, globals, new File('build'))
         this.ssg = new SimpleStaticSiteGenerator()
     }
 

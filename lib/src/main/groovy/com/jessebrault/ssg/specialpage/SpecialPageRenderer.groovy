@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.specialpage
 
 import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.text.Text
 
@@ -10,6 +11,7 @@ interface SpecialPageRenderer {
             SpecialPage specialPage,
             Collection<Text> texts,
             Collection <Part> parts,
+            SiteSpec siteSpec,
             Map globals,
             String targetPath
     )

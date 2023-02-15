@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.part
 
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.text.EmbeddableText
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable
 class EmbeddablePart {
 
     private final Part part
+    private final SiteSpec siteSpec
     private final Map globals
     private final Closure onDiagnostics
 
@@ -26,6 +28,7 @@ class EmbeddablePart {
         def result = part.type.renderer.render(
                 this.part,
                 binding,
+                this.siteSpec,
                 this.globals,
                 this.text,
                 this.allParts,

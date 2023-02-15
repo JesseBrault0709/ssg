@@ -7,9 +7,9 @@ class PathBasedUrlBuilder implements UrlBuilder {
     private final String absolute
     private final Path fromDirectory
 
-    PathBasedUrlBuilder(String absolute) {
-        this.absolute = absolute
-        def fromFilePath = Path.of(absolute)
+    PathBasedUrlBuilder(String targetPath, String baseUrl) {
+        this.absolute = baseUrl + '/' + targetPath
+        def fromFilePath = Path.of(targetPath)
         if (fromFilePath.parent) {
             this.fromDirectory = fromFilePath.parent
         } else {

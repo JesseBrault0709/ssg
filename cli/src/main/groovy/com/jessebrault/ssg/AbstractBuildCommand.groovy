@@ -44,6 +44,10 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                 partsProviders: [defaultPartsProvider],
                 specialPagesProviders: [defaultSpecialPagesProvider]
         )
+        def defaultSiteSpec = new SiteSpec(
+                name: '',
+                baseUrl: ''
+        )
         def defaultGlobals = [:]
 
         // Run build script, if applicable
@@ -56,7 +60,13 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
         if (this.builds.empty) {
             // Add default build
-            builds << new Build('default', defaultConfig, defaultGlobals, new File('build'))
+            builds << new Build(
+                    'default',
+                    defaultConfig,
+                    defaultSiteSpec,
+                    defaultGlobals,
+                    new File('build')
+            )
         }
 
         // Get ssg object

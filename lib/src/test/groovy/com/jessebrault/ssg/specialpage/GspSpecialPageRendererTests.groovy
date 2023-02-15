@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.specialpage
 
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.part.PartRenderer
 import com.jessebrault.ssg.part.PartType
@@ -24,20 +25,34 @@ class GspSpecialPageRendererTests {
     void rendersGlobal() {
         def specialPage = new SpecialPage("<%= globals['greeting'] %>", 'test.gsp', null)
         def globals = [greeting: 'Hello, World!']
-        def r = this.renderer.render(specialPage, [], [], globals, '')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                globals,
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
 
     @Test
     void rendersPartWithNoBinding(@Mock PartRenderer partRenderer) {
-        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any()))
+        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType , '')
 
         def specialPage = new SpecialPage("<%= parts['test'].render() %>", 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [part], [:], '')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [part],
+                new SiteSpec('', ''),
+                [:],
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
@@ -45,7 +60,14 @@ class GspSpecialPageRendererTests {
     @Test
     void rendersPartWithBinding(@Mock PartRenderer partRenderer) {
         when(partRenderer.render(
-                any(), argThat { Map m -> m.get('greeting') == 'Hello, World!'}, any(), any(), any(), any(), any()
+                any(),
+                argThat { Map m -> m.get('greeting') == 'Hello, World!'},
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
         )).thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, '')
@@ -55,7 +77,14 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [], [part], [:], '')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [part],
+                new SiteSpec('', ''),
+                [:],
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
@@ -72,7 +101,14 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [text], [], [:], '')
+        def r = this.renderer.render(
+                specialPage,
+                [text],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('<p><strong>Hello, World!</strong></p>\n', r.v2)
     }
@@ -80,7 +116,14 @@ class GspSpecialPageRendererTests {
     @Test
     void tagBuilderAvailable() {
         def specialPage = new SpecialPage('<%= tagBuilder.test() %>', 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [], [:], '')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('<test />', r.v2)
     }
@@ -88,7 +131,14 @@ class GspSpecialPageRendererTests {
     @Test
     void pathAvailable() {
         def specialPage = new SpecialPage('<%= path %>', 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [], [:], '')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                ''
+        )
         assertEmptyDiagnostics(r)
         assertEquals('test.gsp', r.v2)
     }
@@ -100,7 +150,14 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [], [], [:], 'test.html')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                'test.html'
+        )
         assertEmptyDiagnostics(r)
         assertEquals('images/test.jpg', r.v2)
     }
@@ -113,7 +170,12 @@ class GspSpecialPageRendererTests {
                 null
         )
         def r = this.renderer.render(
-                specialPage, [], [], [:], 'test/test.html'
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                'test/test.html'
         )
         assertEmptyDiagnostics(r)
         assertEquals('../images/test.jpg', r.v2)
@@ -126,7 +188,14 @@ class GspSpecialPageRendererTests {
                 '',
                 null
         )
-        def r = this.renderer.render(specialPage, [], [], [:], 'test.html')
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', ''),
+                [:],
+                'test.html'
+        )
         assertEmptyDiagnostics(r)
         assertEquals('test.html', r.v2)
     }

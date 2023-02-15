@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.template
 
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.part.PartRenderer
 import com.jessebrault.ssg.part.PartType
@@ -31,7 +32,7 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any()))
+        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, null)
@@ -41,6 +42,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [part],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -56,8 +58,17 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any(), any(), any(), any(), any()))
-                .thenReturn(new Tuple2<>([], 'Hello, World!'))
+        when(partRenderer.render(
+                any(),
+                argThat { Map m -> m.get('person') == 'World' },
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+        )).thenReturn(new Tuple2<>([], 'Hello, World!'))
+
         def partType = new PartType([], partRenderer)
         def part = new Part('greeting', partType, null)
 
@@ -66,6 +77,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [part],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -81,6 +93,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [title: ['Hello!']]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -96,6 +109,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [test: 'Hello, World!'],
                 ''
         )
@@ -111,6 +125,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 renderableText('Hello, World!'),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -126,6 +141,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -141,6 +157,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 textWithPath('test.md'),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 ''
         )
@@ -156,6 +173,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 'test.html'
         )
@@ -171,11 +189,28 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 'test/test.html'
         )
         assertEmptyDiagnostics(r)
         assertEquals('../images/test.jpg', r.v2)
+    }
+
+    @Test
+    void urlBuilderAbsolutePathCorrect() {
+        def template = new Template('<%= urlBuilder.absolute %>', null, null)
+        def r = this.renderer.render(
+                template,
+                new FrontMatter(null, [:]),
+                blankText(),
+                [],
+                new SiteSpec('', 'https://test.com'),
+                [:],
+                'test/test.html'
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('https://test.com/test/test.html', r.v2)
     }
 
     @Test
@@ -186,6 +221,7 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
+                new SiteSpec('', ''),
                 [:],
                 'test.html'
         )

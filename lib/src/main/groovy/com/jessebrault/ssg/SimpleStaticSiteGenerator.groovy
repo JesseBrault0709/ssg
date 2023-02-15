@@ -27,6 +27,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
         logger.info('processing build with name: {}', build.name)
 
         def config = build.config
+        def siteSpec = build.siteSpec
 
         // Get all texts, templates, parts, and specialPages
         def texts = config.textProviders.collectMany { it.provide() }
@@ -80,6 +81,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
                     frontMatter,
                     it,
                     parts,
+                    siteSpec,
                     globals,
                     targetPath
             )
@@ -105,6 +107,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
                     it,
                     texts,
                     parts,
+                    siteSpec,
                     globals,
                     targetPath
             )

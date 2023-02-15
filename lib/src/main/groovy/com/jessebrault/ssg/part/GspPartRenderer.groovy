@@ -1,13 +1,13 @@
 package com.jessebrault.ssg.part
 
 import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableText
 import com.jessebrault.ssg.url.PathBasedUrlBuilder
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.NullCheck
 import org.jetbrains.annotations.Nullable
 
 @EqualsAndHashCode
@@ -19,6 +19,7 @@ class GspPartRenderer implements PartRenderer {
     Tuple2<Collection<Diagnostic>, String> render(
             Part part,
             Map binding,
+            SiteSpec siteSpec,
             Map globals,
             @Nullable EmbeddableText text = null,
             Collection<Part> allParts,
@@ -27,6 +28,7 @@ class GspPartRenderer implements PartRenderer {
     ) {
         Objects.requireNonNull(part)
         Objects.requireNonNull(binding)
+        Objects.requireNonNull(siteSpec)
         Objects.requireNonNull(globals)
         Objects.requireNonNull(allParts)
         Objects.requireNonNull(path)
@@ -38,6 +40,7 @@ class GspPartRenderer implements PartRenderer {
                     globals: globals,
                     parts: new EmbeddablePartsMap(
                             allParts,
+                            siteSpec,
                             globals,
                             embeddedPartDiagnostics.&addAll,
                             text,
@@ -48,7 +51,7 @@ class GspPartRenderer implements PartRenderer {
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     text: text,
-                    urlBuilder: new PathBasedUrlBuilder(targetPath)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
             ])
             new Tuple2<>([], result.toString())
         } catch (Exception e) {

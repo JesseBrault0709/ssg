@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.EmbeddablePartsMap
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
@@ -26,6 +27,7 @@ class GspTemplateRenderer implements TemplateRenderer {
             FrontMatter frontMatter,
             Text text,
             Collection<Part> parts,
+            SiteSpec siteSpec,
             Map globals,
             String targetPath
     ) {
@@ -38,12 +40,12 @@ class GspTemplateRenderer implements TemplateRenderer {
             def result = engine.createTemplate(template.text).make([
                     frontMatter: frontMatter,
                     globals: globals,
-                    parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText, text.path, targetPath),
+                    parts: new EmbeddablePartsMap(parts, siteSpec, globals, onDiagnostics, embeddableText, text.path, targetPath),
                     path: text.path,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     text: embeddableText,
-                    urlBuilder: new PathBasedUrlBuilder(targetPath)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {

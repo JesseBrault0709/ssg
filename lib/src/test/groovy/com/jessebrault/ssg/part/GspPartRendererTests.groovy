@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.part
 
+import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.text.EmbeddableText
 import org.junit.jupiter.api.Test
 
@@ -19,6 +20,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],
@@ -35,6 +37,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [greeting: 'Hello, World!'],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],
@@ -51,6 +54,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [greeting: 'Hello, World!'],
                 null,
                 [part],
@@ -68,6 +72,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 new EmbeddableText(renderableText('Hello, World!'), [:], textDiagnostics.&addAll),
                 [part],
@@ -85,6 +90,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],
@@ -103,6 +109,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part0,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part0, part1],
@@ -119,6 +126,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],
@@ -135,6 +143,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],
@@ -151,6 +160,7 @@ class GspPartRendererTests {
         def r = this.renderer.render(
                 part,
                 [:],
+                new SiteSpec('', ''),
                 [:],
                 null,
                 [part],

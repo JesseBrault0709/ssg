@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 abstract class AbstractUrlBuilderTests {
 
-    protected abstract UrlBuilder getUrlBuilder(String targetPath);
+    protected abstract UrlBuilder getUrlBuilder(String targetPath, String baseUrl);
 
     @Test
     void upDownDown() {
-        def builder = this.getUrlBuilder('posts/post.html')
+        def builder = this.getUrlBuilder('posts/post.html', '')
         assertEquals('../images/test.jpg', builder.relative('images/test.jpg'))
     }
 
@@ -18,7 +18,7 @@ abstract class AbstractUrlBuilderTests {
     void downDown() {
         assertEquals(
                 'images/test.jpg',
-                this.getUrlBuilder('test.html').relative('images/test.jpg')
+                this.getUrlBuilder('test.html', '').relative('images/test.jpg')
         )
     }
 
@@ -26,15 +26,15 @@ abstract class AbstractUrlBuilderTests {
     void upUpDownDown() {
         assertEquals(
                 '../../images/test.jpg',
-                this.getUrlBuilder('posts/old/test.html').relative('images/test.jpg')
+                this.getUrlBuilder('posts/old/test.html', '').relative('images/test.jpg')
         )
     }
 
     @Test
     void absoluteMatchesTargetPath() {
         assertEquals(
-                'test/test.html',
-                this.getUrlBuilder('test/test.html').absolute
+                'https://test.com/test/test.html',
+                this.getUrlBuilder('test/test.html', 'https://test.com').absolute
         )
     }
 
