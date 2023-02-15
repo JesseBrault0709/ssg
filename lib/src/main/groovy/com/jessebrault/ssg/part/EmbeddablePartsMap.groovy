@@ -15,13 +15,14 @@ class EmbeddablePartsMap {
             Map globals,
             Closure onDiagnostics,
             @Nullable EmbeddableText text = null,
-            String path
+            String path,
+            String targetPath
     ) {
         Objects.requireNonNull(parts)
         Objects.requireNonNull(globals)
         Objects.requireNonNull(onDiagnostics)
         parts.each {
-            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text, parts, path))
+            this.put(it.path, new EmbeddablePart(it, globals, onDiagnostics, text, parts, path, targetPath))
         }
     }
 

@@ -30,7 +30,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             Collection<Diagnostic> diagnostics = []
             def result = engine.createTemplate(specialPage.text).make([
                     globals: globals,
-                    parts: new EmbeddablePartsMap(parts, globals, diagnostics.&addAll, specialPage.path),
+                    parts: new EmbeddablePartsMap(parts, globals, diagnostics.&addAll, specialPage.path, targetPath),
                     path: specialPage.path,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,

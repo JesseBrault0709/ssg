@@ -31,7 +31,7 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), any(), any(), any(), any(), any()))
+        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, null)
@@ -56,7 +56,7 @@ class GspTemplateRendererTests {
                 null
         )
 
-        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any(), any(), any(), any()))
+        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any(), any(), any(), any(), any()))
                 .thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('greeting', partType, null)
@@ -69,7 +69,7 @@ class GspTemplateRendererTests {
                 [:],
                 ''
         )
-        assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
+        assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
 
@@ -84,7 +84,7 @@ class GspTemplateRendererTests {
                 [:],
                 ''
         )
-        assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
+        assertEmptyDiagnostics(r)
         assertEquals('Hello!', r.v2)
     }
 
@@ -99,7 +99,7 @@ class GspTemplateRendererTests {
                 [test: 'Hello, World!'],
                 ''
         )
-        assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
+        assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
 

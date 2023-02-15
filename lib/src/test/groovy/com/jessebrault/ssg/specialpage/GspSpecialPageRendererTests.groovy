@@ -31,7 +31,7 @@ class GspSpecialPageRendererTests {
 
     @Test
     void rendersPartWithNoBinding(@Mock PartRenderer partRenderer) {
-        when(partRenderer.render(any(), any(), any(), any(), any(), any()))
+        when(partRenderer.render(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType , '')
@@ -45,7 +45,7 @@ class GspSpecialPageRendererTests {
     @Test
     void rendersPartWithBinding(@Mock PartRenderer partRenderer) {
         when(partRenderer.render(
-                any(), argThat { Map m -> m.get('greeting') == 'Hello, World!'}, any(), any(), any(), any()
+                any(), argThat { Map m -> m.get('greeting') == 'Hello, World!'}, any(), any(), any(), any(), any()
         )).thenReturn(new Tuple2<>([], 'Hello, World!'))
         def partType = new PartType([], partRenderer)
         def part = new Part('test', partType, '')

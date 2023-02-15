@@ -12,7 +12,8 @@ interface PartRenderer {
             Map globals,
             @Nullable EmbeddableText text,
             Collection<Part> allParts,
-            String path
+            String path,
+            String targetPath
     )
 
 }

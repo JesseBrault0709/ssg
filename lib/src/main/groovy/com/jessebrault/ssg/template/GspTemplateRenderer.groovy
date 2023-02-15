@@ -38,7 +38,7 @@ class GspTemplateRenderer implements TemplateRenderer {
             def result = engine.createTemplate(template.text).make([
                     frontMatter: frontMatter,
                     globals: globals,
-                    parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText, text.path),
+                    parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText, text.path, targetPath),
                     path: text.path,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,

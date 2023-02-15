@@ -7,6 +7,7 @@ import com.jessebrault.ssg.url.PathBasedUrlBuilder
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.NullCheck
 import org.jetbrains.annotations.Nullable
 
 @EqualsAndHashCode
@@ -21,23 +22,33 @@ class GspPartRenderer implements PartRenderer {
             Map globals,
             @Nullable EmbeddableText text = null,
             Collection<Part> allParts,
-            String path
+            String path,
+            String targetPath
     ) {
         Objects.requireNonNull(part)
         Objects.requireNonNull(binding)
         Objects.requireNonNull(globals)
         Objects.requireNonNull(allParts)
         Objects.requireNonNull(path)
+        Objects.requireNonNull(targetPath)
         def embeddedPartDiagnostics = []
         try {
             def result = engine.createTemplate(part.text).make([
                     binding: binding,
                     globals: globals,
-                    parts: new EmbeddablePartsMap(allParts, globals, embeddedPartDiagnostics.&addAll, text, path),
+                    parts: new EmbeddablePartsMap(
+                            allParts,
+                            globals,
+                            embeddedPartDiagnostics.&addAll,
+                            text,
+                            path,
+                            targetPath
+                    ),
                     path: path,
                     tagBuilder: new DynamicTagBuilder(),
+                    targetPath: targetPath,
                     text: text,
-                    urlBuilder: new PathBasedUrlBuilder(path)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath)
             ])
             new Tuple2<>([], result.toString())
         } catch (Exception e) {

@@ -1,11 +1,5 @@
 package com.jessebrault.ssg.text
 
-import com.jessebrault.ssg.text.ExcerptGetter
-import com.jessebrault.ssg.text.FrontMatterGetter
-import com.jessebrault.ssg.text.Text
-import com.jessebrault.ssg.text.TextRenderer
-import com.jessebrault.ssg.text.TextType
-
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when

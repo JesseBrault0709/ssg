@@ -19,8 +19,8 @@ class EmbeddablePart {
     private final EmbeddableText text
 
     private final Collection<Part> allParts
-
     private final String path
+    private final String targetPath
 
     String render(Map binding = [:]) {
         def result = part.type.renderer.render(
@@ -29,7 +29,8 @@ class EmbeddablePart {
                 this.globals,
                 this.text,
                 this.allParts,
-                this.path
+                this.path,
+                this.targetPath
         )
         if (result.v1.size() > 0) {
             this.onDiagnostics.call(result.v1)
@@ -41,7 +42,8 @@ class EmbeddablePart {
 
     @Override
     String toString() {
-        "EmbeddablePart(part: ${ this.part }, globals: ${ this.globals })"
+        "EmbeddablePart(part: ${ this.part }, globals: ${ this.globals }, path: ${ this.path }, " +
+                "targetPath: ${ this.targetPath })"
     }
 
 }
