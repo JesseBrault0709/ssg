@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.output.OutputPage
 import com.jessebrault.ssg.text.FrontMatter
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -19,7 +20,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     @Override
-    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Build build) {
+    Tuple2<Collection<Diagnostic>, Collection<OutputPage>> generate(Build build) {
         logger.trace(enter, 'build: {}', build)
         logger.info('processing build with name: {}', build.name)
 
@@ -35,7 +36,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
         def globals = build.globals
         Collection<Diagnostic> diagnostics = []
-        Collection<GeneratedPage> generatedPages = []
+        Collection<OutputPage> generatedPages = []
 
         // Generate pages from each text, but only those that have a 'template' frontMatter field with a valid value
         texts.each {
@@ -87,7 +88,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << new GeneratedPage(it.path, renderedTemplate)
+            generatedPages << OutputPage.of(it, '.html', renderedTemplate)
         }
 
         // Generate special pages
@@ -105,7 +106,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << new GeneratedPage(it.path, renderedSpecialPage)
+            generatedPages << OutputPage.of(it, '.html', renderedSpecialPage)
         }
 
         logger.trace(exit, '\n\tdiagnostics: {}\n\tgeneratedPages: {}', diagnostics, generatedPages)

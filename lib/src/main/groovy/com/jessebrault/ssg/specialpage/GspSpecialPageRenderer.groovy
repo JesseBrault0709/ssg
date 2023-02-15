@@ -32,9 +32,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
                     parts: new EmbeddablePartsMap(parts, globals, diagnostics.&addAll, specialPage.path),
                     path: specialPage.path,
                     tagBuilder: new DynamicTagBuilder(),
-                    texts: new EmbeddableTextsCollection(texts, globals, { Collection<Diagnostic> textDiagnostics ->
-                        diagnostics.addAll(textDiagnostics)
-                    }),
+                    texts: new EmbeddableTextsCollection(texts, globals, diagnostics.&addAll),
                     urlBuilder: new PathBasedUrlBuilder(specialPage.path)
             ])
             new Tuple2<>(diagnostics, result.toString())

@@ -17,6 +17,7 @@ import com.jessebrault.ssg.text.TextType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static org.junit.jupiter.api.Assertions.*
 
 class SimpleStaticSiteGeneratorIntegrationTests {
@@ -65,12 +66,12 @@ class SimpleStaticSiteGeneratorIntegrationTests {
 
         def result = this.ssg.generate(this.build)
 
-        assertTrue(result.v1.size() == 0)
+        assertEmptyDiagnostics(result)
         assertTrue(result.v2.size() == 1)
 
         def p0 = result.v2[0]
-        assertEquals('test', p0.path)
-        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.html)
+        assertEquals('test.html', p0.path)
+        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
     }
 
     @Test
@@ -85,39 +86,40 @@ class SimpleStaticSiteGeneratorIntegrationTests {
 
         def result = this.ssg.generate(this.build)
 
-        assertTrue(result.v1.size() == 0)
+        assertEmptyDiagnostics(result)
         assertTrue(result.v2.size() == 1)
 
         def p0 = result.v2[0]
-        assertEquals('nested/nested', p0.path)
-        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.html)
+        assertEquals('nested/nested.html', p0.path)
+        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
     }
 
     @Test
     void outputsSpecialPage() {
-        new FileTreeBuilder(this.specialPagesDir).file('special.gsp', $/<%= texts.find { it.path == 'test' }.render() %>/$)
+        new FileTreeBuilder(this.specialPagesDir)
+                .file('special.gsp', $/<%= texts.find { it.path == 'test.md' }.render() %>/$)
         new FileTreeBuilder(this.templatesDir).file('template.gsp', '<%= 1 + 1 %>')
         new FileTreeBuilder(this.textsDir).file('test.md', '---\ntemplate: template.gsp\n---\nHello, World!')
 
         def result = this.ssg.generate(this.build)
 
-        assertEquals(0, result.v1.size())
+        assertEmptyDiagnostics(result)
         assertEquals(2, result.v2.size())
 
-        def testPage = result.v2.find { it.path == 'test' }
+        def testPage = result.v2.find { it.path == 'test.html' }
         assertNotNull(testPage)
-        assertEquals('2', testPage.html)
+        assertEquals('2', testPage.content)
 
-        def specialPage = result.v2.find { it.path == 'special' }
+        def specialPage = result.v2.find { it.path == 'special.html' }
         assertNotNull(specialPage)
-        assertEquals('<p>Hello, World!</p>\n', specialPage.html)
+        assertEquals('<p>Hello, World!</p>\n', specialPage.content)
     }
 
     @Test
     void doesNotGenerateIfNoTemplateInFrontMatter() {
         new File(this.textsDir, 'test.md').write('Hello, World!')
         def result = this.ssg.generate(this.build)
-        assertEquals(0, result.v1.size())
+        assertEmptyDiagnostics(result)
         assertEquals(0, result.v2.size())
     }
 

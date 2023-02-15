@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.specialpage
 
+import com.jessebrault.ssg.input.InputPage
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -7,7 +8,7 @@ import groovy.transform.TupleConstructor
 @TupleConstructor(defaults = false)
 @NullCheck
 @EqualsAndHashCode
-class SpecialPage {
+class SpecialPage implements InputPage {
 
     String text
     String path
