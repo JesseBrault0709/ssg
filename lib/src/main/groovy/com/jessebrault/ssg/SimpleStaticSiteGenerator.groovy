@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory
 
+import static com.jessebrault.ssg.util.ExtensionsUtil.stripExtension
+
 @TupleConstructor(includeFields = true)
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
@@ -70,13 +72,16 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
             logger.debug('found template: {}', template)
 
+            def targetPath = stripExtension(it.path) + '.html'
+
             // Render the template using the result of rendering the text earlier
             def templateRenderResult = template.type.renderer.render(
                     template,
                     frontMatter,
                     it,
                     parts,
-                    globals
+                    globals,
+                    targetPath
             )
             String renderedTemplate
             if (templateRenderResult.v1.size() > 0) {
@@ -88,14 +93,21 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << OutputPage.of(it, '.html', renderedTemplate)
+            generatedPages << new OutputPage(targetPath, renderedTemplate)
         }
 
         // Generate special pages
         specialPages.each {
             logger.info('processing specialPage: {}', it.path)
 
-            def specialPageRenderResult = it.type.renderer.render(it, texts, parts, globals)
+            def targetPath = stripExtension(it.path) + '.html'
+            def specialPageRenderResult = it.type.renderer.render(
+                    it,
+                    texts,
+                    parts,
+                    globals,
+                    targetPath
+            )
             String renderedSpecialPage
             if (specialPageRenderResult.v1.size() > 0) {
                 diagnostics.addAll(specialPageRenderResult.v1)
@@ -106,7 +118,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << OutputPage.of(it, '.html', renderedSpecialPage)
+            generatedPages << new OutputPage(targetPath, renderedSpecialPage)
         }
 
         logger.trace(exit, '\n\tdiagnostics: {}\n\tgeneratedPages: {}', diagnostics, generatedPages)

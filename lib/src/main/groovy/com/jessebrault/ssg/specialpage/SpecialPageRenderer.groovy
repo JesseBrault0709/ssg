@@ -10,7 +10,8 @@ interface SpecialPageRenderer {
             SpecialPage specialPage,
             Collection<Text> texts,
             Collection <Part> parts,
-            Map globals
+            Map globals,
+            String targetPath
     )
 
 }

@@ -16,7 +16,8 @@ interface TemplateRenderer {
             FrontMatter frontMatter,
             Text text,
             Collection<Part> parts,
-            Map globals
+            Map globals,
+            String targetPath
     )
 
 }

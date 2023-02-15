@@ -24,7 +24,7 @@ class GspSpecialPageRendererTests {
     void rendersGlobal() {
         def specialPage = new SpecialPage("<%= globals['greeting'] %>", 'test.gsp', null)
         def globals = [greeting: 'Hello, World!']
-        def r = this.renderer.render(specialPage, [], [], globals)
+        def r = this.renderer.render(specialPage, [], [], globals, '')
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
@@ -37,7 +37,7 @@ class GspSpecialPageRendererTests {
         def part = new Part('test', partType , '')
 
         def specialPage = new SpecialPage("<%= parts['test'].render() %>", 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [part], [:])
+        def r = this.renderer.render(specialPage, [], [part], [:], '')
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
@@ -55,7 +55,7 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [], [part], [:])
+        def r = this.renderer.render(specialPage, [], [part], [:], '')
         assertEmptyDiagnostics(r)
         assertEquals('Hello, World!', r.v2)
     }
@@ -72,7 +72,7 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [text], [], [:])
+        def r = this.renderer.render(specialPage, [text], [], [:], '')
         assertEmptyDiagnostics(r)
         assertEquals('<p><strong>Hello, World!</strong></p>\n', r.v2)
     }
@@ -80,7 +80,7 @@ class GspSpecialPageRendererTests {
     @Test
     void tagBuilderAvailable() {
         def specialPage = new SpecialPage('<%= tagBuilder.test() %>', 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [], [:])
+        def r = this.renderer.render(specialPage, [], [], [:], '')
         assertEmptyDiagnostics(r)
         assertEquals('<test />', r.v2)
     }
@@ -88,7 +88,7 @@ class GspSpecialPageRendererTests {
     @Test
     void pathAvailable() {
         def specialPage = new SpecialPage('<%= path %>', 'test.gsp', null)
-        def r = this.renderer.render(specialPage, [], [], [:])
+        def r = this.renderer.render(specialPage, [], [], [:], '')
         assertEmptyDiagnostics(r)
         assertEquals('test.gsp', r.v2)
     }
@@ -100,9 +100,35 @@ class GspSpecialPageRendererTests {
                 'test.gsp',
                 null
         )
-        def r = this.renderer.render(specialPage, [], [], [:])
+        def r = this.renderer.render(specialPage, [], [], [:], 'test.html')
         assertEmptyDiagnostics(r)
         assertEquals('images/test.jpg', r.v2)
+    }
+
+    @Test
+    void urlBuilderIsRelativeToTargetPath() {
+        def specialPage = new SpecialPage(
+                '<%= urlBuilder.relative("images/test.jpg") %>',
+                '',
+                null
+        )
+        def r = this.renderer.render(
+                specialPage, [], [], [:], 'test/test.html'
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('../images/test.jpg', r.v2)
+    }
+
+    @Test
+    void targetPathAvailable() {
+        def specialPage = new SpecialPage(
+                '<%= targetPath %>',
+                '',
+                null
+        )
+        def r = this.renderer.render(specialPage, [], [], [:], 'test.html')
+        assertEmptyDiagnostics(r)
+        assertEquals('test.html', r.v2)
     }
 
 }

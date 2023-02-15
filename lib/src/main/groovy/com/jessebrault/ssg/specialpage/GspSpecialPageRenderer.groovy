@@ -23,7 +23,8 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             SpecialPage specialPage,
             Collection<Text> texts,
             Collection<Part> parts,
-            Map globals
+            Map globals,
+            String targetPath
     ) {
         try {
             Collection<Diagnostic> diagnostics = []
@@ -32,8 +33,9 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
                     parts: new EmbeddablePartsMap(parts, globals, diagnostics.&addAll, specialPage.path),
                     path: specialPage.path,
                     tagBuilder: new DynamicTagBuilder(),
+                    targetPath: targetPath,
                     texts: new EmbeddableTextsCollection(texts, globals, diagnostics.&addAll),
-                    urlBuilder: new PathBasedUrlBuilder(specialPage.path)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath)
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {

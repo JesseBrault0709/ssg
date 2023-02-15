@@ -26,7 +26,8 @@ class GspTemplateRenderer implements TemplateRenderer {
             FrontMatter frontMatter,
             Text text,
             Collection<Part> parts,
-            Map globals
+            Map globals,
+            String targetPath
     ) {
         try {
             Collection<Diagnostic> diagnostics = []
@@ -40,8 +41,9 @@ class GspTemplateRenderer implements TemplateRenderer {
                     parts: new EmbeddablePartsMap(parts, globals, onDiagnostics, embeddableText, text.path),
                     path: text.path,
                     tagBuilder: new DynamicTagBuilder(),
+                    targetPath: targetPath,
                     text: embeddableText,
-                    urlBuilder: new PathBasedUrlBuilder(text.path)
+                    urlBuilder: new PathBasedUrlBuilder(targetPath)
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {

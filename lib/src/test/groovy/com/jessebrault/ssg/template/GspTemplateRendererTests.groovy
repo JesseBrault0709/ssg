@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
+import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
 import static com.jessebrault.ssg.text.TextMocks.*
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -40,7 +41,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [part],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello, World!', r.v2)
@@ -64,7 +66,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [part],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello, World!', r.v2)
@@ -78,7 +81,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [title: ['Hello!']]),
                 blankText(),
                 [],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello!', r.v2)
@@ -92,7 +96,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
-                [test: 'Hello, World!']
+                [test: 'Hello, World!'],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello, World!', r.v2)
@@ -106,7 +111,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 renderableText('Hello, World!'),
                 [],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello, World!', r.v2)
@@ -120,7 +126,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 blankText(),
                 [],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('<test />', r.v2)
@@ -134,7 +141,8 @@ class GspTemplateRendererTests {
                 new FrontMatter(null, [:]),
                 textWithPath('test.md'),
                 [],
-                [:]
+                [:],
+                ''
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('test.md', r.v2)
@@ -146,12 +154,43 @@ class GspTemplateRendererTests {
         def r = this.renderer.render(
                 template,
                 new FrontMatter(null, [:]),
-                textWithPath('test.md'),
+                blankText(),
                 [],
-                [:]
+                [:],
+                'test.html'
         )
         assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('images/test.jpg', r.v2)
+    }
+
+    @Test
+    void urlBuilderIsRelativeToTargetPath() {
+        def template = new Template('<%= urlBuilder.relative("images/test.jpg") %>', null, null)
+        def r = this.renderer.render(
+                template,
+                new FrontMatter(null, [:]),
+                blankText(),
+                [],
+                [:],
+                'test/test.html'
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('../images/test.jpg', r.v2)
+    }
+
+    @Test
+    void targetPathAvailable() {
+        def template = new Template('<%= targetPath %>', null, null)
+        def r = this.renderer.render(
+                template,
+                new FrontMatter(null, [:]),
+                blankText(),
+                [],
+                [:],
+                'test.html'
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('test.html', r.v2)
     }
 
 }

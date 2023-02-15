@@ -10,6 +10,7 @@ import static com.jessebrault.ssg.util.ExtensionsUtil.stripExtension
 @EqualsAndHashCode
 final class OutputPage {
 
+    @Deprecated
     static OutputPage of(InputPage inputFile, String extension, String content) {
         new OutputPage(stripExtension(inputFile.path) + extension, content)
     }
@@ -17,7 +18,7 @@ final class OutputPage {
     final String path
     final String content
 
-    private OutputPage(String path, String content) {
+    OutputPage(String path, String content) {
         this.path = path
         this.content = content
     }
