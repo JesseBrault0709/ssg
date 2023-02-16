@@ -9,6 +9,7 @@ import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
+import org.slf4j.LoggerFactory
 
 @EqualsAndHashCode
 class GspPartRenderer implements PartRenderer {
@@ -38,6 +39,7 @@ class GspPartRenderer implements PartRenderer {
             def result = engine.createTemplate(part.text).make([
                     binding: binding,
                     globals: globals,
+                    logger: LoggerFactory.getLogger("Part(${ part.path })"),
                     parts: new EmbeddablePartsMap(
                             allParts,
                             siteSpec,

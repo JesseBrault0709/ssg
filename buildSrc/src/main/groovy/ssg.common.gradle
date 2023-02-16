@@ -38,10 +38,10 @@ dependencies {
      * Mockito
      */
     // https://mvnrepository.com/artifact/org.mockito/mockito-core
-    testFixturesApi 'org.mockito:mockito-core:4.11.0'
+    testFixturesApi 'org.mockito:mockito-core:5.1.1'
 
     // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
-    testFixturesApi 'org.mockito:mockito-junit-jupiter:4.11.0'
+    testFixturesApi 'org.mockito:mockito-junit-jupiter:5.1.1'
 
     /**
      * Test Logging

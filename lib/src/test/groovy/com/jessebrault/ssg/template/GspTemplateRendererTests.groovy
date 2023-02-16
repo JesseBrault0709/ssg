@@ -8,7 +8,10 @@ import com.jessebrault.ssg.text.FrontMatter
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
+import org.mockito.MockedStatic
 import org.mockito.junit.jupiter.MockitoExtension
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
@@ -16,7 +19,10 @@ import static com.jessebrault.ssg.text.TextMocks.*
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.ArgumentMatchers.argThat
+import static org.mockito.Mockito.mockStatic
+import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 
 @ExtendWith(MockitoExtension)
@@ -243,6 +249,26 @@ class GspTemplateRendererTests {
         )
         assertEmptyDiagnostics(r)
         assertEquals('https://test.com', r.v2)
+    }
+
+    @Test
+    void loggerAvailable(@Mock Logger logger) {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory)) {
+            loggerFactory.when(() -> LoggerFactory.getLogger(anyString()))
+                    .thenReturn(logger)
+            def template = new Template('<% logger.info "Hello, World!" %>', null, null)
+            def r = this.renderer.render(
+                    template,
+                    new FrontMatter(null, [:]),
+                    blankText(),
+                    [],
+                    new SiteSpec('', ''),
+                    [:],
+                    ''
+            )
+            assertEmptyDiagnostics(r)
+            verify(logger).info('Hello, World!')
+        }
     }
 
 }

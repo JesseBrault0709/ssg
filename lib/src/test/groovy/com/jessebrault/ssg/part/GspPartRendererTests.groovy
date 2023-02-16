@@ -3,13 +3,23 @@ package com.jessebrault.ssg.part
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.text.EmbeddableText
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.MockedStatic
+import org.mockito.junit.jupiter.MockitoExtension
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
 import static com.jessebrault.ssg.text.TextMocks.renderableText
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.mockito.ArgumentMatchers.anyString
+import static org.mockito.Mockito.mockStatic
+import static org.mockito.Mockito.verify
 
+@ExtendWith(MockitoExtension)
 class GspPartRendererTests {
 
     private final PartRenderer renderer = new GspPartRenderer()
@@ -186,6 +196,27 @@ class GspPartRendererTests {
         )
         assertEmptyDiagnostics(r)
         assertEquals('https://test.com', r.v2)
+    }
+
+    @Test
+    void loggerAvailable(@Mock Logger logger) {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory)) {
+            loggerFactory.when { LoggerFactory.getLogger(anyString()) }
+                    .thenReturn(logger)
+            def part = new Part('', null, '<% logger.info "Hello, World!" %>')
+            def r = this.renderer.render(
+                    part,
+                    [:],
+                    new SiteSpec('', ''),
+                    [:],
+                    null,
+                    [part],
+                    '',
+                    ''
+            )
+            assertEmptyDiagnostics(r)
+            verify(logger).info('Hello, World!')
+        }
     }
 
 }

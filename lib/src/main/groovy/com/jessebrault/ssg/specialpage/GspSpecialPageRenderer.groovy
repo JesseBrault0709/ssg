@@ -12,6 +12,7 @@ import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode
@@ -32,6 +33,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             Collection<Diagnostic> diagnostics = []
             def result = engine.createTemplate(specialPage.text).make([
                     globals: globals,
+                    logger: LoggerFactory.getLogger("SpecialPage(${ specialPage.path })"),
                     parts: new EmbeddablePartsMap(
                             parts,
                             siteSpec,

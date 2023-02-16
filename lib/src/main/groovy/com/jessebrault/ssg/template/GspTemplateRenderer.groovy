@@ -13,6 +13,7 @@ import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode
@@ -40,6 +41,7 @@ class GspTemplateRenderer implements TemplateRenderer {
             def result = engine.createTemplate(template.text).make([
                     frontMatter: frontMatter,
                     globals: globals,
+                    logger: LoggerFactory.getLogger("Template(${ template.path })"),
                     parts: new EmbeddablePartsMap(parts, siteSpec, globals, onDiagnostics, embeddableText, text.path, targetPath),
                     path: text.path,
                     siteSpec: siteSpec,
