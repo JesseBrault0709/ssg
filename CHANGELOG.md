@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- There is now the notion of a `siteSpec`, an object of type of [`SiteSpec`](lib/src/main/groovy/com/jessebrault/ssg/SiteSpec.groovy). It is simmilar to the `globals` object in that it contains properties that are available in all Templates, SpecialPages, and Parts. Unlike `globals`, which contains user-defined keys, `siteSpec` contains (for now) the pre-defined keys `baseUrl` and `title`. To configure the `siteSpec`, add the following block to a `build` block in `ssgBuilds.groovy`:
+    ```groovy
+    siteSpec {
+        baseUrl = 'https://test.com' // or whatever, defaults to an empty string
+        title = 'My Great Website' // or whatever, defaults to an empty string
+    }
+    ```
+  Then use it in any Template, SpecialPage, or part like so:
+  ```gsp
+  <%
+      assert siteSpec.baseUrl == 'https://test.com' && siteSpec.title == 'My Great Website'
+  %>
+  ```
+  [111bdea](https://github.com/JesseBrault0709/ssg/commit/111bdea), [ef9e566](https://github.com/JesseBrault0709/ssg/commit/ef9e566).
 - Templates, SpecialPages, and Parts all have access to `targetPath` of type `String` representing the path of the 'output' file. For now, this is always a `.html` file.
     ```gsp
     <%
@@ -39,17 +53,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     %>
     ```
   [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41), [9983685](https://github.com/JesseBrault0709/ssg/commit/9983685), [076bc9b](https://github.com/JesseBrault0709/ssg/commit/076bc9b).
-- Templates, SpecialPages, and Parts all have access to a `urlBuilder` of type [`PathBasedUrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/PathBasedUrlBuilder.groovy) (implementing [`UrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/UrlBuilder.groovy)). Use it like so:
+- Templates, SpecialPages, and Parts all have access to a `urlBuilder` of type [`PathBasedUrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/PathBasedUrlBuilder.groovy) (implementing [`UrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/UrlBuilder.groovy)). It can be used to obtain both absolute (using `siteSpec.baseUrl`) and relative urls (to the current `targetPath`). Use it like so:
     ```gsp
     <%
-        // when targetPath == 'nested/post.html'
-        assert urlBuilder.relative('images/test.jpg') == '../images/test.jpg'
-    
         // when targetPath == 'simple.html'
         assert urlBuilder.relative('images/test.jpg') == 'images/test.jpg'
+        
+        // when targetPath == 'nested/post.html'
+        assert urlBuilder.relative('images/test.jpg') == '../images/test.jpg'
+        
+        // when baseUrl is 'https://test.com' and targetPath is 'simple.html'
+        assert urlBuilder.absolute == 'https://test.com/simple.html
+        
+        // when baseUrl is 'https://test.com' and we want an absolute to another file
+        assert urlBuilder.absolute('images/test.jpg') == 'https://test.com/images/test.jpg'
     %>
     ```
-  *Nota bene:* likely will break on Windows since `PathBasedUrlBuilder` currently uses Java's `Path` api and paths would be thusly rendered using Windows-style backslashes. This will be explored in the future. [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41).
+  *Nota bene:* likely will break on Windows since `PathBasedUrlBuilder` currently uses Java's `Path` api and paths would be thusly rendered using Windows-style backslashes. This will be explored in the future. [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41), [0762dc6](https://github.com/JesseBrault0709/ssg/commit/0762dc6), [60f4c14](https://github.com/JesseBrault0709/ssg/commit/60f4c14).
 - Parts have access to all other parts now via `parts`, an object of type [`EmbeddablePartsMap`](lib/src/main/groovy/com/jessebrault/ssg/part/EmbeddablePartsMap.groovy). For example:
 
     ```gsp
