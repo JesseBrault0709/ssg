@@ -200,4 +200,23 @@ class GspSpecialPageRendererTests {
         assertEquals('test.html', r.v2)
     }
 
+    @Test
+    void siteSpecBaseUrlAvailable() {
+        def specialPage = new SpecialPage(
+                '<%= siteSpec.baseUrl %>',
+                '',
+                null
+        )
+        def r = this.renderer.render(
+                specialPage,
+                [],
+                [],
+                new SiteSpec('', 'https://test.com'),
+                [:],
+                ''
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('https://test.com', r.v2)
+    }
+
 }

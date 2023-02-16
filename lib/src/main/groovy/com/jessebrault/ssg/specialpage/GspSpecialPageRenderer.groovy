@@ -41,6 +41,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
                             targetPath
                     ),
                     path: specialPage.path,
+                    siteSpec: siteSpec,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     texts: new EmbeddableTextsCollection(texts, globals, diagnostics.&addAll),

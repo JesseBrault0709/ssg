@@ -171,4 +171,21 @@ class GspPartRendererTests {
         assertEquals('test/test.html', r.v2)
     }
 
+    @Test
+    void siteSpecBaseUrlAvailable() {
+        def part = new Part('', null, '<%= siteSpec.baseUrl %>')
+        def r = this.renderer.render(
+                part,
+                [:],
+                new SiteSpec('', 'https://test.com'),
+                [:],
+                null,
+                [part],
+                '',
+                ''
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('https://test.com', r.v2)
+    }
+
 }

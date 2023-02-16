@@ -42,6 +42,7 @@ class GspTemplateRenderer implements TemplateRenderer {
                     globals: globals,
                     parts: new EmbeddablePartsMap(parts, siteSpec, globals, onDiagnostics, embeddableText, text.path, targetPath),
                     path: text.path,
+                    siteSpec: siteSpec,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     text: embeddableText,

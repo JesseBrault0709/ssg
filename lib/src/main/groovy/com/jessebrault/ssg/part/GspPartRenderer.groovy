@@ -48,6 +48,7 @@ class GspPartRenderer implements PartRenderer {
                             targetPath
                     ),
                     path: path,
+                    siteSpec: siteSpec,
                     tagBuilder: new DynamicTagBuilder(),
                     targetPath: targetPath,
                     text: text,

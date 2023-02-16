@@ -229,4 +229,20 @@ class GspTemplateRendererTests {
         assertEquals('test.html', r.v2)
     }
 
+    @Test
+    void siteSpecBaseUrlAvailable() {
+        def template = new Template('<%= siteSpec.baseUrl %>', null, null)
+        def r = this.renderer.render(
+                template,
+                new FrontMatter(null, [:]),
+                blankText(),
+                [],
+                new SiteSpec('', 'https://test.com'),
+                [:],
+                'test.html'
+        )
+        assertEmptyDiagnostics(r)
+        assertEquals('https://test.com', r.v2)
+    }
+
 }
