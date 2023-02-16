@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Templates, SpecialPages, and Parts all have access to a `logger` of type `org.slf4j.Logger`. [64f342a](https://github.com/JesseBrault0709/ssg/commit/64f342a).
 - There is now the notion of a `siteSpec`, an object of type of [`SiteSpec`](lib/src/main/groovy/com/jessebrault/ssg/SiteSpec.groovy). It is simmilar to the `globals` object in that it contains properties that are available in all Templates, SpecialPages, and Parts. Unlike `globals`, which contains user-defined keys, `siteSpec` contains (for now) the pre-defined keys `baseUrl` and `title`. To configure the `siteSpec`, add the following block to a `build` block in `ssgBuilds.groovy`:
     ```groovy
     siteSpec {
