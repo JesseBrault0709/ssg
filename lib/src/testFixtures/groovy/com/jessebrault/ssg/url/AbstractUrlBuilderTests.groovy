@@ -38,4 +38,12 @@ abstract class AbstractUrlBuilderTests {
         )
     }
 
+    @Test
+    void absoluteToCorrect() {
+        assertEquals(
+                'https://test.com/images/test.jpg',
+                this.getUrlBuilder('', 'https://test.com').absolute('images/test.jpg')
+        )
+    }
+
 }
