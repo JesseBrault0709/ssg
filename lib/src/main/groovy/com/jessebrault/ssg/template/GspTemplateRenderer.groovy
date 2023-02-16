@@ -32,17 +32,14 @@ class GspTemplateRenderer implements TemplateRenderer {
             Map globals,
             String targetPath
     ) {
+        def diagnostics = []
         try {
-            Collection<Diagnostic> diagnostics = []
-            def onDiagnostics = { Collection<Diagnostic> partDiagnostics ->
-                diagnostics.addAll(partDiagnostics)
-            }
-            def embeddableText = new EmbeddableText(text, globals, onDiagnostics)
+            def embeddableText = new EmbeddableText(text, globals, diagnostics.&addAll)
             def result = engine.createTemplate(template.text).make([
                     frontMatter: frontMatter,
                     globals: globals,
                     logger: LoggerFactory.getLogger("Template(${ template.path })"),
-                    parts: new EmbeddablePartsMap(parts, siteSpec, globals, onDiagnostics, embeddableText, text.path, targetPath),
+                    parts: new EmbeddablePartsMap(parts, siteSpec, globals, diagnostics.&addAll, embeddableText, text.path, targetPath),
                     path: text.path,
                     siteSpec: siteSpec,
                     tagBuilder: new DynamicTagBuilder(),
@@ -52,7 +49,7 @@ class GspTemplateRenderer implements TemplateRenderer {
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {
-            new Tuple2<>([new Diagnostic("An exception occurred while rendering Template ${ template.path }:\n${ e }", e)], '')
+            new Tuple2<>([*diagnostics, new Diagnostic("An exception occurred while rendering Template ${ template.path }:\n${ e }", e)], '')
         }
     }
 

@@ -29,8 +29,8 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             Map globals,
             String targetPath
     ) {
+        Collection<Diagnostic> diagnostics = []
         try {
-            Collection<Diagnostic> diagnostics = []
             def result = engine.createTemplate(specialPage.text).make([
                     globals: globals,
                     logger: LoggerFactory.getLogger("SpecialPage(${ specialPage.path })"),
@@ -51,7 +51,7 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
             ])
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {
-            new Tuple2<>([new Diagnostic("An exception occurred while rendering specialPage ${ specialPage.path }:\n${ e }", e)], '')
+            new Tuple2<>([*diagnostics, new Diagnostic("An exception occurred while rendering specialPage ${ specialPage.path }:\n${ e }", e)], '')
         }
     }
 

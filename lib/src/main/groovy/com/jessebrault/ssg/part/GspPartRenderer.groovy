@@ -56,14 +56,13 @@ class GspPartRenderer implements PartRenderer {
                     text: text,
                     urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
             ])
-            new Tuple2<>([], result.toString())
+            new Tuple2<>(embeddedPartDiagnostics, result.toString())
         } catch (Exception e) {
-            def diagnostic = new Diagnostic(
-                    "An exception occurred while rendering part ${ part.path }:\n${ e }",
-                    e
-            )
             new Tuple2<>(
-                    [diagnostic, *embeddedPartDiagnostics],
+                    [*embeddedPartDiagnostics, new Diagnostic(
+                            "An exception occurred while rendering part ${ part.path }:\n${ e }",
+                            e
+                    )],
                     ''
             )
         }

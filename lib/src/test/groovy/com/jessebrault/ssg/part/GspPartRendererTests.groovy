@@ -10,10 +10,12 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertDiagnosticException
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
 import static com.jessebrault.ssg.text.TextMocks.renderableText
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertInstanceOf
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.Mockito.mockStatic
@@ -217,6 +219,56 @@ class GspPartRendererTests {
             assertEmptyDiagnostics(r)
             verify(logger).info('Hello, World!')
         }
+    }
+
+    @Test
+    void nestedPartDiagnosticBubblesUp() {
+        def nestedProblemPart = new Part(
+                'nestedProblem.gsp',
+                new PartType([], this.renderer),
+                '<% throw new RuntimeException() %>'
+        )
+        def callerPart = new Part('caller.gsp', null, '<% parts["nestedProblem.gsp"].render() %>')
+        def r = this.renderer.render(
+                callerPart,
+                [:],
+                new SiteSpec('', ''),
+                [:],
+                null,
+                [callerPart, nestedProblemPart],
+                '',
+                ''
+        )
+        assertEquals(1, r.v1.size())
+        assertDiagnosticException(RuntimeException, r.v1[0])
+        assertEquals('', r.v2)
+    }
+
+    @Test
+    void nestedPartIsBlankWhenThrowingExceptionButCallerRendered() {
+        def nestedProblemPart = new Part(
+                'nestedProblem.gsp',
+                new PartType([], this.renderer),
+                '<% throw new RuntimeException() %>'
+        )
+        def callerPart = new Part(
+                'caller.gsp',
+                null,
+                'Hello, World!<% parts["nestedProblem.gsp"].render() %>'
+        )
+        def r = this.renderer.render(
+                callerPart,
+                [:],
+                new SiteSpec('', ''),
+                [:],
+                null,
+                [callerPart, nestedProblemPart],
+                '',
+                ''
+        )
+        assertEquals(1, r.v1.size())
+        assertDiagnosticException(RuntimeException, r.v1[0])
+        assertEquals('Hello, World!', r.v2)
     }
 
 }
