@@ -40,20 +40,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     %>
     ```
     [6de83df](https://github.com/JesseBrault0709/ssg/commit/6de83df), [06499a9](https://github.com/JesseBrault0709/ssg/commit/06499a9).
-- Templates, SpecialPages, and Parts all have access to `path` of type `String` representing the path of the 'source' file: either a text file or a special page. In Templates, the 'source' comes from the path of the Text being rendered; in SpecialPages, this comes from the path of the SpecialPage being rendered (i.e., itself); in Parts, this comes from either the Template or SpecialPage which called (i.e., embedded) the Part. 
+- Templates, SpecialPages, and Parts all have access to `sourcePath` of type `String` representing the path of the 'source' file: either a text file or a special page. In Templates, the 'source' comes from the path of the Text being rendered; in SpecialPages, this comes from the path of the SpecialPage being rendered (i.e., itself); in Parts, this comes from either the Template or SpecialPage which called (i.e., embedded) the Part. 
     ```gsp
     <%
         // in a template or part when rendering a text at 'home.md'
-        assert path == 'home.md'
+        assert sourcePath == 'home.md'
     
         // in a template or part when rendering a text at 'posts/helloWorld.md'
-        assert path == 'posts/helloWorld.md'
+        assert sourcePath == 'posts/helloWorld.md'
     
         // in a special page or part when rendering a special page at 'foo/bar/specialPage.gsp'
-        assert path == 'foo/bar/specialPage.gsp'
+        assert sourcePath == 'foo/bar/specialPage.gsp'
     %>
     ```
-  [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41), [9983685](https://github.com/JesseBrault0709/ssg/commit/9983685), [076bc9b](https://github.com/JesseBrault0709/ssg/commit/076bc9b).
+  [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41), [9983685](https://github.com/JesseBrault0709/ssg/commit/9983685), [076bc9b](https://github.com/JesseBrault0709/ssg/commit/076bc9b), [c5ac810](https://github.com/JesseBrault0709/ssg/commit/c5ac810).
 - Templates, SpecialPages, and Parts all have access to a `urlBuilder` of type [`PathBasedUrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/PathBasedUrlBuilder.groovy) (implementing [`UrlBuilder`](lib/src/main/groovy/com/jessebrault/ssg/url/UrlBuilder.groovy)). It can be used to obtain both absolute (using `siteSpec.baseUrl`) and relative urls (to the current `targetPath`). Use it like so:
     ```gsp
     <%
@@ -103,7 +103,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Parts have a `text` object of type [`EmbeddableText`](lib/src/main/groovy/com/jessebrault/ssg/text/EmbeddableText.groovy). If one is rendering a Part called from anything other than a Template (which has an associated text), this will be `null`. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
 
 ### Breaking Changes
-- The `path` object of type `String`, where it did previously exist, was stripped of its extension when previously referring to Texts or SpecialPages; now, the extension is present. For example:
+- The path of a file was stripped of its extension when previously referring to Texts or SpecialPages; now, the extension is present. For example:
     ```gsp
     <%
         // suppose we have a text called 'test.md' and we are in a template, special page, or part
@@ -113,6 +113,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     ```
   [0371d41](https://github.com/JesseBrault0709/ssg/commit/0371d41).
 - The `text` object in Templates is now an instance of [`EmbeddableText`](lib/src/main/groovy/com/jessebrault/ssg/text/EmbeddableText.groovy) instead of `String`. Thus, one must use `text.render()` to obtain the rendered text. [34d9cd5](https://github.com/JesseBrault0709/ssg/commit/34d9cd5).
-
-### Deprecated
-- The `frontMatter` object in Templates is now deprecated. Use `text.frontMatter` instead. [eafc8cd](https://github.com/JesseBrault0709/ssg/commit/eafc8cd).
+- The `frontMatter` object is no longer available. Use `text.frontMatter` instead. [eafc8cd](https://github.com/JesseBrault0709/ssg/commit/eafc8cd), [c5ac810](https://github.com/JesseBrault0709/ssg/commit/c5ac810).
