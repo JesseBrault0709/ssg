@@ -1,15 +1,14 @@
 package com.jessebrault.ssg.part
 
 import com.jessebrault.ssg.Diagnostic
-import com.jessebrault.ssg.SiteSpec
-import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
+import com.jessebrault.ssg.dsl.StandardDslMap
+import com.jessebrault.ssg.renderer.RenderContext
 import com.jessebrault.ssg.text.EmbeddableText
-import com.jessebrault.ssg.url.PathBasedUrlBuilder
+import com.jessebrault.ssg.text.Text
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
-import org.slf4j.LoggerFactory
 
 @EqualsAndHashCode
 class GspPartRenderer implements PartRenderer {
@@ -20,46 +19,27 @@ class GspPartRenderer implements PartRenderer {
     Tuple2<Collection<Diagnostic>, String> render(
             Part part,
             Map binding,
-            SiteSpec siteSpec,
-            Map globals,
-            @Nullable EmbeddableText text = null,
-            Collection<Part> allParts,
-            String path,
-            String targetPath
+            RenderContext context,
+            @Nullable Text text
     ) {
         Objects.requireNonNull(part)
         Objects.requireNonNull(binding)
-        Objects.requireNonNull(siteSpec)
-        Objects.requireNonNull(globals)
-        Objects.requireNonNull(allParts)
-        Objects.requireNonNull(path)
-        Objects.requireNonNull(targetPath)
-        def embeddedPartDiagnostics = []
+        Objects.requireNonNull(context)
+        def diagnostics = []
         try {
-            def result = engine.createTemplate(part.text).make([
-                    binding: binding,
-                    globals: globals,
-                    logger: LoggerFactory.getLogger("Part(${ part.path })"),
-                    parts: new EmbeddablePartsMap(
-                            allParts,
-                            siteSpec,
-                            globals,
-                            embeddedPartDiagnostics.&addAll,
-                            text,
-                            path,
-                            targetPath
-                    ),
-                    path: path,
-                    siteSpec: siteSpec,
-                    tagBuilder: new DynamicTagBuilder(),
-                    targetPath: targetPath,
-                    text: text,
-                    urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
-            ])
-            new Tuple2<>(embeddedPartDiagnostics, result.toString())
+            def dslMap = StandardDslMap.get(context) {
+                it.putCustom('binding', binding)
+                it.loggerName = "GspPart(${ part.path })"
+                it.onDiagnostics = diagnostics.&addAll
+                if (text) {
+                    it.text = text
+                }
+            }
+            def result = engine.createTemplate(part.text).make(dslMap)
+            new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {
             new Tuple2<>(
-                    [*embeddedPartDiagnostics, new Diagnostic(
+                    [*diagnostics, new Diagnostic(
                             "An exception occurred while rendering part ${ part.path }:\n${ e }",
                             e
                     )],

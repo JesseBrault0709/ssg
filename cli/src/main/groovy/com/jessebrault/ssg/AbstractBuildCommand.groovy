@@ -1,7 +1,7 @@
 package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.GroovyBuildScriptRunner
-import com.jessebrault.ssg.output.OutputPage
+import com.jessebrault.ssg.task.Output
 import com.jessebrault.ssg.part.GspPartRenderer
 import com.jessebrault.ssg.part.PartFilePartsProvider
 import com.jessebrault.ssg.part.PartType
@@ -86,10 +86,10 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                     logger.error(it.message)
                 }
             } else {
-                result.v2.each { OutputPage outputPage ->
-                    def target = new File(it.outDir, outputPage.path)
+                result.v2.each { Output output ->
+                    def target = new File(it.outDir, output.meta.targetPath)
                     target.createParentDirectories()
-                    target.write(outputPage.content)
+                    target.write(output.content)
                 }
             }
         }

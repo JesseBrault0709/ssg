@@ -71,7 +71,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         assertTrue(result.v2.size() == 1)
 
         def p0 = result.v2[0]
-        assertEquals('test.html', p0.path)
+        assertEquals('test.html', p0.meta.targetPath)
         assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
     }
 
@@ -91,7 +91,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         assertTrue(result.v2.size() == 1)
 
         def p0 = result.v2[0]
-        assertEquals('nested/nested.html', p0.path)
+        assertEquals('nested/nested.html', p0.meta.targetPath)
         assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
     }
 
@@ -107,11 +107,11 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         assertEmptyDiagnostics(result)
         assertEquals(2, result.v2.size())
 
-        def testPage = result.v2.find { it.path == 'test.html' }
+        def testPage = result.v2.find { it.meta.targetPath == 'test.html' }
         assertNotNull(testPage)
         assertEquals('2', testPage.content)
 
-        def specialPage = result.v2.find { it.path == 'special.html' }
+        def specialPage = result.v2.find { it.meta.targetPath == 'special.html' }
         assertNotNull(specialPage)
         assertEquals('<p>Hello, World!</p>\n', specialPage.content)
     }

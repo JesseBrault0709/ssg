@@ -1,6 +1,5 @@
-package com.jessebrault.ssg.text
+package com.jessebrault.ssg.task
 
-import com.jessebrault.ssg.task.Input
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -8,15 +7,14 @@ import groovy.transform.TupleConstructor
 @TupleConstructor(defaults = false)
 @NullCheck
 @EqualsAndHashCode
-class Text implements Input {
+final class Output {
 
-    String text
-    String path
-    TextType type
+    final OutputMeta meta
+    final String content
 
     @Override
     String toString() {
-        "Text(path: ${ this.path }, type: ${ this.type })"
+        "Output(meta: ${ this.meta })"
     }
 
 }

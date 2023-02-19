@@ -1,18 +1,12 @@
 package com.jessebrault.ssg.specialpage
 
 import com.jessebrault.ssg.Diagnostic
-import com.jessebrault.ssg.SiteSpec
-import com.jessebrault.ssg.part.EmbeddablePartsMap
-import com.jessebrault.ssg.part.Part
-import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
-import com.jessebrault.ssg.text.EmbeddableTextsCollection
-import com.jessebrault.ssg.text.Text
-import com.jessebrault.ssg.url.PathBasedUrlBuilder
+import com.jessebrault.ssg.dsl.StandardDslMap
+import com.jessebrault.ssg.renderer.RenderContext
 import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode
@@ -23,35 +17,24 @@ class GspSpecialPageRenderer implements SpecialPageRenderer {
     @Override
     Tuple2<Collection<Diagnostic>, String> render(
             SpecialPage specialPage,
-            Collection<Text> texts,
-            Collection<Part> parts,
-            SiteSpec siteSpec,
-            Map globals,
-            String targetPath
+            RenderContext context
     ) {
-        Collection<Diagnostic> diagnostics = []
+        def diagnostics = []
         try {
-            def result = engine.createTemplate(specialPage.text).make([
-                    globals: globals,
-                    logger: LoggerFactory.getLogger("SpecialPage(${ specialPage.path })"),
-                    parts: new EmbeddablePartsMap(
-                            parts,
-                            siteSpec,
-                            globals,
-                            diagnostics.&addAll,
-                            specialPage.path,
-                            targetPath
-                    ),
-                    path: specialPage.path,
-                    siteSpec: siteSpec,
-                    tagBuilder: new DynamicTagBuilder(),
-                    targetPath: targetPath,
-                    texts: new EmbeddableTextsCollection(texts, globals, diagnostics.&addAll),
-                    urlBuilder: new PathBasedUrlBuilder(targetPath, siteSpec.baseUrl)
-            ])
+            def dslMap = StandardDslMap.get(context) {
+                it.loggerName = "GspSpecialPage(${ specialPage.path })"
+                it.onDiagnostics = diagnostics.&addAll
+            }
+            def result = engine.createTemplate(specialPage.text).make(dslMap)
             new Tuple2<>(diagnostics, result.toString())
         } catch (Exception e) {
-            new Tuple2<>([*diagnostics, new Diagnostic("An exception occurred while rendering specialPage ${ specialPage.path }:\n${ e }", e)], '')
+            new Tuple2<>(
+                    [*diagnostics, new Diagnostic(
+                            "An exception occurred while rendering specialPage ${ specialPage.path }:\n${ e }",
+                            e
+                    )],
+                    ''
+            )
         }
     }
 

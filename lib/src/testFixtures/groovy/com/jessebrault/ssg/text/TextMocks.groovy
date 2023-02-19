@@ -28,4 +28,12 @@ class TextMocks {
         new Text('', path, new TextType([], textRenderer, frontMatterGetter, excerptGetter))
     }
 
+    static Text renderableTextWithPath(String text, String path) {
+        def textRenderer = mock(TextRenderer)
+        when(textRenderer.render(any(), any())).thenReturn(new Tuple2<>([], text))
+        def frontMatterGetter = mock(FrontMatterGetter)
+        def excerptGetter = mock(ExcerptGetter)
+        new Text('', path, new TextType([], textRenderer, frontMatterGetter, excerptGetter))
+    }
+
 }

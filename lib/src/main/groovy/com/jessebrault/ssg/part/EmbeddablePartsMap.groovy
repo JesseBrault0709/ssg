@@ -1,9 +1,11 @@
 package com.jessebrault.ssg.part
 
-import com.jessebrault.ssg.SiteSpec
-import com.jessebrault.ssg.text.EmbeddableText
+import com.jessebrault.ssg.renderer.RenderContext
+import com.jessebrault.ssg.text.Text
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
+
+import static java.util.Objects.requireNonNull
 
 @EqualsAndHashCode(includeFields = true)
 class EmbeddablePartsMap {
@@ -13,21 +15,15 @@ class EmbeddablePartsMap {
 
     EmbeddablePartsMap(
             Collection<Part> parts,
-            SiteSpec siteSpec,
-            Map globals,
+            RenderContext context,
             Closure onDiagnostics,
-            @Nullable EmbeddableText text = null,
-            String path,
-            String targetPath
+            @Nullable Text text = null
     ) {
-        Objects.requireNonNull(parts)
-        Objects.requireNonNull(siteSpec)
-        Objects.requireNonNull(globals)
-        Objects.requireNonNull(onDiagnostics)
-        Objects.requireNonNull(path)
-        Objects.requireNonNull(targetPath)
+        requireNonNull(parts)
+        requireNonNull(context)
+        requireNonNull(onDiagnostics)
         parts.each {
-            this.put(it.path, new EmbeddablePart(it, siteSpec, globals, onDiagnostics, text, parts, path, targetPath))
+            this.put(it.path, new EmbeddablePart(it, context, onDiagnostics, text))
         }
     }
 

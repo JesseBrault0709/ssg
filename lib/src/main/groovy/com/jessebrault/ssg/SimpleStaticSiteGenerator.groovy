@@ -1,7 +1,12 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.output.OutputPage
+import com.jessebrault.ssg.renderer.RenderContext
+import com.jessebrault.ssg.specialpage.SpecialPage
+import com.jessebrault.ssg.task.Output
+import com.jessebrault.ssg.task.OutputMeta
+import com.jessebrault.ssg.task.OutputMetaMap
 import com.jessebrault.ssg.text.FrontMatter
+import com.jessebrault.ssg.text.Text
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -22,7 +27,7 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     @Override
-    Tuple2<Collection<Diagnostic>, Collection<OutputPage>> generate(Build build) {
+    Tuple2<Collection<Diagnostic>, Collection<Output>> generate(Build build) {
         logger.trace(enter, 'build: {}', build)
         logger.info('processing build with name: {}', build.name)
 
@@ -39,18 +44,29 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
 
         def globals = build.globals
         Collection<Diagnostic> diagnostics = []
-        Collection<OutputPage> generatedPages = []
+        Collection<Output> generatedPages = []
+
+        Map<Text, OutputMeta> textOutputTasks = texts.collectEntries {
+            [(it): new OutputMeta(it.path, stripExtension(it.path) + '.html')]
+        }
+        Map<SpecialPage, OutputMeta> specialPageOutputTasks = specialPages.collectEntries {
+            [(it): new OutputMeta(it.path, stripExtension(it.path) + '.html')]
+        }
+
+        def textOutputMetas = textOutputTasks.values() as ArrayList
+        def specialPageOutputMetas = specialPageOutputTasks.values() as ArrayList
+        def outputMetaMap = new OutputMetaMap([*textOutputMetas, *specialPageOutputMetas])
 
         // Generate pages from each text, but only those that have a 'template' frontMatter field with a valid value
-        texts.each {
-            logger.trace(enter, 'text: {}', it)
-            logger.info('processing text: {}', it.path)
+        textOutputTasks.each { text, outputMeta ->
+            logger.trace(enter, 'text: {}, outputMeta: {}', text, outputMeta)
+            logger.info('processing text: {}', text.path)
 
             // Extract frontMatter from text
-            def frontMatterResult = it.type.frontMatterGetter.get(it)
+            def frontMatterResult = text.type.frontMatterGetter.get(text)
             FrontMatter frontMatter
             if (frontMatterResult.v1.size() > 0) {
-                logger.debug('diagnostics for getting frontMatter for {}: {}', it.path, frontMatterResult.v1)
+                logger.debug('diagnostics for getting frontMatter for {}: {}', text.path, frontMatterResult.v1)
                 diagnostics.addAll(frontMatterResult.v1)
                 logger.trace(exit, '')
                 return
@@ -62,28 +78,30 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             // Find the appropriate template from the frontMatter
             def desiredTemplate = frontMatter.find('template')
             if (desiredTemplate.isEmpty()) {
-                logger.info('{} has no \'template\' key in its frontMatter; skipping generation', it)
+                logger.info('{} has no \'template\' key in its frontMatter; skipping generation', text)
                 return
             }
             def template = templates.find { it.path == desiredTemplate.get() }
             if (template == null) {
-                diagnostics << new Diagnostic('in textFile' + it.path + ' frontMatter.template references an unknown template: ' + desiredTemplate, null)
+                diagnostics << new Diagnostic('in textFile' + text.path + ' frontMatter.template references an unknown template: ' + desiredTemplate, null)
                 logger.trace(exit, '')
                 return
             }
             logger.debug('found template: {}', template)
 
-            def targetPath = stripExtension(it.path) + '.html'
-
             // Render the template using the result of rendering the text earlier
             def templateRenderResult = template.type.renderer.render(
                     template,
-                    frontMatter,
-                    it,
-                    parts,
-                    siteSpec,
-                    globals,
-                    targetPath
+                    text,
+                    new RenderContext(
+                            config,
+                            siteSpec,
+                            globals,
+                            texts,
+                            parts,
+                            outputMeta.sourcePath,
+                            outputMeta.targetPath
+                    )
             )
             String renderedTemplate
             if (templateRenderResult.v1.size() > 0) {
@@ -95,21 +113,25 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << new OutputPage(targetPath, renderedTemplate)
+            generatedPages << new Output(outputMeta, renderedTemplate)
+            return
         }
 
         // Generate special pages
-        specialPages.each {
-            logger.info('processing specialPage: {}', it.path)
+        specialPageOutputTasks.each { specialPage, outputMeta ->
+            logger.info('processing specialPage: {}', specialPage.path)
 
-            def targetPath = stripExtension(it.path) + '.html'
-            def specialPageRenderResult = it.type.renderer.render(
-                    it,
-                    texts,
-                    parts,
-                    siteSpec,
-                    globals,
-                    targetPath
+            def specialPageRenderResult = specialPage.type.renderer.render(
+                    specialPage,
+                    new RenderContext(
+                            config,
+                            siteSpec,
+                            globals,
+                            texts,
+                            parts,
+                            outputMeta.sourcePath,
+                            outputMeta.targetPath
+                    )
             )
             String renderedSpecialPage
             if (specialPageRenderResult.v1.size() > 0) {
@@ -121,7 +143,8 @@ class SimpleStaticSiteGenerator implements StaticSiteGenerator {
             }
 
             // Create a GeneratedPage
-            generatedPages << new OutputPage(targetPath, renderedSpecialPage)
+            generatedPages << new Output(outputMeta, renderedSpecialPage)
+            return
         }
 
         logger.trace(exit, '\n\tdiagnostics: {}\n\tgeneratedPages: {}', diagnostics, generatedPages)

@@ -6,7 +6,7 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(includeFields = true, defaults = false)
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode(includeFields = true)
 class EmbeddableText {
 
