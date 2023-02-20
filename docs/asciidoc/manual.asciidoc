@@ -1,0 +1,19 @@
+= com.jessebrault.ssg
+Jesse Brault
+v0.1.0
+:toc:
+:source-highlighter: rouge
+
+*com.jessebrault.ssg* is a static site generator written in Groovy, giving access to the entire JVM ecosystem through its templating system.
+
+== Some Examples
+
+.Tag Builder
+[source,groovy]
+----
+def a = tagBuilder.a(href: 'hello.html', 'Hello!') // <1>
+assert a == '<a href="hello.html">Hello!</a>'
+out << a // <2>
+----
+<1> Create an <a> tag.
+<2> Output the tag in the current script block.
