@@ -5,6 +5,7 @@ import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.renderer.RenderContext
 import com.jessebrault.ssg.task.Task
 import com.jessebrault.ssg.task.TaskContainer
+import com.jessebrault.ssg.task.TaskTypeContainer
 
 class RenderContextUtil {
 
@@ -18,7 +19,7 @@ class RenderContextUtil {
                 args?.sourcePath as String ?: '',
                 args?.targetPath as String ?: '',
                 args?.tasks as TaskContainer ?: new TaskContainer(),
-                args?.taskTypes as Set<Class<? extends Task>> ?: [] as Set<Class<? extends Task>>
+                args?.taskTypes as TaskTypeContainer ?: new TaskTypeContainer()
         )
     }
 

@@ -24,7 +24,7 @@ final class TextToHtmlFileTask extends AbstractTask<TextToHtmlFileTask> {
 
     }
 
-    private static final TaskType<TextToHtmlFileTask> type = new TaskType<>(
+    static final TaskType<TextToHtmlFileTask> TYPE = new TaskType<>(
             'textToHtmlFile', new TextToHtmlFileTaskExecutor()
     )
 
@@ -32,7 +32,7 @@ final class TextToHtmlFileTask extends AbstractTask<TextToHtmlFileTask> {
     final HtmlFileOutput output
 
     TextToHtmlFileTask(String name, Text input, HtmlFileOutput output) {
-        super(type, name)
+        super(TYPE, name)
         this.input = input
         this.output = output
     }

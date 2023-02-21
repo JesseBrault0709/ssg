@@ -24,7 +24,7 @@ final class SpecialPageToHtmlFileTask extends AbstractTask<SpecialPageToHtmlFile
 
     }
 
-    private static final TaskType<SpecialPageToHtmlFileTask> type = new TaskType<>(
+    static final TaskType<SpecialPageToHtmlFileTask> TYPE = new TaskType<>(
             'specialPageToHtmlFile', new SpecialPageToHtmlFileTaskExecutor()
     )
 
@@ -32,7 +32,7 @@ final class SpecialPageToHtmlFileTask extends AbstractTask<SpecialPageToHtmlFile
     final HtmlFileOutput output
 
     SpecialPageToHtmlFileTask(String name, SpecialPage input, HtmlFileOutput output) {
-        super(type, name)
+        super(TYPE, name)
         this.input = input
         this.output = output
     }

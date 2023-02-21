@@ -18,6 +18,11 @@ final class TextToHtmlFileTaskFactory implements TaskFactory<TextToHtmlFileTask>
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     @Override
+    TaskType<TextToHtmlFileTask> getTaskType() {
+        TextToHtmlFileTask.TYPE
+    }
+
+    @Override
     Result<TaskCollection<TextToHtmlFileTask>> getTasks(Build build) {
         logger.trace(enter, 'build: {}', build)
         logger.info('getting TextToHtmlFileTasks for build with name: {}', build.name)

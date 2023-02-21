@@ -92,7 +92,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                 def context = new TaskExecutorContext(
                         it,
                         tasks,
-                        null,
+                        this.ssg.taskTypes,
                         { Collection<Diagnostic> diagnostics ->
                             executionDiagnostics.addAll(diagnostics)
                         }

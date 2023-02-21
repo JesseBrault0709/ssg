@@ -16,6 +16,11 @@ final class SpecialPageToHtmlFileTaskFactory implements TaskFactory<SpecialPageT
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     @Override
+    TaskType<SpecialPageToHtmlFileTask> getTaskType() {
+        SpecialPageToHtmlFileTask.TYPE
+    }
+
+    @Override
     Result<TaskCollection<SpecialPageToHtmlFileTask>> getTasks(Build build) {
         logger.trace(enter, 'build: {}', build)
         logger.info('processing build with name {} for SpecialPageToHtmlFileTasks', build.name)

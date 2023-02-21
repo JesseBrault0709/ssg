@@ -1,36 +1,31 @@
 package com.jessebrault.ssg.task
 
-import java.util.regex.Pattern
-
 final class TaskTypeContainer {
 
-    private static final Pattern taskTypeNamePattern = ~/(.*)Task/
-
     @Delegate
-    private final Set<Class<? extends Task>> taskTypes = []
+    private final Set<TaskType<? extends Task>> taskTypes = []
 
-    TaskTypeContainer(Collection<Class<? extends Task>> taskTypes = null) {
-        if (taskTypes) {
+    TaskTypeContainer(Collection<TaskType<? extends Task>> taskTypes) {
+        if (taskTypes != null) {
             this.taskTypes.addAll(taskTypes)
         }
     }
 
+    TaskTypeContainer(TaskTypeContainer taskTypeContainer) {
+        if (taskTypeContainer != null) {
+            this.taskTypes.addAll(taskTypeContainer)
+        }
+    }
+
+    TaskTypeContainer() {}
+
     @Override
-    Class<? extends Task> getProperty(String propertyName) {
-        def result = this.taskTypes.find {
-            def m = taskTypeNamePattern.matcher(it.simpleName)
-            if (m.matches()) {
-                def withoutTaskEnd = m.group(1)
-                def uncapitalized = withoutTaskEnd.uncapitalize()
-                return propertyName == uncapitalized
-            } else {
-                throw new IllegalStateException("invalid task type name: ${ it.simpleName }")
-            }
+    TaskType<? extends Task> getProperty(String propertyName) {
+        def taskType = this.taskTypes.find { it.name == propertyName }
+        if (!taskType) {
+            throw new IllegalArgumentException("no such taskType: ${ propertyName }")
         }
-        if (!result) {
-            throw new IllegalStateException("no such taskType: ${ propertyName }")
-        }
-        result
+        taskType
     }
 
 }
