@@ -1,7 +1,8 @@
 package com.jessebrault.ssg.task
 
-import org.jetbrains.annotations.Nullable
+import com.jessebrault.ssg.Build
+import com.jessebrault.ssg.Result
 
-interface TaskFactory {
-    @Nullable Task getTask(Input input, TaskContext context)
+interface TaskFactory<T extends Task> {
+    Result<TaskCollection<T>> getTasks(Build build)
 }

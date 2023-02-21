@@ -1,7 +1,7 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.task.Output
+import com.jessebrault.ssg.task.TaskContainer
 
 interface StaticSiteGenerator {
-    Tuple2<Collection<Diagnostic>, Collection<Output>> generate(Build build)
+    Result<TaskContainer> generate(Build build)
 }

@@ -8,6 +8,7 @@ import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.specialpage.GspSpecialPageRenderer
 import com.jessebrault.ssg.specialpage.SpecialPageFileSpecialPagesProvider
 import com.jessebrault.ssg.specialpage.SpecialPageType
+import com.jessebrault.ssg.task.TaskExecutorContext
 import com.jessebrault.ssg.template.GspTemplateRenderer
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.template.TemplateType
@@ -80,16 +81,28 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         // Do each build
         this.builds.each {
             def result = this.ssg.generate(it)
-            if (result.v1.size() > 0) {
+            if (result.hasDiagnostics()) {
                 hadDiagnostics = true
-                result.v1.each {
+                result.diagnostics.each {
                     logger.error(it.message)
                 }
             } else {
-                result.v2.each { Output output ->
-                    def target = new File(it.outDir, output.meta.targetPath)
-                    target.createParentDirectories()
-                    target.write(output.content)
+                def tasks = result.get()
+                Collection<Diagnostic> executionDiagnostics = []
+                def context = new TaskExecutorContext(
+                        it,
+                        tasks,
+                        null,
+                        { Collection<Diagnostic> diagnostics ->
+                            executionDiagnostics.addAll(diagnostics)
+                        }
+                )
+                result.get().each { it.execute(context) }
+                if (!executionDiagnostics.isEmpty()) {
+                    hadDiagnostics = true
+                    executionDiagnostics.each {
+                        logger.error(it.message)
+                    }
                 }
             }
         }

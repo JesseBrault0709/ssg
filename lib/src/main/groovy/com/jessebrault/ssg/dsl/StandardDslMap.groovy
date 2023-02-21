@@ -58,6 +58,7 @@ final class StandardDslMap {
             it.siteSpec = context.siteSpec
             it.sourcePath = context.sourcePath
             it.targetPath = context.targetPath
+            it.tasks = context.tasks
             it.text = b.text ? new EmbeddableText(
                     b.text,
                     context.globals,

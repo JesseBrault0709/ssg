@@ -5,16 +5,16 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(defaults = false)
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode
-final class OutputMeta {
+final class TaskType<T extends Task> {
 
-    final String sourcePath
-    final String targetPath
+    final String name
+    final TaskExecutor<T> executor
 
     @Override
     String toString() {
-        "OutputMeta(sourcePath: ${ sourcePath }, targetPath: ${ targetPath })"
+        "TaskType(${ this.name }, ${ this.executor })"
     }
 
 }

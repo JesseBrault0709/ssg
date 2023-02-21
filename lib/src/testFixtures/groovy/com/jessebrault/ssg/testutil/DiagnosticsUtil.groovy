@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.testutil
 
 import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.Result
 import com.jessebrault.ssg.text.ExcerptGetter
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FirstParam
@@ -23,6 +24,10 @@ class DiagnosticsUtil {
 
     static void assertEmptyDiagnostics(Tuple2<Collection<Diagnostic>, ?> result) {
         assertTrue(result.v1.isEmpty(), getDiagnosticsMessageSupplier(result.v1))
+    }
+
+    static void assertEmptyDiagnostics(Result<?> result) {
+        assertTrue(!result.hasDiagnostics(), getDiagnosticsMessageSupplier(result.diagnostics))
     }
 
     static <E extends Exception> void assertDiagnosticException(

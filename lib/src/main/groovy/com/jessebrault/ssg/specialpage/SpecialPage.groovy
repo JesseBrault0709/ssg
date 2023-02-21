@@ -1,18 +1,17 @@
 package com.jessebrault.ssg.specialpage
 
-import com.jessebrault.ssg.task.Input
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(defaults = false)
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode
-class SpecialPage implements Input {
+final class SpecialPage {
 
-    String text
-    String path
-    SpecialPageType type
+    final String text
+    final String path
+    final SpecialPageType type
 
     @Override
     String toString() {

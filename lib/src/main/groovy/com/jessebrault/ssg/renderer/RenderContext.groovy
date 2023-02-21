@@ -3,6 +3,8 @@ package com.jessebrault.ssg.renderer
 import com.jessebrault.ssg.Config
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.part.Part
+import com.jessebrault.ssg.task.Task
+import com.jessebrault.ssg.task.TaskContainer
 import com.jessebrault.ssg.text.Text
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -19,4 +21,6 @@ final class RenderContext {
     final Collection<Part> parts
     final String sourcePath
     final String targetPath
+    final TaskContainer tasks
+    final Set<Class<? extends Task>> taskTypes
 }

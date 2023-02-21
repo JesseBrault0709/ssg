@@ -6,6 +6,10 @@ import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.specialpage.GspSpecialPageRenderer
 import com.jessebrault.ssg.specialpage.SpecialPageFileSpecialPagesProvider
 import com.jessebrault.ssg.specialpage.SpecialPageType
+import com.jessebrault.ssg.task.SpecialPageToHtmlFileTask
+import com.jessebrault.ssg.task.Task
+import com.jessebrault.ssg.task.TaskTypeContainer
+import com.jessebrault.ssg.task.TextToHtmlFileTask
 import com.jessebrault.ssg.template.GspTemplateRenderer
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.template.TemplateType
@@ -18,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
+import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
 import static org.junit.jupiter.api.Assertions.*
 
 class SimpleStaticSiteGeneratorIntegrationTests {
@@ -68,11 +73,15 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def result = this.ssg.generate(this.build)
 
         assertEmptyDiagnostics(result)
-        assertTrue(result.v2.size() == 1)
+        def tasks = result.get()
+        assertTrue(tasks.size() == 1)
 
-        def p0 = result.v2[0]
-        assertEquals('test.html', p0.meta.targetPath)
-        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
+        def t0 = tasks.findAllByType(TextToHtmlFileTask)[0]
+        assertEquals('test.html', t0.output.htmlPath)
+        def contentResult = t0.output.getContent(tasks, new TaskTypeContainer([TextToHtmlFileTask])) { Collection<Diagnostic> diagnostics ->
+            fail(getDiagnosticsMessageSupplier(diagnostics))
+        }
+        assertEquals('<p><strong>Hello, World!</strong></p>\n', contentResult)
     }
 
     @Test
@@ -88,11 +97,18 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def result = this.ssg.generate(this.build)
 
         assertEmptyDiagnostics(result)
-        assertTrue(result.v2.size() == 1)
+        def tasks = result.get()
+        assertTrue(tasks.size() == 1)
 
-        def p0 = result.v2[0]
-        assertEquals('nested/nested.html', p0.meta.targetPath)
-        assertEquals('<p><strong>Hello, World!</strong></p>\n', p0.content)
+        def t0 = tasks.findAllByType(TextToHtmlFileTask)[0]
+        assertEquals('nested/nested.html', t0.output.htmlPath)
+        def contentResult = t0.output.getContent(
+                tasks,
+                new TaskTypeContainer([TextToHtmlFileTask])
+        ) { Collection<Diagnostic> diagnostics ->
+            fail(getDiagnosticsMessageSupplier(diagnostics))
+        }
+        assertEquals('<p><strong>Hello, World!</strong></p>\n', contentResult)
     }
 
     @Test
@@ -105,15 +121,28 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def result = this.ssg.generate(this.build)
 
         assertEmptyDiagnostics(result)
-        assertEquals(2, result.v2.size())
+        def tasks = result.get()
+        assertEquals(2, tasks.size())
 
-        def testPage = result.v2.find { it.meta.targetPath == 'test.html' }
-        assertNotNull(testPage)
-        assertEquals('2', testPage.content)
+        def taskTypes = new TaskTypeContainer([TextToHtmlFileTask, SpecialPageToHtmlFileTask])
 
-        def specialPage = result.v2.find { it.meta.targetPath == 'special.html' }
-        assertNotNull(specialPage)
-        assertEquals('<p>Hello, World!</p>\n', specialPage.content)
+        def testPageTask = tasks.findAllByType(TextToHtmlFileTask).find {
+            it.output.htmlPath == 'test.html'
+        }
+        assertNotNull(testPageTask)
+        def testPageContent = testPageTask.output.getContent(tasks, taskTypes) { Collection<Diagnostic> diagnostics ->
+            fail(getDiagnosticsMessageSupplier(diagnostics))
+        }
+        assertEquals('2', testPageContent)
+
+        def specialPageTask = tasks.findAllByType(SpecialPageToHtmlFileTask).find {
+            it.output.htmlPath == 'special.html'
+        }
+        assertNotNull(specialPageTask)
+        def specialPageContent = specialPageTask.output.getContent(tasks, taskTypes) { Collection<Diagnostic> diagnostics ->
+            fail(getDiagnosticsMessageSupplier(diagnostics))
+        }
+        assertEquals('<p>Hello, World!</p>\n', specialPageContent)
     }
 
     @Test
@@ -121,7 +150,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         new File(this.textsDir, 'test.md').write('Hello, World!')
         def result = this.ssg.generate(this.build)
         assertEmptyDiagnostics(result)
-        assertEquals(0, result.v2.size())
+        assertEquals(0, result.get().size())
     }
 
 }

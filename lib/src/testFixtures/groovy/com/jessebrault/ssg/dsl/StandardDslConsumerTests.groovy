@@ -8,6 +8,10 @@ import com.jessebrault.ssg.part.PartRenderer
 import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.renderer.RenderContext
 import com.jessebrault.ssg.tagbuilder.TagBuilder
+import com.jessebrault.ssg.task.HtmlFileOutput
+import com.jessebrault.ssg.task.TaskContainer
+import com.jessebrault.ssg.task.TaskTypeContainer
+import com.jessebrault.ssg.task.TextToHtmlFileTask
 import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.url.UrlBuilder
 import org.junit.jupiter.api.Test
@@ -18,8 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import static com.jessebrault.ssg.task.SpecialPageToHtmlFileTaskMocks.blankSpecialPageToHtmlFileTask
+import static com.jessebrault.ssg.task.TextToHtmlFileTaskMocks.blankTextToHtmlFileTask
 import static com.jessebrault.ssg.testutil.DiagnosticsUtil.assertEmptyDiagnostics
 import static com.jessebrault.ssg.testutil.RenderContextUtil.getRenderContext
+import static com.jessebrault.ssg.text.TextMocks.blankText
 import static com.jessebrault.ssg.text.TextMocks.renderableTextWithPath
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.fail
@@ -143,6 +150,48 @@ interface StandardDslConsumerTests {
                 'test/test.html',
                 '<%= targetPath %>',
                 getRenderContext(targetPath: 'test/test.html')
+        )
+    }
+
+    @Test
+    default void tasksAvailable() {
+        this.doDslAssertionTest("<% assert tasks != null && tasks instanceof ${ TaskContainer.name } %>")
+    }
+
+    @Test
+    default void tasksFind() {
+        def task = new TextToHtmlFileTask(
+                'testTask',
+                blankText(),
+                new HtmlFileOutput(
+                        new File('test.html'),
+                        'test.html',
+                        { '' }
+                )
+        )
+        this.doDslRenderTest(
+                'test.html',
+                '<%= tasks.find { it.name == "testTask" }.output.htmlPath %>',
+                getRenderContext(tasks: new TaskContainer([task]))
+        )
+    }
+
+    @Test
+    default void taskTypesAvailable() {
+        this.doDslAssertionTest(
+                "<% assert taskTypes != null && taskTypes instanceof ${ TaskTypeContainer.name } %>"
+        )
+    }
+
+    @Test
+    default void taskFindAllByType() {
+        def t0 = blankTextToHtmlFileTask()
+        def t1 = blankSpecialPageToHtmlFileTask()
+        this.doDslAssertionTest(
+                '<% assert tasks.size() == 2 && ' +
+                        'tasks.findAllByType(taskTypes.textToHtmlFile).size() == 1 &&' +
+                        'tasks.findAllByType(taskTypes.specialPageToHtmlFile).size() == 1 %>',
+                getRenderContext(tasks: new TaskContainer([t0, t1]))
         )
     }
 
