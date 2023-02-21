@@ -14,10 +14,10 @@ class TaskCollection<T extends Task> {
     }
 
     def <U extends T> TaskCollection<U> findAllByType(
-            Class<U> taskClass
+            TaskType<U> taskType
     ) {
         new TaskCollection<>(this.tasks.findResults {
-            taskClass.isAssignableFrom(it.class) ? taskClass.cast(it) : null
+            it.type == taskType ? it : null
         })
     }
 

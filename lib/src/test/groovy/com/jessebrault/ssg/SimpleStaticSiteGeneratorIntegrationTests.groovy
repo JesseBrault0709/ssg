@@ -76,9 +76,9 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def tasks = result.get()
         assertTrue(tasks.size() == 1)
 
-        def t0 = tasks.findAllByType(TextToHtmlFileTask)[0]
+        def t0 = tasks.findAllByType(TextToHtmlFileTask.TYPE)[0]
         assertEquals('test.html', t0.output.htmlPath)
-        def contentResult = t0.output.getContent(tasks, new TaskTypeContainer([TextToHtmlFileTask])) { Collection<Diagnostic> diagnostics ->
+        def contentResult = t0.output.getContent(tasks, new TaskTypeContainer([TextToHtmlFileTask.TYPE])) { Collection<Diagnostic> diagnostics ->
             fail(getDiagnosticsMessageSupplier(diagnostics))
         }
         assertEquals('<p><strong>Hello, World!</strong></p>\n', contentResult)
@@ -100,11 +100,11 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def tasks = result.get()
         assertTrue(tasks.size() == 1)
 
-        def t0 = tasks.findAllByType(TextToHtmlFileTask)[0]
+        def t0 = tasks.findAllByType(TextToHtmlFileTask.TYPE)[0]
         assertEquals('nested/nested.html', t0.output.htmlPath)
         def contentResult = t0.output.getContent(
                 tasks,
-                new TaskTypeContainer([TextToHtmlFileTask])
+                new TaskTypeContainer([TextToHtmlFileTask.TYPE])
         ) { Collection<Diagnostic> diagnostics ->
             fail(getDiagnosticsMessageSupplier(diagnostics))
         }
@@ -124,9 +124,9 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         def tasks = result.get()
         assertEquals(2, tasks.size())
 
-        def taskTypes = new TaskTypeContainer([TextToHtmlFileTask, SpecialPageToHtmlFileTask])
+        def taskTypes = new TaskTypeContainer([TextToHtmlFileTask.TYPE, SpecialPageToHtmlFileTask.TYPE])
 
-        def testPageTask = tasks.findAllByType(TextToHtmlFileTask).find {
+        def testPageTask = tasks.findAllByType(TextToHtmlFileTask.TYPE).find {
             it.output.htmlPath == 'test.html'
         }
         assertNotNull(testPageTask)
@@ -135,7 +135,7 @@ class SimpleStaticSiteGeneratorIntegrationTests {
         }
         assertEquals('2', testPageContent)
 
-        def specialPageTask = tasks.findAllByType(SpecialPageToHtmlFileTask).find {
+        def specialPageTask = tasks.findAllByType(SpecialPageToHtmlFileTask.TYPE).find {
             it.output.htmlPath == 'special.html'
         }
         assertNotNull(specialPageTask)

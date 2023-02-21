@@ -2,6 +2,7 @@ package com.jessebrault.ssg.dsl
 
 import com.jessebrault.ssg.part.EmbeddablePartsMap
 import com.jessebrault.ssg.renderer.RenderContext
+import com.jessebrault.ssg.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.text.EmbeddableText
 import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.text.Text
@@ -57,8 +58,10 @@ final class StandardDslMap {
             )
             it.siteSpec = context.siteSpec
             it.sourcePath = context.sourcePath
+            it.tagBuilder = new DynamicTagBuilder()
             it.targetPath = context.targetPath
             it.tasks = context.tasks
+            it.taskTypes = context.taskTypes
             it.text = b.text ? new EmbeddableText(
                     b.text,
                     context.globals,

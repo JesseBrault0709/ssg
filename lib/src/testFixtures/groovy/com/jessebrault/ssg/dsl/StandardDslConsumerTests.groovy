@@ -9,11 +9,14 @@ import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.renderer.RenderContext
 import com.jessebrault.ssg.tagbuilder.TagBuilder
 import com.jessebrault.ssg.task.HtmlFileOutput
+import com.jessebrault.ssg.task.SpecialPageToHtmlFileTask
 import com.jessebrault.ssg.task.TaskContainer
 import com.jessebrault.ssg.task.TaskTypeContainer
 import com.jessebrault.ssg.task.TextToHtmlFileTask
+import com.jessebrault.ssg.task.TextToHtmlFileTaskFactory
 import com.jessebrault.ssg.text.EmbeddableTextsCollection
 import com.jessebrault.ssg.url.UrlBuilder
+import net.bytebuddy.implementation.bytecode.Throw
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
@@ -49,11 +52,13 @@ interface StandardDslConsumerTests {
     }
 
     default void doDslAssertionTest(String scriptlet, RenderContext context = null) {
+        Tuple2<Collection<Diagnostic>, String> result = null
         try {
-            this.render(scriptlet, context ?: getRenderContext())
-        } catch (AssertionError e) {
+            result = this.render(scriptlet, context ?: getRenderContext())
+        } catch (Throwable e) {
             fail(e)
         }
+        assertEmptyDiagnostics(result)
     }
 
     @Test
@@ -133,7 +138,7 @@ interface StandardDslConsumerTests {
 
     @Test
     default void tagBuilderAvailable() {
-        this.doDslAssertionTest("<% assert tagBuider && tagBuilder instanceof ${ TagBuilder.name } %>")
+        this.doDslAssertionTest("<% assert tagBuilder && tagBuilder instanceof ${ TagBuilder.name } %>")
     }
 
     @Test
@@ -172,7 +177,10 @@ interface StandardDslConsumerTests {
         this.doDslRenderTest(
                 'test.html',
                 '<%= tasks.find { it.name == "testTask" }.output.htmlPath %>',
-                getRenderContext(tasks: new TaskContainer([task]))
+                getRenderContext(
+                        tasks: new TaskContainer([task]),
+                        taskTypes: new TaskTypeContainer([TextToHtmlFileTask.TYPE])
+                )
         )
     }
 
@@ -191,7 +199,10 @@ interface StandardDslConsumerTests {
                 '<% assert tasks.size() == 2 && ' +
                         'tasks.findAllByType(taskTypes.textToHtmlFile).size() == 1 &&' +
                         'tasks.findAllByType(taskTypes.specialPageToHtmlFile).size() == 1 %>',
-                getRenderContext(tasks: new TaskContainer([t0, t1]))
+                getRenderContext(
+                        tasks: new TaskContainer([t0, t1]),
+                        taskTypes: new TaskTypeContainer([TextToHtmlFileTask.TYPE, SpecialPageToHtmlFileTask.TYPE])
+                )
         )
     }
 
