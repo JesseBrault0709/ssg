@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Templates, SpecialPages, and Parts all have access to two related objects: `tasks` and `taskTypes`. The first is an instance of [`TaskContainer`](lib/src/main/groovy/com/jessebrault/ssg/task/TaskContainer.groovy) and can be used to access all of the [`Task`](lib/src/main/groovy/com/jessebrault/ssg/task/Task.groovy) instances for a given build. The second is in an instance of [`TaskTypeContainer`](lib/src/main/groovy/com/jessebrault/ssg/task/TaskTypeContainer.groovy) and can be used to access the various [`TaskType`](lib/src/main/groovy/com/jessebrault/ssg/task/TaskType.groovy) instances for a given build. For example, one could use these together to obtain the output path of an html file from another task (assume one is in a `.gsp` file):
+    ```groovy
+    def otherTask = tasks.findAllByType(taskTypes.textToHtmlFile).find { it.input.path == 'someText.md' }
+    assert otherTask.output.htmlPath == 'someText.html'
+    ```
+  This is a complicated and experimental feature and may be changed frequently depending on future developments. [92c8108](https://github.com/JesseBrault0709/ssg/commit/92c8108).
 - Templates, SpecialPages, and Parts all have access to a `logger` of type `org.slf4j.Logger`. [64f342a](https://github.com/JesseBrault0709/ssg/commit/64f342a).
 - There is now the notion of a `siteSpec`, an object of type of [`SiteSpec`](lib/src/main/groovy/com/jessebrault/ssg/SiteSpec.groovy). It is simmilar to the `globals` object in that it contains properties that are available in all Templates, SpecialPages, and Parts. Unlike `globals`, which contains user-defined keys, `siteSpec` contains (for now) the pre-defined keys `baseUrl` and `title`. To configure the `siteSpec`, add the following block to a `build` block in `ssgBuilds.groovy`:
     ```groovy
