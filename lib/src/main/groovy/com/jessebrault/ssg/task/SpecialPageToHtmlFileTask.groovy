@@ -12,6 +12,7 @@ final class SpecialPageToHtmlFileTask extends AbstractTask<SpecialPageToHtmlFile
 
         @Override
         void execute(SpecialPageToHtmlFileTask task, TaskExecutorContext context) {
+            task.output.file.createParentDirectories()
             task.output.file.write(task.output.getContent(
                     context.allTasks, context.allTypes, context.onDiagnostics
             ))

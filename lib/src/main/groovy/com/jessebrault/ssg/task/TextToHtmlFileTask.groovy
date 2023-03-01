@@ -12,6 +12,7 @@ final class TextToHtmlFileTask extends AbstractTask<TextToHtmlFileTask> {
 
         @Override
         void execute(TextToHtmlFileTask task, TaskExecutorContext context) {
+            task.output.file.createParentDirectories()
             task.output.file.write(task.output.getContent(
                     context.allTasks, context.allTypes, context.onDiagnostics
             ))
