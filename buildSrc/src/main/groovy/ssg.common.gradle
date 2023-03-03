@@ -1,5 +1,4 @@
 plugins {
-    id 'com.jessebrault.jbarchiva'
     id 'groovy'
     id 'java-library'
     id 'java-test-fixtures'
