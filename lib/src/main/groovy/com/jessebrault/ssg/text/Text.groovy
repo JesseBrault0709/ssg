@@ -5,13 +5,13 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(defaults = false)
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode
-class Text {
+final class Text {
 
-    String text
-    String path
-    TextType type
+    final String text
+    final String path
+    final TextType type
 
     @Override
     String toString() {

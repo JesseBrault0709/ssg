@@ -1,55 +1,38 @@
 package com.jessebrault.ssg.text
 
-import com.jessebrault.ssg.provider.WithWatchableDir
-import com.jessebrault.ssg.util.FileNameHandler
-import com.jessebrault.ssg.util.RelativePathHandler
-import groovy.io.FileType
+import com.jessebrault.ssg.provider.AbstractFileCollectionProvider
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
+class TextFileTextsProvider extends AbstractFileCollectionProvider<Text> implements TextsProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileTextsProvider)
 
     private final Collection<TextType> textTypes
-    private final File textsDir
 
-    TextFileTextsProvider(Collection<TextType> textTypes, File textsDir) {
-        this.textTypes = textTypes
-        this.textsDir = textsDir
-        this.watchableDir = this.textsDir
+    TextFileTextsProvider(File textsDir, Collection<TextType> textTypes) {
+        super(textsDir)
+        this.textTypes = Objects.requireNonNull(textTypes)
     }
 
-    private TextType getTextType(File file) {
+    private TextType getTextType(String extension) {
         this.textTypes.find {
-            it.ids.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(extension)
         }
     }
 
     @Override
-    Collection<Text> provide() {
-        if (!this.textsDir.isDirectory()) {
-            logger.warn('textsDir {} does not exist or is not a directory; skipping and providing no Texts', this.textsDir)
-            []
-        } else {
-            def textFiles = []
-            this.textsDir.eachFileRecurse(FileType.FILES) {
-                def type = this.getTextType(it)
-                if (type != null) {
-                    def relativePath = this.textsDir.relativePath(it)
-                    def path = new RelativePathHandler(relativePath).getWithoutExtension()
-                    logger.debug('found textFile {} with type {}', path, type)
-                    textFiles << new Text(it.text, path, type)
-                } else {
-                    logger.warn('ignoring {} because there is no textType for it', it)
-                }
-            }
-            textFiles
+    protected @Nullable Text transformFileToT(File file, String relativePath, String extension) {
+        def textType = getTextType(extension)
+        if (!textType) {
+            logger.warn('no TextType for text {}, ignoring', file.path)
         }
+        textType ? new Text(file.text, relativePath, textType) : null
     }
 
     @Override
@@ -59,7 +42,7 @@ class TextFileTextsProvider implements TextsProvider, WithWatchableDir {
 
     @Override
     String toString() {
-        "TextFileTextsProvider(textsDir: ${ this.textsDir }, textTypes: ${ this.textTypes })"
+        "TextFileTextsProvider(textsDir: ${ this.dir }, textTypes: ${ this.textTypes })"
     }
 
 }

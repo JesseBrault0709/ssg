@@ -1,12 +1,14 @@
 package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.GroovyBuildScriptRunner
+import com.jessebrault.ssg.task.Output
 import com.jessebrault.ssg.part.GspPartRenderer
 import com.jessebrault.ssg.part.PartFilePartsProvider
 import com.jessebrault.ssg.part.PartType
 import com.jessebrault.ssg.specialpage.GspSpecialPageRenderer
 import com.jessebrault.ssg.specialpage.SpecialPageFileSpecialPagesProvider
 import com.jessebrault.ssg.specialpage.SpecialPageType
+import com.jessebrault.ssg.task.TaskExecutorContext
 import com.jessebrault.ssg.template.GspTemplateRenderer
 import com.jessebrault.ssg.template.TemplateFileTemplatesProvider
 import com.jessebrault.ssg.template.TemplateType
@@ -32,16 +34,20 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         def gspPart = new PartType(['.gsp'], new GspPartRenderer())
         def gspSpecialPage = new SpecialPageType(['.gsp'], new GspSpecialPageRenderer())
 
-        def defaultTextsProvider = new TextFileTextsProvider([markdownText], new File('texts'))
-        def defaultTemplatesProvider = new TemplateFileTemplatesProvider([gspTemplate], new File('templates'))
-        def defaultPartsProvider = new PartFilePartsProvider([gspPart], new File('parts'))
-        def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspSpecialPage], new File('specialPages'))
+        def defaultTextsProvider = new TextFileTextsProvider(new File('texts'), [markdownText])
+        def defaultTemplatesProvider = new TemplateFileTemplatesProvider(new File('templates'), [gspTemplate])
+        def defaultPartsProvider = new PartFilePartsProvider(new File('parts'), [gspPart])
+        def defaultSpecialPagesProvider = new SpecialPageFileSpecialPagesProvider(new File('specialPages'), [gspSpecialPage])
 
         def defaultConfig = new Config(
                 textProviders: [defaultTextsProvider],
                 templatesProviders: [defaultTemplatesProvider],
                 partsProviders: [defaultPartsProvider],
                 specialPagesProviders: [defaultSpecialPagesProvider]
+        )
+        def defaultSiteSpec = new SiteSpec(
+                name: '',
+                baseUrl: ''
         )
         def defaultGlobals = [:]
 
@@ -55,7 +61,13 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
         if (this.builds.empty) {
             // Add default build
-            builds << new Build('default', defaultConfig, defaultGlobals, new File('build'))
+            builds << new Build(
+                    'default',
+                    defaultConfig,
+                    defaultSiteSpec,
+                    defaultGlobals,
+                    new File('build')
+            )
         }
 
         // Get ssg object
@@ -69,16 +81,28 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         // Do each build
         this.builds.each {
             def result = this.ssg.generate(it)
-            if (result.v1.size() > 0) {
+            if (result.hasDiagnostics()) {
                 hadDiagnostics = true
-                result.v1.each {
+                result.diagnostics.each {
                     logger.error(it.message)
                 }
             } else {
-                result.v2.each { GeneratedPage generatedPage ->
-                    def target = new File(it.outDir, generatedPage.path + '.html')
-                    target.createParentDirectories()
-                    target.write(generatedPage.html)
+                def tasks = result.get()
+                Collection<Diagnostic> executionDiagnostics = []
+                def context = new TaskExecutorContext(
+                        it,
+                        tasks,
+                        this.ssg.taskTypes,
+                        { Collection<Diagnostic> diagnostics ->
+                            executionDiagnostics.addAll(diagnostics)
+                        }
+                )
+                result.get().each { it.execute(context) }
+                if (!executionDiagnostics.isEmpty()) {
+                    hadDiagnostics = true
+                    executionDiagnostics.each {
+                        logger.error(it.message)
+                    }
                 }
             }
         }

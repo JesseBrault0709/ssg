@@ -1,6 +1,8 @@
 plugins {
     id 'com.jessebrault.jbarchiva'
     id 'groovy'
+    id 'java-library'
+    id 'java-test-fixtures'
 }
 
 group 'com.jessebrault.ssg'
@@ -12,16 +14,45 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.apache.groovy/groovy
-    implementation 'org.apache.groovy:groovy:4.0.9'
+    api 'org.apache.groovy:groovy:4.0.9'
+
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    api 'org.jetbrains:annotations:24.0.0'
+
+    /**
+     * Logging
+     */
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
+    testFixturesImplementation 'org.slf4j:slf4j-api:1.7.36'
 
     /**
      * TESTING
      */
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testFixturesApi 'org.junit.jupiter:junit-jupiter-api:5.9.2'
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+    /**
+     * Mockito
+     */
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testFixturesApi 'org.mockito:mockito-core:5.1.1'
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
+    testFixturesApi 'org.mockito:mockito-junit-jupiter:5.1.1'
+
+    /**
+     * Test Logging
+     */
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl
+    testRuntimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
+
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.19.0'
 }
 
 test {

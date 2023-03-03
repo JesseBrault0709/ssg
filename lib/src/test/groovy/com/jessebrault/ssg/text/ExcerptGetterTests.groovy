@@ -2,6 +2,7 @@ package com.jessebrault.ssg.text
 
 import org.junit.jupiter.api.Test
 
+import static com.jessebrault.ssg.text.TextMocks.renderableText
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class ExcerptGetterTests {
@@ -10,7 +11,7 @@ class ExcerptGetterTests {
 
     @Test
     void takesAllIfTextLessThanLimit() {
-        def text = new Text('One Two Three Four Five', null, null)
+        def text = renderableText('One Two Three Four Five')
         def result = this.excerptGetter.getExcerpt(text, 10)
         assertEquals(0, result.v1.size())
         assertEquals('One Two Three Four Five', result.v2)
@@ -18,7 +19,7 @@ class ExcerptGetterTests {
 
     @Test
     void takesTheLimit() {
-        def text = new Text('One Two Three Four Five', null, null)
+        def text = renderableText('One Two Three Four Five')
         def result = this.excerptGetter.getExcerpt(text, 2)
         assertEquals(0, result.v1.size())
         assertEquals('One Two', result.v2)
@@ -26,7 +27,7 @@ class ExcerptGetterTests {
 
     @Test
     void worksWithHeading() {
-        def text = new Text('# Heading\nOne Two Three', null, null)
+        def text = renderableText('# Heading\nOne Two Three')
         def result = this.excerptGetter.getExcerpt(text, 1)
         assertEquals(0, result.v1.size())
         assertEquals('Heading', result.v2)
@@ -34,7 +35,7 @@ class ExcerptGetterTests {
 
     @Test
     void worksWithFrontMatter() {
-        def text = new Text('---\ntest: hello\n---\nOne Two Three', null, null)
+        def text = renderableText('---\ntest: hello\n---\nOne Two Three')
         def result = this.excerptGetter.getExcerpt(text, 1)
         assertEquals(0, result.v1.size())
         assertEquals('One', result.v2)

@@ -1,53 +1,38 @@
 package com.jessebrault.ssg.template
 
-import com.jessebrault.ssg.provider.WithWatchableDir
-import com.jessebrault.ssg.util.FileNameHandler
-import groovy.io.FileType
+import com.jessebrault.ssg.provider.AbstractFileCollectionProvider
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
-class TemplateFileTemplatesProvider implements TemplatesProvider, WithWatchableDir {
+class TemplateFileTemplatesProvider extends AbstractFileCollectionProvider<Template> implements TemplatesProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TemplateFileTemplatesProvider)
 
     private final Collection<TemplateType> templateTypes
-    private final File templatesDir
 
-    TemplateFileTemplatesProvider(Collection<TemplateType> templateTypes, File templatesDir) {
-        this.templateTypes = templateTypes
-        this.templatesDir = templatesDir
-        this.watchableDir = this.templatesDir
+    TemplateFileTemplatesProvider(File templatesDir, Collection<TemplateType> templateTypes) {
+        super(templatesDir)
+        this.templateTypes = Objects.requireNonNull(templateTypes)
     }
 
-    private TemplateType getType(File file) {
+    private @Nullable TemplateType getType(String extension) {
         this.templateTypes.find {
-            it.ids.contains(new FileNameHandler(file).getExtension())
+            it.ids.contains(extension)
         }
     }
 
     @Override
-    Collection<Template> provide() {
-        if (!this.templatesDir.isDirectory()) {
-            logger.warn('templatesDir {} does not exist or is not a directory; skipping and providing no Templates', this.templatesDir)
-            []
-        } else {
-            def templates = []
-            this.templatesDir.eachFileRecurse(FileType.FILES) {
-                def type = this.getType(it)
-                if (type != null) {
-                    def relativePath = this.templatesDir.relativePath(it)
-                    logger.debug('found template {}', relativePath)
-                    templates << new Template(it.text, relativePath, type)
-                } else {
-                    logger.warn('ignoring {} because there is no templateType for it', it)
-                }
-            }
-            templates
+    protected Template transformFileToT(File file, String relativePath, String extension) {
+        def templateType = getType(extension)
+        if (templateType == null) {
+            logger.warn('there is no TemplateType for template {}, ignoring', relativePath)
         }
+        templateType ? new Template(file.text, relativePath, templateType) : null
     }
 
     @Override
@@ -57,7 +42,7 @@ class TemplateFileTemplatesProvider implements TemplatesProvider, WithWatchableD
 
     @Override
     String toString() {
-        "TemplateFileTemplatesProvider(templatesDir: ${ this.templatesDir }, templateTypes: ${ this.templateTypes })"
+        "TemplateFileTemplatesProvider(templatesDir: ${ this.dir }, templateTypes: ${ this.templateTypes })"
     }
 
 }

@@ -1,5 +1,9 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.task.TaskContainer
+import com.jessebrault.ssg.task.TaskTypeContainer
+
 interface StaticSiteGenerator {
-    Tuple2<Collection<Diagnostic>, Collection<GeneratedPage>> generate(Build build)
+    TaskTypeContainer getTaskTypes()
+    Result<TaskContainer> generate(Build build)
 }

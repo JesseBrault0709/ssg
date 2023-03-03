@@ -2,10 +2,12 @@ package com.jessebrault.ssg.buildscript
 
 import com.jessebrault.ssg.Build
 import com.jessebrault.ssg.Config
+import com.jessebrault.ssg.SiteSpec
 
 abstract class BuildScriptBase extends Script {
 
     Config defaultConfig
+    SiteSpec defaultSiteSpec
     Map defaultGlobals
 
     Collection<Build> builds = []
@@ -20,13 +22,20 @@ abstract class BuildScriptBase extends Script {
             // Default values for Build properties
             name = 'build' + this.currentBuildNumber
             config = new Config(defaultConfig)
+            siteSpec = new SiteSpec(defaultSiteSpec)
             globals = new LinkedHashMap(defaultGlobals)
             outDir = new File(name)
         }
         buildClosure.setDelegate(buildClosureDelegate)
         buildClosure.setResolveStrategy(Closure.DELEGATE_FIRST)
         buildClosure.run()
-        this.builds << new Build(buildClosureDelegate.name, buildClosureDelegate.config, buildClosureDelegate.globals, buildClosureDelegate.outDir)
+        this.builds << new Build(
+                buildClosureDelegate.name,
+                buildClosureDelegate.config,
+                buildClosureDelegate.siteSpec,
+                buildClosureDelegate.globals,
+                buildClosureDelegate.outDir
+        )
         this.currentBuildNumber++
     }
 

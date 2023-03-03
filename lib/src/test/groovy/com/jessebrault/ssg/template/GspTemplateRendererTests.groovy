@@ -1,80 +1,46 @@
 package com.jessebrault.ssg.template
 
-import com.jessebrault.ssg.part.Part
-import com.jessebrault.ssg.part.PartRenderer
-import com.jessebrault.ssg.part.PartType
-import com.jessebrault.ssg.text.FrontMatter
+import com.jessebrault.ssg.Diagnostic
+import com.jessebrault.ssg.dsl.StandardDslConsumerTests
+import com.jessebrault.ssg.renderer.RenderContext
+import com.jessebrault.ssg.text.Text
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
+import static com.jessebrault.ssg.testutil.DiagnosticsUtil.getDiagnosticsMessageSupplier
+import static com.jessebrault.ssg.testutil.RenderContextUtil.getRenderContext
+import static com.jessebrault.ssg.text.TextMocks.blankText
+import static com.jessebrault.ssg.text.TextMocks.renderableText
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.argThat
-import static org.mockito.Mockito.when
 
 @ExtendWith(MockitoExtension)
-class GspTemplateRendererTests {
+class GspTemplateRendererTests implements StandardDslConsumerTests {
 
     private final TemplateRenderer renderer = new GspTemplateRenderer()
 
+    private Tuple2<Collection<Diagnostic>, String> doRender(String scriptlet, Text text, RenderContext context) {
+        this.renderer.render(new Template(scriptlet, '', null), text, context)
+    }
+
+    @Override
+    Tuple2<Collection<Diagnostic>, String> render(String scriptlet, RenderContext context) {
+        this.doRender(scriptlet, blankText(), context)
+    }
+
+    /**
+     * TODO: refactor this and the super interface methods so that we can re-use rendering logic
+     */
     @Test
-    void rendersPartWithNoBinding(@Mock PartRenderer partRenderer) {
-        def template = new Template(
-                "<%= parts['test'].render() %>",
-                null,
-                null
+    void textAvailableToRender() {
+        def template = new Template('<%= text.render() %>', null, null)
+        def r = this.renderer.render(
+                template,
+                renderableText('Hello, World!'),
+                getRenderContext()
         )
-
-        when(partRenderer.render(any(), any(), any())).thenReturn(new Tuple2<>([], 'Hello, World!'))
-        def partType = new PartType([], partRenderer)
-        def part = new Part('test', partType, null)
-
-        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [part], [:])
-        assertTrue(r.v1.size() == 0)
-        assertEquals('Hello, World!', r.v2)
-    }
-
-    @Test
-    void rendersPartWithBinding(@Mock PartRenderer partRenderer) {
-        def template = new Template(
-                "<%= parts['greeting'].render([person: 'World']) %>",
-                null,
-                null
-        )
-
-        when(partRenderer.render(any(), argThat { Map m -> m.get('person') == 'World' }, any())).thenReturn(new Tuple2<>([], 'Hello, World!'))
-        def partType = new PartType([], partRenderer)
-        def part = new Part('greeting', partType, null)
-
-        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [part], [:])
-        assertTrue(r.v1.size() == 0)
-        assertEquals('Hello, World!', r.v2)
-    }
-
-    @Test
-    void rendersFrontMatter() {
-        def template = new Template("<%= frontMatter['title'] %>", null, null)
-        def r = this.renderer.render(template, new FrontMatter(null, [title: ['Hello!']]), '', [], [:])
-        assertTrue(r.v1.size() == 0)
-        assertEquals('Hello!', r.v2)
-    }
-
-    @Test
-    void rendersGlobal() {
-        def template = new Template("<%= globals['test'] %>", null, null)
-        def r = this.renderer.render(template, new FrontMatter(null, [:]), '', [], [test: 'Hello, World!'])
-        assertTrue(r.v1.size() == 0)
-        assertEquals('Hello, World!', r.v2)
-    }
-
-    @Test
-    void rendersText() {
-        def template = new Template('<%= text %>', null, null)
-        def r = this.renderer.render(template, new FrontMatter(null, [:]), 'Hello, World!', [], [:])
-        assertTrue(r.v1.size() == 0)
+        assertTrue(r.v1.isEmpty(), getDiagnosticsMessageSupplier(r.v1))
         assertEquals('Hello, World!', r.v2)
     }
 

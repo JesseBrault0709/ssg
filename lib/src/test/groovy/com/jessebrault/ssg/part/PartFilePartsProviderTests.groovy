@@ -4,10 +4,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.mockito.Mockito.mock
 
 class PartFilePartsProviderTests {
 
-    private static final PartType gspPartType = new PartType(['.gsp'], null)
+    private static final PartType gspPartType = new PartType(['.gsp'], mock(PartRenderer))
 
     private File partsDir
     private PartsProvider partsProvider
@@ -15,7 +16,7 @@ class PartFilePartsProviderTests {
     @BeforeEach
     void beforeEach() {
         this.partsDir = File.createTempDir()
-        partsProvider = new PartFilePartsProvider([gspPartType], this.partsDir)
+        partsProvider = new PartFilePartsProvider(this.partsDir, [gspPartType])
     }
 
     @Test

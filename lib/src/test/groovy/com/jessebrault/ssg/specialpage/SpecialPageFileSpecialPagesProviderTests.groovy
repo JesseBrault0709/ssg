@@ -4,10 +4,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.mockito.Mockito.mock
 
 class SpecialPageFileSpecialPagesProviderTests {
 
-    private static final SpecialPageType gspType = new SpecialPageType(['.gsp'], null)
+    private static final SpecialPageType gspType = new SpecialPageType(['.gsp'], mock(SpecialPageRenderer))
 
     private File specialPagesDir
     private SpecialPagesProvider specialPagesProvider
@@ -15,7 +16,7 @@ class SpecialPageFileSpecialPagesProviderTests {
     @BeforeEach
     void beforeEach() {
         this.specialPagesDir = File.createTempDir()
-        this.specialPagesProvider = new SpecialPageFileSpecialPagesProvider([gspType], this.specialPagesDir)
+        this.specialPagesProvider = new SpecialPageFileSpecialPagesProvider(this.specialPagesDir, [gspType])
     }
 
     @Test
@@ -26,7 +27,7 @@ class SpecialPageFileSpecialPagesProviderTests {
         def r = this.specialPagesProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
-        assertEquals('test', f0.path)
+        assertEquals('test.gsp', f0.path)
         assertEquals('<%= "Hello, World!" %>', f0.text)
         assertEquals(gspType, f0.type)
     }
@@ -40,7 +41,7 @@ class SpecialPageFileSpecialPagesProviderTests {
         def r = this.specialPagesProvider.provide()
         assertEquals(1, r.size())
         def f0 = r[0]
-        assertEquals('nested/nested', f0.path)
+        assertEquals('nested/nested.gsp', f0.path)
         assertEquals('<%= "Hello, World!" %>', f0.text)
         assertEquals(gspType, f0.type)
     }

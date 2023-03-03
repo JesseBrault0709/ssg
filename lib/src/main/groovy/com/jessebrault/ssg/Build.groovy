@@ -11,12 +11,14 @@ class Build {
 
     String name
     Config config
+    SiteSpec siteSpec
     Map globals
     File outDir
 
     @Override
     String toString() {
-        "Build(name: ${ this.name }, config: ${ this.config }, globals: ${ this.globals }, outDir: ${ this.outDir })"
+        "Build(name: ${ this.name }, config: ${ this.config }, siteSpec: ${ this.siteSpec }, " +
+                "globals: ${ this.globals }, outDir: ${ this.outDir })"
     }
 
 }

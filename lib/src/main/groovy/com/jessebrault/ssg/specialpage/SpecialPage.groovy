@@ -5,13 +5,13 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 @TupleConstructor(defaults = false)
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode
-class SpecialPage {
+final class SpecialPage {
 
-    String text
-    String path
-    SpecialPageType type
+    final String text
+    final String path
+    final SpecialPageType type
 
     @Override
     String toString() {
