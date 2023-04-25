@@ -2,10 +2,35 @@
 
 Here will be kept all of the various todos for this project, organized by release.
 
-## Next
+## v0.3.0
 
 ### Add
-- [ ] Add some kind of `outputs` map to dsl that can be used to retrieve various info about another output of the current build. For example:
+- [ ] Plan out plugin system such that we can create custom providers of texts, data, etc.
+- [ ] Provide a way to override `ssgBuilds` variables from the cli.
+
+### Fix
+
+## v0.2.0
+
+### Add
+- [ ] Write manual.
+- [ ] Remove `lib` module.
+
+### Fix
+- [ ] Update CHANGELOG to reflect the gsp-dsl changes.
+
+## Finished
+
+### v0.2.0
+- [x] Investigate imports, including static, in scripts
+  - Does not work; must use binding
+- [x] Get rid of `taskTypes` DSL, replace with static import of task types to scripts
+  - Done via the binding directly
+- [x] Plan out `data` models DSL
+  - Done via `models` dsl
+
+### v0.1.0
+- [x] Add some kind of `outputs` map to dsl that can be used to retrieve various info about another output of the current build. For example:
     ```groovy
     // while in a special page 'special.gsp' we could get the 'output' info for a text 'blog/post.md'
     def post = outputs['blog/post.md']
@@ -14,11 +39,3 @@ Here will be kept all of the various todos for this project, organized by releas
     assert post.targetPath = 'blog/post.html'
     // as well as some other information, perhaps such as the Type, extension, *etc.*
     ```
-- [ ] Add `extensionUtil` object to dsl.
-- [ ] Investigate imports, including static, in scripts
-- [ ] Get rid of `taskTypes` DSL, replace with static import of task types to scripts
-- [ ] Plan out plugin system such that we can create custom providers of texts, data, etc.
-- [ ] Plan out `data` models DSL
-- [ ] Provide a way to override `ssgBuilds` variables from the cli.
-
-### Fix
