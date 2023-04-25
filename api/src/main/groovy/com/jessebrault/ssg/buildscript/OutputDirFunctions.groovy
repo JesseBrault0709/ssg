@@ -2,6 +2,7 @@ package com.jessebrault.ssg.buildscript
 
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import org.jetbrains.annotations.Nullable
 
 import java.util.function.Function
 
@@ -27,7 +28,7 @@ final class OutputDirFunctions {
         of { new OutputDir(dir) }
     }
 
-    static Function<Build, OutputDir> of(String path) {
+    static Function<Build, OutputDir> of(@Nullable String path) {
         of { new OutputDir(path) }
     }
 

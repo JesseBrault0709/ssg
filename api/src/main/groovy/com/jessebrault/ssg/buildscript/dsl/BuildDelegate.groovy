@@ -28,11 +28,11 @@ final class BuildDelegate extends AbstractBuildDelegate<Build> {
     }
 
     void setOutputDir(File file) {
-        this.outputDirFunction = { new OutputDir(file) }
+        this.outputDirFunction = OutputDirFunctions.of(file)
     }
 
     void setOutputDir(@Nullable String path) {
-        this.outputDirFunction = { new OutputDir(path) }
+        this.outputDirFunction = OutputDirFunctions.of(path)
     }
 
 }
