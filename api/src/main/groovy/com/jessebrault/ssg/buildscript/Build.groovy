@@ -52,11 +52,11 @@ final class Build {
 
     static Build get(Map<String, Object> args) {
         new Build(
-                args?.name as String ?: '',
-                args?.outputDirFunction as Function<Build, OutputDir> ?: OutputDirFunctions.DEFAULT,
-                args?.siteSpec as SiteSpec ?: SiteSpec.getBlank(),
-                args?.globals as Map<String, Object> ?: [:],
-                args?.taskFactorySpecs as Collection<TaskFactorySpec> ?: []
+                args.name as String ?: '',
+                args.outputDirFunction as Function<Build, OutputDir> ?: OutputDirFunctions.DEFAULT,
+                args.siteSpec as SiteSpec ?: SiteSpec.getBlank(),
+                args.globals as Map<String, Object> ?: [:],
+                args.taskFactorySpecs as Collection<TaskFactorySpec> ?: []
         )
     }
 
