@@ -1,0 +1,22 @@
+plugins {
+    id 'ssg.common'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.apache.groovy/groovy-templates
+    implementation 'org.apache.groovy:groovy-templates:4.0.9'
+
+    // https://mvnrepository.com/artifact/org.commonmark/commonmark
+    implementation 'org.commonmark:commonmark:0.21.0'
+
+    // https://mvnrepository.com/artifact/org.commonmark/commonmark-ext-yaml-front-matter
+    implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.21.0'
+}
+
+jar {
+    archivesBaseName = 'ssg-api'
+}

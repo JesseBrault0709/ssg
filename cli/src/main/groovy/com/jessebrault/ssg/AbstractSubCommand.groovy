@@ -15,7 +15,7 @@ abstract class AbstractSubCommand implements Callable<Integer> {
     @CommandLine.ParentCommand
     StaticSiteGeneratorCli cli
 
-    abstract Integer doSubCommand()
+    protected abstract Integer doSubCommand()
 
     @Override
     Integer call() {

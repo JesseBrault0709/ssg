@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 
-class StaticSiteGeneratorCliIntegrationTests {
+final class StaticSiteGeneratorCliIntegrationTests {
 
     @Test
     @Disabled('until we figure out how to do the base dir arg')
@@ -29,7 +29,7 @@ class StaticSiteGeneratorCliIntegrationTests {
         }
 
         new File(partsDir, 'part.gsp').write('<%= binding.test %>')
-        new File(specialPagesDir, 'specialPage.gsp').write('<%= parts.part.render([test: "Greetings!"]) %>')
+        new File(specialPagesDir, 'page.gsp').write('<%= parts.part.render([test: "Greetings!"]) %>')
         new File(templatesDir, 'template.gsp').write('<%= text %>')
         new File(textsDir, 'text.md').write('---\ntemplate: template.gsp\n---\n**Hello, World!**')
 

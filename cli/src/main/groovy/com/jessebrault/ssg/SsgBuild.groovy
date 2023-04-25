@@ -9,7 +9,7 @@ import picocli.CommandLine
         mixinStandardHelpOptions = true,
         description = 'Builds the project.'
 )
-class SsgBuild extends AbstractBuildCommand {
+final class SsgBuild extends AbstractBuildCommand {
 
     private static final Logger logger = LogManager.getLogger(SsgBuild)
 

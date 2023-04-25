@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':lib')
+    implementation project(':api')
 
     // https://mvnrepository.com/artifact/info.picocli/picocli
     implementation 'info.picocli:picocli:4.7.1'

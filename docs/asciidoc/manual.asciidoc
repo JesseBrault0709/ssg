@@ -1,10 +1,35 @@
 = com.jessebrault.ssg
 Jesse Brault
-v0.1.0
+v0.2.0
 :toc:
 :source-highlighter: rouge
 
 *com.jessebrault.ssg* is a static site generator written in Groovy, giving access to the entire JVM ecosystem through its templating system.
+
+== Program Execution
+
+When `ssg` is invoked with a build file (such as `ssgBuilds.groovy` in the working directory), the following will occur:
+
+. The build script is evaluated and executed, producing a collection of `Build` domain objects.
+. For each `Build` object:
+.. TaskFactories are configured using the configuration closures in the build file.
+.. TaskFactories produce Tasks, each containing all the information needed to complete the task, except for a `TaskCollection` containing all tasks.
+.. Tasks are given a `TaskCollection` and then run in parallel.
+
+== The Build Script
+
+The build file is evaluated as a script whose base class is `BuildScriptBase`. The script instance fields are mutated by its execution, and it (the script) is run exactly once. Each call to `build` in the script produces a new `Build` domain object which is saved by the script. The `Build` object contains all necessary data for executing that particular build:
+
+* `name`: the name of the build, in order to invoke it from the command line.
+* `outDir`: the destination directory of the build, such as `build`.
+* `siteSpec`: a domain object containing the following properties which are available in all templated documents processed by the build:
+** `siteTitle`: a string.
+** `baseUrl`: a string, denoting the base url of the whole site, such as `http://example.com`, used in building absolute urls in the various templated documents.
+* `globals`: a `Map<String, Object>` containing any user-defined globals for that build.
+* `taskFactories: Closure<Void>`: a configuration block for taskFactories.
+// TODO: include what the `allBuilds` block does
+
+The `Build` object also contains all the necessary configuration clousres to configure the various instances of `TaskFactory` that are used to produce instances of `Task`.
 
 == Some Examples
 

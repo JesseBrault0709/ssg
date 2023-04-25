@@ -1,10 +1,10 @@
 <html>
     <%
         out << parts['head.gsp'].render([
-            title: "${ globals.siteTitle }: ${ frontMatter.title }"
+            title: "${ globals.siteTitle }: ${ text.frontMatter.title }"
         ])
     %>
     <body>
-        <%= text %>
+        <%= text.render() %>
     </body>
 </html>

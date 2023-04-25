@@ -9,7 +9,7 @@ import picocli.CommandLine
         mixinStandardHelpOptions = true,
         description = 'Generates a blank project, optionally with some basic files.'
 )
-class SsgInit extends AbstractSubCommand {
+final class SsgInit extends AbstractSubCommand {
 
     private static final Logger logger = LogManager.getLogger(SsgInit)
 
@@ -38,7 +38,7 @@ class SsgInit extends AbstractSubCommand {
             }
             dir('specialPages') {
                 if (this.withSkeletonFiles) {
-                    file('specialPage.gsp', this.getClass().getResource('/specialPage.gsp').text)
+                    file('page.gsp', this.getClass().getResource('/page.gsp').text)
                 }
             }
 

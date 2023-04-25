@@ -5,11 +5,11 @@ import picocli.CommandLine
 @CommandLine.Command(
         name = 'ssg',
         mixinStandardHelpOptions = true,
-        version = '0.0.1-SNAPSHOT',
-        description = 'Generates a set of html files from a given configuration.',
+        version = '0.2.0-SNAPSHOT',
+        description = 'Runs tasks, such as generating HTML files, from a given configuration.',
         subcommands = [SsgInit, SsgBuild, SsgWatch]
 )
-class StaticSiteGeneratorCli {
+final class StaticSiteGeneratorCli {
 
     static void main(String[] args) {
         System.exit(new CommandLine(StaticSiteGeneratorCli).execute(args))
