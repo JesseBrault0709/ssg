@@ -21,9 +21,8 @@ final class GspPageRenderer implements PageRenderer {
         def diagnostics = []
         try {
             def result = this.gspRenderer.render(specialPage.text, context) {
+                it.diagnosticsConsumer = diagnostics.&addAll
                 it.loggerName = "GspSpecialPage(${ specialPage.path })"
-                it.onDiagnostics = diagnostics.&addAll
-                return
             }
             Result.of(diagnostics, result.toString())
         } catch (Exception e) {

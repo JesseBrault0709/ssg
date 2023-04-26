@@ -2,8 +2,11 @@ package com.jessebrault.ssg.dsl
 
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.util.Diagnostic
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
+
+import java.util.function.Consumer
 
 import static java.util.Objects.requireNonNull
 
@@ -15,13 +18,13 @@ final class EmbeddablePartsMap {
 
     EmbeddablePartsMap(
             RenderContext context,
-            Closure<Void> onDiagnostics,
+            Consumer<Collection<Diagnostic>> diagnosticsConsumer,
             @Nullable Text text = null
     ) {
         requireNonNull(context)
-        requireNonNull(onDiagnostics)
+        requireNonNull(diagnosticsConsumer)
         context.parts.each {
-            this.put(it.path, new EmbeddablePart(it, context, onDiagnostics, text))
+            this[it.path] = new EmbeddablePart(it, context, diagnosticsConsumer, text)
         }
     }
 

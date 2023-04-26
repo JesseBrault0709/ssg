@@ -3,8 +3,11 @@ package com.jessebrault.ssg.dsl
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.util.Diagnostic
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
+
+import java.util.function.Consumer
 
 import static java.util.Objects.requireNonNull
 
@@ -13,7 +16,7 @@ final class EmbeddablePart {
 
     private final Part part
     private final RenderContext context
-    private final Closure<Void> onDiagnostics
+    private final Consumer<Collection<Diagnostic>> diagnosticsConsumer
 
     @Nullable
     private final Text text
@@ -21,24 +24,24 @@ final class EmbeddablePart {
     EmbeddablePart(
             Part part,
             RenderContext context,
-            Closure<Void> onDiagnostics,
+            Consumer<Collection<Diagnostic>> diagnosticsConsumer,
             @Nullable Text text
     ) {
         this.part = requireNonNull(part)
         this.context = requireNonNull(context)
-        this.onDiagnostics = requireNonNull(onDiagnostics)
+        this.diagnosticsConsumer = requireNonNull(diagnosticsConsumer)
         this.text = text
     }
 
     String render(Map binding = [:]) {
-        def result = part.type.renderer.render(
+        def result = this.part.type.renderer.render(
                 this.part,
                 binding,
                 this.context,
                 this.text
         )
         if (result.hasDiagnostics()) {
-            this.onDiagnostics.call(result.diagnostics)
+            this.diagnosticsConsumer.accept(result.diagnostics)
             ''
         } else {
             result.get()

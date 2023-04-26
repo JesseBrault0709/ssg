@@ -23,10 +23,9 @@ final class GspTemplateRenderer implements TemplateRenderer {
         def diagnostics = []
         try {
             def result = this.gspRenderer.render(template.text, context) {
+                it.diagnosticsConsumer = diagnostics.&addAll
                 it.loggerName = "GspTemplate(${ template.path })"
-                it.onDiagnostics = diagnostics.&addAll
                 it.text = text
-                return
             }
             Result.of(diagnostics, result)
         } catch (Exception e) {

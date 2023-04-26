@@ -5,6 +5,8 @@ import groovy.text.GStringTemplateEngine
 import groovy.text.TemplateEngine
 import org.codehaus.groovy.control.CompilerConfiguration
 
+import java.util.function.Consumer
+
 final class StandardGspRenderer {
 
     private final TemplateEngine engine
@@ -18,10 +20,9 @@ final class StandardGspRenderer {
     String render(
             String template,
             RenderContext context,
-            @DelegatesTo(value = StandardDslMap.Builder, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> dslMapBuilderClosure
+            Consumer<StandardDslMap.Builder> dslMapBuilderConsumer
     ) {
-        this.engine.createTemplate(template).make(StandardDslMap.get(context, dslMapBuilderClosure)).toString()
+        this.engine.createTemplate(template).make(StandardDslMap.get(context, dslMapBuilderConsumer)).toString()
     }
 
 }

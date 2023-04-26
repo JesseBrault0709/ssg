@@ -4,10 +4,11 @@ import com.jessebrault.ssg.dsl.tagbuilder.DynamicTagBuilder
 import com.jessebrault.ssg.dsl.urlbuilder.PathBasedUrlBuilder
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.util.Diagnostic
 import groovy.transform.NullCheck
-import groovy.transform.stc.ClosureParams
-import groovy.transform.stc.SimpleType
 import org.slf4j.LoggerFactory
+
+import java.util.function.Consumer
 
 final class StandardDslMap {
 
@@ -16,8 +17,8 @@ final class StandardDslMap {
 
         private final Map<String, Object> custom = [:]
 
+        Consumer<Collection<Diagnostic>> diagnosticsConsumer = { }
         String loggerName = ''
-        Closure<Void> onDiagnostics = { }
         Text text = null
 
         void putCustom(String key, Object value) {
@@ -32,17 +33,10 @@ final class StandardDslMap {
 
     static Map<String, Object> get(
             RenderContext context,
-            @DelegatesTo(value = Builder, strategy = Closure.DELEGATE_FIRST)
-            @ClosureParams(
-                    value = SimpleType,
-                    options = ['com.jessebrault.ssg.dsl.StandardDslMap.Builder']
-            )
-            Closure<Void> builderClosure
+            Consumer<Builder> builderConsumer
     ) {
         def b = new Builder()
-        builderClosure.resolveStrategy = Closure.DELEGATE_FIRST
-        builderClosure.delegate = b
-        builderClosure(b)
+        builderConsumer.accept(b)
 
         [:].tap {
             // standard variables
@@ -51,7 +45,7 @@ final class StandardDslMap {
             it.models = new ModelCollection<Object>(context.models)
             it.parts = new EmbeddablePartsMap(
                     context,
-                    b.onDiagnostics,
+                    b.diagnosticsConsumer,
                     b.text
             )
             it.siteSpec = context.siteSpec
@@ -61,11 +55,11 @@ final class StandardDslMap {
             it.tasks = new TaskCollection(context.tasks)
             it.text = b.text ? new EmbeddableText(
                     b.text,
-                    b.onDiagnostics
+                    b.diagnosticsConsumer
             ) : null
             it.texts = new EmbeddableTextsCollection(
                     context.texts,
-                    b.onDiagnostics
+                    b.diagnosticsConsumer
             )
             it.urlBuilder = new PathBasedUrlBuilder(
                     context.targetPath,
