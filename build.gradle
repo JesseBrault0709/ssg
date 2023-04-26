@@ -9,3 +9,9 @@ repositories {
 asciidoctor {
     sourceDir = 'docs/asciidoc'
 }
+
+asciidoctorj {
+    modules {
+        diagram.use()
+    }
+}

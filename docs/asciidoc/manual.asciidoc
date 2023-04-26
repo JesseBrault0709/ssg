@@ -6,6 +6,59 @@ v0.2.0
 
 *com.jessebrault.ssg* is a static site generator written in Groovy, giving access to the entire JVM ecosystem through its templating system.
 
+== Overview
+
+`ssg` has two currently functioning sub-commands, `init` and `build`, one of which must be chosen at the command line.
+
+NOTE: Previous versions of `ssg` contained a `watch` command; this will be re-introduced in future versions in a more abstracted way that will handle not only the file system changes but also database/external events as well.
+
+=== Sub-command: `init`
+
+`init` is a simple command which simply creates the expected file and folder structure for `ssg` in the current directory. The resulting directories and file (only `ssgBuilds.groovy`) are empty.
+
+.resulting project structure after running `init`
+[plantuml, width=25%, format=svg]
+----
+@startsalt
+{
+    {T
+        + <&folder> (project directory)
+        ++ <&folder> pages
+        ++ <&folder> parts
+        ++ <&folder> templates
+        ++ <&folder> texts
+        ++ <&file> ssgBuilds.groovy
+    }
+}
+@endsalt
+----
+
+However, with the `--skeleton` option (short form `-s`), a simple text, page, template, and part are generated as well. Additionally, `ssgBuilds.groovy` contains some sample configuration for the site.
+
+.resulting project structure after running `init --skeleton`
+[plantuml, width=25%, format=svg]
+----
+@startsalt
+{
+    {T
+        + <&folder> (project directory)
+        ++ <&folder> pages
+        +++ <&file> page.gsp
+        ++ <&folder> parts
+        +++ <&file> head.gsp
+        ++ <&folder> templates
+        +++ <&file> hello.gsp
+        ++ <&folder> texts
+        +++ <&file> hello.md
+        ++ <&file> ssgBuilds.groovy
+    }
+}
+@endsalt
+----
+
+=== Sub-command: `build`
+
+
 == Program Execution
 
 When `ssg` is invoked with a build file (such as `ssgBuilds.groovy` in the working directory), the following will occur:
