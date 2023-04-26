@@ -2,11 +2,12 @@
 
 Here will be kept all of the various todos for this project, organized by release.
 
-## v0.3.0
+## Future
 
 ### Add
 - [ ] Plan out plugin system such that we can create custom providers of texts, data, etc.
 - [ ] Provide a way to override `ssgBuilds` variables from the cli.
+- [ ] Add `Watchable` interface/trait back; an abstraction over FS watching and other sources (such as a database, etc.).
 
 ### Fix
 
