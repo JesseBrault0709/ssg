@@ -1,6 +1,7 @@
 package com.jessebrault.ssg.buildscript
 
 import com.jessebrault.ssg.SiteSpec
+import com.jessebrault.ssg.task.TaskFactory
 import com.jessebrault.ssg.task.TaskFactorySpec
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -32,7 +33,7 @@ final class Build {
 
         final SiteSpec siteSpec
         final Map<String, Object> globals
-        final Collection<TaskFactorySpec> taskFactorySpecs
+        final Collection<TaskFactorySpec<TaskFactory>> taskFactorySpecs
 
         AllBuilds plus(AllBuilds other) {
             concat(this, other)
@@ -56,7 +57,7 @@ final class Build {
                 args.outputDirFunction as Function<Build, OutputDir> ?: OutputDirFunctions.DEFAULT,
                 args.siteSpec as SiteSpec ?: SiteSpec.getBlank(),
                 args.globals as Map<String, Object> ?: [:],
-                args.taskFactorySpecs as Collection<TaskFactorySpec> ?: []
+                args.taskFactorySpecs as Collection<TaskFactorySpec<TaskFactory>> ?: []
         )
     }
 
@@ -84,7 +85,7 @@ final class Build {
     final Function<Build, OutputDir> outputDirFunction
     final SiteSpec siteSpec
     final Map<String, Object> globals
-    final Collection<TaskFactorySpec> taskFactorySpecs
+    final Collection<TaskFactorySpec<TaskFactory>> taskFactorySpecs
 
     Build plus(Build other) {
         concat(this, other)

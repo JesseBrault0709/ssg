@@ -21,7 +21,7 @@ final class SimpleBuildTasksConverter implements BuildTasksConverter {
 
         buildScriptResult.taskFactorySpecs.each {
             def factory = it.supplier.get()
-            it.configureClosures.each { it(factory) }
+            it.configurators.each { it.accept(factory) }
             def result = factory.getTasks(taskSpec)
             diagnostics.addAll(result.diagnostics)
             tasks.addAll(result.get())

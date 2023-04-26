@@ -8,7 +8,7 @@ import java.util.function.Supplier
 
 final class TaskFactoriesDelegate {
 
-    private final Map<String, TaskFactorySpec> specs = [:]
+    private final Map<String, TaskFactorySpec<TaskFactory>> specs = [:]
 
     private void checkNotRegistered(String name) {
         if (this.specs.containsKey(name)) {
@@ -18,7 +18,7 @@ final class TaskFactoriesDelegate {
 
     void register(String name, Supplier<? extends TaskFactory> factorySupplier) {
         this.checkNotRegistered(name)
-        this.specs[name] = new TaskFactorySpec(factorySupplier, [])
+        this.specs[name] = new TaskFactorySpec<>(factorySupplier, [])
     }
 
     def <T extends TaskFactory> void register(
@@ -27,14 +27,15 @@ final class TaskFactoriesDelegate {
             Consumer<T> factoryConfigurator
     ) {
         this.checkNotRegistered(name)
-        this.specs[name] = new TaskFactorySpec(factorySupplier, [factoryConfigurator as Closure<?>])
+        this.specs[name] = new TaskFactorySpec<>(factorySupplier, [factoryConfigurator])
     }
 
-    void configure(String name, Consumer<? extends TaskFactory> factoryConfigureClosure) {
+    def <T extends TaskFactory> void configure(String name, Class<T> factoryClass, Consumer<T> factoryConfigureClosure) {
         if (!this.specs.containsKey(name)) {
             throw new IllegalArgumentException("there is no TaskFactory registered by name ${ name }")
         }
-        this.specs[name].configureClosures << (factoryConfigureClosure as Closure<Void>)
+        // Potentially dangerous, but the configurators Collection *should* only contain the correct types.
+        this.specs[name].configurators << (factoryConfigureClosure as Consumer<TaskFactory>)
     }
 
     Map<String, TaskFactorySpec> getResult() {

@@ -3,6 +3,7 @@ package com.jessebrault.ssg.buildscript.dsl
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.buildscript.SourceProviders
 import com.jessebrault.ssg.buildscript.TypesContainer
+import com.jessebrault.ssg.task.TaskFactory
 import com.jessebrault.ssg.task.TaskFactorySpec
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
@@ -57,7 +58,7 @@ abstract class AbstractBuildDelegate<T> {
         }
     }
 
-    protected final Collection<TaskFactorySpec> getTaskFactoriesResult(SourceProviders sourceProviders) {
+    protected final Collection<TaskFactorySpec<TaskFactory>> getTaskFactoriesResult(SourceProviders sourceProviders) {
        this.taskFactoriesClosures.inject([:] as Map<String, TaskFactorySpec>) { acc, closure ->
             def d = new TaskFactoriesDelegate()
             closure.delegate = d
