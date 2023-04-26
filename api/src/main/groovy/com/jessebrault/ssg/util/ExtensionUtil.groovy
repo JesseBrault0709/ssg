@@ -1,5 +1,7 @@
 package com.jessebrault.ssg.util
 
+import org.jetbrains.annotations.Nullable
+
 import java.util.regex.Pattern
 
 final class ExtensionUtil {
@@ -12,12 +14,12 @@ final class ExtensionUtil {
         m.matches() ? m.group(1) : path
     }
 
-    static String getExtension(String path) {
+    static @Nullable String getExtension(String path) {
         def m = getExtensionPattern.matcher(path)
         if (m.matches()) {
             m.group(1)
         } else {
-            throw new IllegalArgumentException("cannot get extension for path: ${ path }")
+            null
         }
     }
 

@@ -5,21 +5,19 @@ import groovy.transform.NullCheck
 import groovy.transform.PackageScope
 import groovy.transform.TupleConstructor
 
+import java.util.function.Supplier
+
 @PackageScope
 @TupleConstructor(defaults = false, includeFields = true)
 @NullCheck(includeGenerated = true)
 @EqualsAndHashCode(includeFields = true)
-final class ClosureBasedCollectionProvider<T> extends AbstractCollectionProvider<T> {
+final class SupplierBasedCollectionProvider<T> extends AbstractCollectionProvider<T> {
 
-    static <T> CollectionProvider<T> get(Closure<Collection<T>> closure) {
-        new ClosureBasedCollectionProvider<>(closure)
-    }
-
-    private final Closure<Collection<T>> closure
+    private final Supplier<Collection<T>> supplier
 
     @Override
     Collection<T> provide() {
-        this.closure()
+        this.supplier.get()
     }
 
 }

@@ -6,7 +6,7 @@ abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
             CollectionProvider<T> cp0,
             CollectionProvider<T> cp1
     ) {
-        ClosureBasedCollectionProvider.get {
+        SupplierBasedCollectionProvider.get {
             cp0.provide() + cp1.provide()
         }
     }

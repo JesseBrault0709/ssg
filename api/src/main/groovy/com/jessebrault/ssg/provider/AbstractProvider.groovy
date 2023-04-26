@@ -6,7 +6,7 @@ abstract class AbstractProvider<T> implements Provider<T> {
             Provider<T> p0,
             Provider<T> p1
     ) {
-        ClosureBasedCollectionProvider.get {
+        SupplierBasedCollectionProvider.get {
             [p0.provide(), p1.provide()]
         }
     }
@@ -18,7 +18,7 @@ abstract class AbstractProvider<T> implements Provider<T> {
 
     @Override
     CollectionProvider<T> asType(Class<CollectionProvider> collectionProviderClass) {
-        ClosureBasedCollectionProvider.get {
+        SupplierBasedCollectionProvider.get {
             [this.provide() as T]
         }
     }

@@ -1,8 +1,9 @@
 package com.jessebrault.ssg.provider
 
-import groovy.transform.stc.ClosureParams
-import groovy.transform.stc.FromString
 import org.jetbrains.annotations.Nullable
+
+import java.util.function.BiFunction
+import java.util.function.Supplier
 
 final class CollectionProviders {
 
@@ -10,20 +11,19 @@ final class CollectionProviders {
         new SimpleCollectionProvider<>([])
     }
 
-    static <T> CollectionProvider<T> of(Collection<T> ts) {
+    static <T> CollectionProvider<T> fromCollection(Collection<T> ts) {
         new SimpleCollectionProvider<T>(ts)
     }
 
-    static <T> CollectionProvider<T> from(Closure<Collection<T>> closure) {
-        ClosureBasedCollectionProvider.get(closure)
+    static <T> CollectionProvider<T> fromSupplier(Supplier<Collection<T>> supplier) {
+        new SupplierBasedCollectionProvider<>(supplier)
     }
 
-    static <T> CollectionProvider<T> from(
-            File dir,
-            @ClosureParams(value = FromString, options = 'java.io.File')
-            Closure<@Nullable T> fileToElementClosure
+    static <T> CollectionProvider<T> fromDirectory(
+            File baseDirectory,
+            BiFunction<File, String, @Nullable T> elementFunction
     ) {
-        new FileBasedCollectionProvider<>(dir, fileToElementClosure)
+        new FileBasedCollectionProvider<>(baseDirectory, elementFunction)
     }
 
     private CollectionProviders() {}

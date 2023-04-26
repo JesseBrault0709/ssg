@@ -1,6 +1,6 @@
 package com.jessebrault.ssg.provider
 
-import org.codehaus.groovy.runtime.InvokerHelper
+import java.util.function.Supplier
 
 final class Providers {
 
@@ -8,8 +8,8 @@ final class Providers {
         new SimpleProvider<>(t)
     }
 
-    static <T> Provider<T> from(Closure<T> closure) {
-        ClosureBasedProvider.of(closure)
+    static <T> Provider<T> fromSupplier(Supplier<T> supplier) {
+        new SupplierBasedProvider<>(supplier)
     }
 
     static <T> CollectionProvider<T> concat(Provider<T> ...providers) {

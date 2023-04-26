@@ -38,7 +38,7 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
 
                 taskFactories { sourceProviders ->
                     register('textToHtml', TextToHtmlTaskFactory::new) {
-                        it.specProvider += CollectionProviders.from {
+                        it.specProvider += CollectionProviders.fromSupplier {
                             def templates = sourceProviders.templatesProvider.provide()
                             sourceProviders.textsProvider.provide().collect {
                                 def frontMatterResult = it.type.frontMatterGetter.get(it)
