@@ -3,6 +3,7 @@ package com.jessebrault.ssg.util
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNull
 
 final class ExtensionUtilTests {
 
@@ -40,6 +41,16 @@ final class ExtensionUtilTests {
         @Test
         void withMultipleExtensions() {
             assertEquals('.txt', ExtensionUtil.getExtension('test.test.txt'))
+        }
+
+        @Test
+        void noExtensionReturnsNull() {
+            assertNull(ExtensionUtil.getExtension('NO_EXTENSION'))
+        }
+
+        @Test
+        void dotFileReturnsNull() {
+            assertNull(ExtensionUtil.getExtension('.dot_file'))
         }
 
     }
