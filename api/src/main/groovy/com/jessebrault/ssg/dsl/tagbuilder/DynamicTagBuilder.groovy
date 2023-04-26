@@ -10,7 +10,7 @@ final class DynamicTagBuilder implements TagBuilder {
     }
 
     @Override
-    String create(String name, Map<String, ?> attributes) {
+    String create(String name, Map<String, Object> attributes) {
         def formattedAttributes = attributes.collect {
             if (it.value instanceof String) {
                 it.key + '="' + it.value + '"'
@@ -31,7 +31,7 @@ final class DynamicTagBuilder implements TagBuilder {
     }
 
     @Override
-    String create(String name, Map<String, ?> attributes, String body) {
+    String create(String name, Map<String, Object> attributes, String body) {
         def formattedAttributes = attributes.collect {
             if (it.value instanceof String) {
                 it.key + '="' + it.value + '"'
