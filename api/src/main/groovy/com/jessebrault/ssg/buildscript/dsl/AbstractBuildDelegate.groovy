@@ -9,11 +9,11 @@ import groovy.transform.stc.SimpleType
 
 abstract class AbstractBuildDelegate<T> {
 
-    private final Collection<Closure<Void>> siteSpecClosures = []
-    private final Collection<Closure<Void>> globalsClosures = []
-    private final Collection<Closure<Void>> typesClosures = []
-    private final Collection<Closure<Void>> sourcesClosures = []
-    private final Collection<Closure<Void>> taskFactoriesClosures = []
+    private final Collection<Closure<?>> siteSpecClosures = []
+    private final Collection<Closure<?>> globalsClosures = []
+    private final Collection<Closure<?>> typesClosures = []
+    private final Collection<Closure<?>> sourcesClosures = []
+    private final Collection<Closure<?>> taskFactoriesClosures = []
 
     abstract T getResult()
 
@@ -73,21 +73,21 @@ abstract class AbstractBuildDelegate<T> {
 
     void siteSpec(
             @DelegatesTo(value = SiteSpecDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> siteSpecClosure
+            Closure<?> siteSpecClosure
     ) {
         this.siteSpecClosures << siteSpecClosure
     }
 
     void globals(
             @DelegatesTo(value = GlobalsDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> globalsClosure
+            Closure<?> globalsClosure
     ) {
         this.globalsClosures << globalsClosure
     }
 
     void types(
             @DelegatesTo(value = TypesDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> typesClosure
+            Closure<?> typesClosure
     ) {
         this.typesClosures << typesClosure
     }
@@ -95,7 +95,7 @@ abstract class AbstractBuildDelegate<T> {
     void providers(
             @DelegatesTo(value = SourceProvidersDelegate, strategy = Closure.DELEGATE_FIRST)
             @ClosureParams(value = SimpleType, options = 'com.jessebrault.ssg.buildscript.TypesContainer')
-            Closure<Void> providersClosure
+            Closure<?> providersClosure
     ) {
         this.sourcesClosures << providersClosure
     }
@@ -103,7 +103,7 @@ abstract class AbstractBuildDelegate<T> {
     void taskFactories(
             @DelegatesTo(value = TaskFactoriesDelegate, strategy = Closure.DELEGATE_FIRST)
             @ClosureParams(value = SimpleType, options = 'com.jessebrault.ssg.buildscript.SourceProviders')
-            Closure<Void> taskFactoriesClosure
+            Closure<?> taskFactoriesClosure
     ) {
         this.taskFactoriesClosures << taskFactoriesClosure
     }

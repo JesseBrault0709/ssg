@@ -2,9 +2,8 @@ package com.jessebrault.ssg.buildscript.dsl
 
 import com.jessebrault.ssg.task.TaskFactory
 import com.jessebrault.ssg.task.TaskFactorySpec
-import groovy.transform.stc.ClosureParams
-import groovy.transform.stc.SecondParam
 
+import java.util.function.Consumer
 import java.util.function.Supplier
 
 final class TaskFactoriesDelegate {
@@ -25,18 +24,17 @@ final class TaskFactoriesDelegate {
     def <T extends TaskFactory> void register(
             String name,
             Supplier<T> factorySupplier,
-            @ClosureParams(value = SecondParam.FirstGenericType)
-            Closure<Void> factoryConfigureClosure
+            Consumer<T> factoryConfigurator
     ) {
         this.checkNotRegistered(name)
-        this.specs[name] = new TaskFactorySpec(factorySupplier, [factoryConfigureClosure])
+        this.specs[name] = new TaskFactorySpec(factorySupplier, [factoryConfigurator as Closure<?>])
     }
 
-    void configure(String name, Closure<Void> factoryConfigureClosure) {
+    void configure(String name, Consumer<? extends TaskFactory> factoryConfigureClosure) {
         if (!this.specs.containsKey(name)) {
             throw new IllegalArgumentException("there is no TaskFactory registered by name ${ name }")
         }
-        this.specs[name].configureClosures << factoryConfigureClosure
+        this.specs[name].configureClosures << (factoryConfigureClosure as Closure<Void>)
     }
 
     Map<String, TaskFactorySpec> getResult() {

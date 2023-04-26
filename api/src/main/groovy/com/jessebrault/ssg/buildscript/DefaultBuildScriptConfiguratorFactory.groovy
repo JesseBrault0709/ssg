@@ -27,9 +27,6 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
                     pageTypes << PageTypes.GSP
                     templateTypes << TemplateTypes.GSP
                     partTypes << PartTypes.GSP
-
-                    //noinspection GroovyUnnecessaryReturn
-                    return
                 }
 
                 providers { types ->
@@ -59,27 +56,18 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
                         }
                         it.allTextsProvider += sourceProviders.textsProvider
                         it.allPartsProvider += sourceProviders.partsProvider
-
-                        //noinspection GroovyUnnecessaryReturn
-                        return
                     }
 
                     register('pageToHtml', PageToHtmlTaskFactory::new) {
                         it.pagesProvider += sourceProviders.pagesProvider
                         it.allTextsProvider += sourceProviders.textsProvider
                         it.allPartsProvider += sourceProviders.partsProvider
-
-                        //noinspection GroovyUnnecessaryReturn
-                        return
                     }
                 }
             }
 
             it.build('default') {
                 outputDir = new File('build')
-
-                //noinspection GroovyUnnecessaryReturn
-                return
             }
         }
     }

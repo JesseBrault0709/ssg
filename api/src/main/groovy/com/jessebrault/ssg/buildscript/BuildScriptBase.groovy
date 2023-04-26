@@ -1,6 +1,5 @@
 package com.jessebrault.ssg.buildscript
 
-
 import com.jessebrault.ssg.buildscript.Build.AllBuilds
 import com.jessebrault.ssg.buildscript.dsl.AllBuildsDelegate
 import com.jessebrault.ssg.buildscript.dsl.BuildDelegate
@@ -16,7 +15,7 @@ abstract class BuildScriptBase extends Script {
 
     void build(
             @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> buildClosure
+            Closure<?> buildClosure
     ) {
         this.build('build' + this.currentBuildNumber, buildClosure)
     }
@@ -24,7 +23,7 @@ abstract class BuildScriptBase extends Script {
     void build(
             String name,
             @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> buildClosure
+            Closure<?> buildClosure
     ) {
         def d = new BuildDelegate().tap {
             it.name = name
@@ -38,7 +37,7 @@ abstract class BuildScriptBase extends Script {
 
     void allBuilds(
             @DelegatesTo(value = AllBuildsDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<Void> allBuildsClosure
+            Closure<?> allBuildsClosure
     ) {
         def d = new AllBuildsDelegate()
         allBuildsClosure.setDelegate(d)
