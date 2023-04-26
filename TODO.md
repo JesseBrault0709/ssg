@@ -14,13 +14,13 @@ Here will be kept all of the various todos for this project, organized by releas
 
 ### Add
 - [ ] Write manual.
-- [ ] Remove `lib` module.
+- [x] Remove `lib` module.
 - [ ] Add a way for CLI to choose a build to do, or multiple builds, defaulting to 'default' if it exists.
 - [ ] Write lots of tests for buildscript dsl, etc.
 
 ### Fix
 - [ ] Update CHANGELOG to reflect the gsp-dsl changes.
-- [ ] Change most instances of `Closure<Void>` to `Closure<?>` to help with IDE expectations.
+- [x] Change most instances of `Closure<Void>` to `Closure<?>` to help with IDE expectations.
 
 ## Finished
 
