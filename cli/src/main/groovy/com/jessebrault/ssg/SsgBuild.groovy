@@ -15,7 +15,15 @@ final class SsgBuild extends AbstractBuildCommand {
 
     @Override
     Integer doSubCommand() {
-        this.doBuild()
+        logger.traceEntry()
+        def result = 0
+        this.requestedBuilds.each {
+            def buildResult = this.doBuild(it)
+            if (buildResult == 1) {
+                result = 1
+            }
+        }
+        logger.traceExit(result)
     }
 
 }

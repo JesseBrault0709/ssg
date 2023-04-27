@@ -6,51 +6,63 @@ import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import picocli.CommandLine
 
 abstract class AbstractBuildCommand extends AbstractSubCommand {
 
     private static final Logger logger = LogManager.getLogger(AbstractBuildCommand)
 
-    protected final Collection<Build> builds = []
+    protected Collection<Build> availableBuilds = []
 
-    AbstractBuildCommand() {
-        // Run build script
-        if (new File('ssgBuilds.groovy').exists()) {
-            logger.info('found buildScript: ssgBuilds.groovy')
+    @CommandLine.Option(
+            names = ['-b', '--build'],
+            description = 'The name of a build to execute.',
+            paramLabel = 'buildName'
+    )
+    protected Collection<String> requestedBuilds = ['default']
+
+    @CommandLine.Option(
+            names = ['-s', '--script', '--buildScript'],
+            description = 'The build script file to execute.',
+            paramLabel = 'buildScript'
+    )
+    void setBuildFile(File buildScriptFile) {
+        if (buildScriptFile == null) {
+            buildScriptFile = new File('ssgBuilds.groovy')
+        }
+        if (buildScriptFile.exists()) {
+            logger.info('found buildScriptFile: {}', buildScriptFile)
             def configuratorFactory = new DefaultBuildScriptConfiguratorFactory()
-            this.builds.addAll(BuildScriptUtil.runBuildScript('ssgBuilds.groovy') {
+            this.availableBuilds = BuildScriptUtil.runBuildScript(buildScriptFile.path) {
                 configuratorFactory.get().accept(it)
-            })
-            logger.debug('after running ssgBuilds.groovy, builds: {}', this.builds)
+            }
+            logger.debug('after running buildScriptFile {}, builds: {}', buildScriptFile, this.availableBuilds)
         } else {
-            throw new IllegalArgumentException('ssgBuilds.groovy could not be found')
+            throw new IllegalArgumentException(
+                    "buildScriptFile file ${ buildScriptFile } does not exist or could not be found."
+            )
         }
     }
 
-    protected final Integer doBuild() {
-        logger.traceEntry('builds: {}', this.builds)
+    protected final Integer doBuild(String requestedBuild) {
+        logger.traceEntry('requestedBuild: {}', requestedBuild)
 
         def buildTasksConverter = new SimpleBuildTasksConverter()
 
+        def build = this.availableBuilds.find { it.name == requestedBuild }
+
         def hadDiagnostics = false
-        // Do each build
-        this.builds.each {
-            def tasksResult = buildTasksConverter.convert(it)
-            if (tasksResult.hasDiagnostics()) {
+        def tasksResult = buildTasksConverter.convert(build)
+        if (tasksResult.hasDiagnostics()) {
+            hadDiagnostics = true
+            tasksResult.diagnostics.each { logger.error(it.message) }
+        } else {
+            def tasks = tasksResult.get()
+            Collection<Diagnostic> taskDiagnostics = []
+            tasks.each { it.execute(tasks) }
+            if (!taskDiagnostics.isEmpty()) {
                 hadDiagnostics = true
-                tasksResult.diagnostics.each {
-                    logger.error(it.message)
-                }
-            } else {
-                def tasks = tasksResult.get()
-                Collection<Diagnostic> taskDiagnostics = []
-                tasks.each { it.execute(tasks) }
-                if (!taskDiagnostics.isEmpty()) {
-                    hadDiagnostics = true
-                    taskDiagnostics.each {
-                        logger.error(it.message)
-                    }
-                }
+                taskDiagnostics.each { logger.error(it.message) }
             }
         }
 
