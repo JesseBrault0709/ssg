@@ -15,8 +15,8 @@ final class SiteSpec {
 
     static SiteSpec concat(SiteSpec s0, SiteSpec s1) {
         new SiteSpec(
-                s1.name.blank ? s0.name : s1.name,
-                s1.baseUrl.blank ? s0.baseUrl : s1.baseUrl
+                s0.name.blank ? s1.name : s0.name,
+                s0.baseUrl.blank ? s1.baseUrl : s0.baseUrl
         )
     }
 
