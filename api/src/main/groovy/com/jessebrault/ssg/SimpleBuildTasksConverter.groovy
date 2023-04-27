@@ -9,17 +9,17 @@ import com.jessebrault.ssg.util.Result
 final class SimpleBuildTasksConverter implements BuildTasksConverter {
 
     @Override
-    Result<Collection<Task>> convert(Build buildScriptResult) {
+    Result<Collection<Task>> convert(Build build) {
         def taskSpec = new TaskSpec(
-                buildScriptResult.name,
-                buildScriptResult.outputDirFunction.apply(buildScriptResult).file,
-                buildScriptResult.siteSpec,
-                buildScriptResult.globals
+                build.name,
+                build.outputDirFunction.apply(build).file,
+                build.siteSpec,
+                build.globals
         )
         Collection<Task> tasks = []
         Collection<Diagnostic> diagnostics = []
 
-        buildScriptResult.taskFactorySpecs.each {
+        build.taskFactorySpecs.each {
             def factory = it.supplier.get()
             it.configurators.each { it.accept(factory) }
             def result = factory.getTasks(taskSpec)
