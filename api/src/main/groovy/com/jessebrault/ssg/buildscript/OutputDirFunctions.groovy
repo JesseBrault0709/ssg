@@ -12,7 +12,7 @@ final class OutputDirFunctions {
             Function<Build, OutputDir> f0,
             Function<Build, OutputDir> f1
     ) {
-        f1 == OutputDirFunctions.DEFAULT ? f0 : f1
+        f0 == OutputDirFunctions.DEFAULT ? f1 : f0
     }
 
     static Function<Build, OutputDir> of(File dir) {

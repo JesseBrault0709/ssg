@@ -63,7 +63,7 @@ final class Build {
 
     static Build concat(Build b0, Build b1) {
         new Build(
-                b1.name.blank ? b0.name : b1.name,
+                b0.name.blank ? b1.name : b0.name,
                 OutputDirFunctions.concat(b0.outputDirFunction, b1.outputDirFunction),
                 SiteSpec.concat(b0.siteSpec, b1.siteSpec),
                 b0.globals + b1.globals,

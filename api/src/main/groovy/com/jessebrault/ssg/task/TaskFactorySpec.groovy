@@ -4,6 +4,7 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
+import java.util.function.BiFunction
 import java.util.function.Consumer
 import java.util.function.Supplier
 
