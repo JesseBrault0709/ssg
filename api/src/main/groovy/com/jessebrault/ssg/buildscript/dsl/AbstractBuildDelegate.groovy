@@ -22,7 +22,8 @@ abstract class AbstractBuildDelegate<T> {
         this.siteSpecClosures.inject(SiteSpec.getBlank()) { acc, closure ->
             def d = new SiteSpecDelegate()
             closure.delegate = d
-            closure.resolveStrategy = DELEGATE_FIRST
+            //noinspection UnnecessaryQualifiedReference
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure()
             acc + d.getResult()
         }
@@ -32,7 +33,8 @@ abstract class AbstractBuildDelegate<T> {
         this.globalsClosures.inject([:] as Map<String, Object>) { acc, closure ->
             def d = new GlobalsDelegate()
             closure.delegate = d
-            closure.resolveStrategy = DELEGATE_FIRST
+            //noinspection UnnecessaryQualifiedReference
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure()
             acc + d.getResult()
         }
@@ -42,7 +44,8 @@ abstract class AbstractBuildDelegate<T> {
         this.typesClosures.inject(TypesContainer.getEmpty()) { acc, closure ->
             def d = new TypesDelegate()
             closure.delegate = d
-            closure.resolveStrategy = DELEGATE_FIRST
+            //noinspection UnnecessaryQualifiedReference
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure()
             acc + d.getResult()
         }
@@ -52,7 +55,8 @@ abstract class AbstractBuildDelegate<T> {
         this.sourcesClosures.inject(SourceProviders.getEmpty()) { acc, closure ->
             def d = new SourceProvidersDelegate()
             closure.delegate = d
-            closure.resolveStrategy = DELEGATE_FIRST
+            //noinspection UnnecessaryQualifiedReference
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure(typesContainer)
             acc + d.getResult()
         }
@@ -62,7 +66,8 @@ abstract class AbstractBuildDelegate<T> {
        this.taskFactoriesClosures.inject([:] as Map<String, TaskFactorySpec>) { acc, closure ->
             def d = new TaskFactoriesDelegate()
             closure.delegate = d
-            closure.resolveStrategy = DELEGATE_FIRST
+           //noinspection UnnecessaryQualifiedReference
+           closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure(sourceProviders)
             def specs = d.getResult()
             specs.forEach { name, spec ->

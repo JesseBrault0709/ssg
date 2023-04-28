@@ -6,9 +6,9 @@ abstract class AbstractProvider<T> implements Provider<T> {
             Provider<T> p0,
             Provider<T> p1
     ) {
-        SupplierBasedCollectionProvider.get {
+        new SupplierBasedCollectionProvider<>({
             [p0.provide(), p1.provide()]
-        }
+        })
     }
 
     @Override
@@ -18,9 +18,9 @@ abstract class AbstractProvider<T> implements Provider<T> {
 
     @Override
     CollectionProvider<T> asType(Class<CollectionProvider> collectionProviderClass) {
-        SupplierBasedCollectionProvider.get {
+        new SupplierBasedCollectionProvider<>({
             [this.provide() as T]
-        }
+        })
     }
 
 }

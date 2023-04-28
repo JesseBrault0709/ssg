@@ -3,17 +3,28 @@ package com.jessebrault.ssg.provider
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.PackageScope
-import groovy.transform.TupleConstructor
 
 import java.util.function.Supplier
 
 @PackageScope
-@TupleConstructor(defaults = false, includeFields = true)
-@NullCheck(includeGenerated = true)
-@EqualsAndHashCode(includeFields = true)
+@NullCheck
+@EqualsAndHashCode(includeFields = true, callSuper = true)
 final class SupplierBasedCollectionProvider<T> extends AbstractCollectionProvider<T> {
 
     private final Supplier<Collection<T>> supplier
+
+    SupplierBasedCollectionProvider(
+            Collection<CollectionProvider<T>> collectionProviderChildren,
+            Collection<Provider<T>> providerChildren,
+            Supplier<Collection<T>> supplier
+    ) {
+        super(collectionProviderChildren, providerChildren)
+        this.supplier = supplier
+    }
+
+    SupplierBasedCollectionProvider(Supplier<Collection<T>> supplier) {
+        this([], [], supplier)
+    }
 
     @Override
     Collection<T> provide() {

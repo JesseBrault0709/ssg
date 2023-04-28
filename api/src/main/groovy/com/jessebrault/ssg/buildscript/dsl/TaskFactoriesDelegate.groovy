@@ -30,7 +30,11 @@ final class TaskFactoriesDelegate {
         this.specs[name] = new TaskFactorySpec<>(factorySupplier, [factoryConfigurator])
     }
 
-    def <T extends TaskFactory> void configure(String name, Class<T> factoryClass, Consumer<T> factoryConfigureClosure) {
+    def <T extends TaskFactory> void configure(
+            String name,
+            Class<T> factoryClass, // Dummy so we get better auto-complete
+            Consumer<T> factoryConfigureClosure
+    ) {
         if (!this.specs.containsKey(name)) {
             throw new IllegalArgumentException("there is no TaskFactory registered by name ${ name }")
         }

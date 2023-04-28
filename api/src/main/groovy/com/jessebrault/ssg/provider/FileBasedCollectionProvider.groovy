@@ -5,7 +5,6 @@ import groovy.io.FileType
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.PackageScope
-import groovy.transform.TupleConstructor
 import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,15 +12,20 @@ import org.slf4j.LoggerFactory
 import java.util.function.BiFunction
 
 @PackageScope
-@TupleConstructor(includeFields = true, defaults = false)
-@NullCheck(includeGenerated = true)
-@EqualsAndHashCode(includeFields = true)
+@NullCheck
+@EqualsAndHashCode(includeFields = true, callSuper = true)
 final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(FileBasedCollectionProvider)
 
     private final File baseDirectory
     private final BiFunction<File, String, @Nullable T> elementFunction
+
+    FileBasedCollectionProvider(File baseDirectory, BiFunction<File, String, T> elementFunction) {
+        super([], [])
+        this.baseDirectory = baseDirectory
+        this.elementFunction = elementFunction
+    }
 
     @Override
     Collection<T> provide() {
