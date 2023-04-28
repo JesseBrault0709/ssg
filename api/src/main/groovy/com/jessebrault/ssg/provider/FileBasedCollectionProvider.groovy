@@ -36,7 +36,7 @@ final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T>
             final Collection<T> ts = []
             this.baseDirectory.eachFileRecurse(FileType.FILES) {
                 def t = this.elementFunction.apply(it, PathUtil.relative(this.baseDirectory.path, it.path)) as T
-                if (t) {
+                if (t != null) {
                     ts << t
                 }
             }
