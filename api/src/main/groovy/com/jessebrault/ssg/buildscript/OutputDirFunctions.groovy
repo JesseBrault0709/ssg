@@ -1,7 +1,5 @@
 package com.jessebrault.ssg.buildscript
 
-import org.jetbrains.annotations.Nullable
-
 import java.util.function.Function
 
 final class OutputDirFunctions {
@@ -19,7 +17,7 @@ final class OutputDirFunctions {
         return { new OutputDir(dir) }
     }
 
-    static Function<Build, OutputDir> of(@Nullable String path) {
+    static Function<Build, OutputDir> of(String path) {
         return { new OutputDir(path) }
     }
 

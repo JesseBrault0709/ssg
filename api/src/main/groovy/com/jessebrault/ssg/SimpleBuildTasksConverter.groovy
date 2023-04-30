@@ -12,7 +12,7 @@ final class SimpleBuildTasksConverter implements BuildTasksConverter {
     Result<Collection<Task>> convert(Build build) {
         def taskSpec = new TaskSpec(
                 build.name,
-                build.outputDirFunction.apply(build).file,
+                build.outputDirFunction.apply(build).asFile(),
                 build.siteSpec,
                 build.globals
         )

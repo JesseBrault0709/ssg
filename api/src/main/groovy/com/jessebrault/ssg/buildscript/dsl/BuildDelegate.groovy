@@ -3,7 +3,6 @@ package com.jessebrault.ssg.buildscript.dsl
 import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.OutputDir
 import com.jessebrault.ssg.buildscript.OutputDirFunctions
-import org.jetbrains.annotations.Nullable
 
 import java.util.function.Function
 
@@ -31,7 +30,7 @@ final class BuildDelegate extends AbstractBuildDelegate<Build> {
         this.outputDirFunction = OutputDirFunctions.of(file)
     }
 
-    void setOutputDir(@Nullable String path) {
+    void setOutputDir(String path) {
         this.outputDirFunction = OutputDirFunctions.of(path)
     }
 
