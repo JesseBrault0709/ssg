@@ -4,7 +4,7 @@ import groovy.transform.BaseScript
 import com.jessebrault.ssg.buildscript.BuildScriptBase
 
 @BaseScript
-final BuildScriptBase base = null
+BuildScriptBase base
 
 allBuilds {
     siteSpec {

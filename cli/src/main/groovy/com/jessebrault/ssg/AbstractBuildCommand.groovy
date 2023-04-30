@@ -1,7 +1,7 @@
 package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.Build
-import com.jessebrault.ssg.buildscript.BuildScriptUtil
+import com.jessebrault.ssg.buildscript.GroovyBuildScriptRunner
 import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import org.apache.logging.log4j.LogManager
@@ -21,6 +21,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
     )
     protected Collection<String> requestedBuilds = ['default']
 
+    // TODO: fix URLs for script, etc.
     @CommandLine.Option(
             names = ['-s', '--script', '--buildScript'],
             description = 'The build script file to execute.',
@@ -33,7 +34,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         if (buildScriptFile.exists()) {
             logger.info('found buildScriptFile: {}', buildScriptFile)
             def configuratorFactory = new DefaultBuildScriptConfiguratorFactory()
-            this.availableBuilds = BuildScriptUtil.runBuildScript(buildScriptFile.path) {
+            this.availableBuilds = new GroovyBuildScriptRunner().runBuildScript(null, null, []) { // TODO
                 configuratorFactory.get().accept(it)
             }
             logger.debug('after running buildScriptFile {}, builds: {}', buildScriptFile, this.availableBuilds)
