@@ -15,11 +15,11 @@ final class SiteSpecTests {
     }
 
     @Test
-    void ifName0NotBlankThenName0() {
+    void ifName1NotBlankThenName1() {
         def ss0 = new SiteSpec('ss0', '')
         def ss1 = new SiteSpec('ss1', '')
         def sum = ss0 + ss1
-        assertEquals('ss0', sum.name)
+        assertEquals('ss1', sum.name)
     }
 
     @Test
@@ -31,11 +31,11 @@ final class SiteSpecTests {
     }
 
     @Test
-    void ifBaseUrl0NotBlankThenBaseUrl0() {
+    void ifBaseUrl1NotBlankThenBaseUrl1() {
         def ss0 = new SiteSpec('', 'ss0')
         def ss1 = new SiteSpec('', 'ss1')
         def sum = ss0 + ss1
-        assertEquals('ss0', sum.baseUrl)
+        assertEquals('ss1', sum.baseUrl)
     }
 
 }
