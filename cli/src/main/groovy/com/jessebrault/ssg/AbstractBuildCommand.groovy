@@ -21,7 +21,6 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
     )
     protected Collection<String> requestedBuilds = ['default']
 
-    // TODO: fix URLs for script, etc.
     @CommandLine.Option(
             names = ['-s', '--script', '--buildScript'],
             description = 'The build script file to execute.',
@@ -34,7 +33,11 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         if (buildScriptFile.exists()) {
             logger.info('found buildScriptFile: {}', buildScriptFile)
             def configuratorFactory = new DefaultBuildScriptConfiguratorFactory()
-            this.availableBuilds = new GroovyBuildScriptRunner().runBuildScript(null, null, []) { // TODO
+            this.availableBuilds = new GroovyBuildScriptRunner().runBuildScript(
+                    buildScriptFile.name,
+                    buildScriptFile.parentFile.toURI().toURL(),
+                    [new File('buildSrc').toURI().toURL()]
+            ) {
                 configuratorFactory.get().accept(it)
             }
             logger.debug('after running buildScriptFile {}, builds: {}', buildScriptFile, this.availableBuilds)
