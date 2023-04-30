@@ -7,7 +7,7 @@ import groovy.transform.NullCheck
 @EqualsAndHashCode
 final class OutputDir {
 
-    final String path
+    private final String path
 
     OutputDir(String path) {
         this.path = path

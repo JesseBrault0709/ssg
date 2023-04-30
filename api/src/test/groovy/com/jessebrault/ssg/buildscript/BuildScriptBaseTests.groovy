@@ -75,7 +75,7 @@ final class BuildScriptBaseTests {
         }
         assertEquals(1, r.size())
         def b0 = r[0]
-        assertEquals(f, b0.outputDirFunction.apply(b0).asFile())
+        assertEquals(f, b0.outputDirFunction.apply(b0) as File)
     }
 
     @Test
@@ -87,7 +87,7 @@ final class BuildScriptBaseTests {
         }
         assertEquals(1, r.size())
         def b0 = r[0]
-        assertEquals('test', b0.outputDirFunction.apply(b0).path)
+        assertEquals('test', b0.outputDirFunction.apply(b0) as String)
     }
 
     @Test
