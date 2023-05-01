@@ -30,7 +30,7 @@ final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T>
     @Override
     Collection<T> provide() {
         if (!this.baseDirectory.isDirectory()) {
-            logger.error('{} does not exist or is not a directory; returning empty collection', this.baseDirectory)
+            logger.warn('{} does not exist or is not a directory; returning empty collection', this.baseDirectory)
             []
         } else {
             final Collection<T> ts = []

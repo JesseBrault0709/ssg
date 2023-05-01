@@ -18,7 +18,7 @@ final class SsgBuild extends AbstractBuildCommand {
         logger.traceEntry()
         def result = 0
         this.requestedBuilds.each {
-            def buildResult = this.doBuild(it)
+            def buildResult = this.doSingleBuild(it)
             if (buildResult == 1) {
                 result = 1
             }

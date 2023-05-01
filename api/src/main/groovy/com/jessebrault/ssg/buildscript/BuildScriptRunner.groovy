@@ -1,5 +1,8 @@
 package com.jessebrault.ssg.buildscript
 
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.SimpleType
+
 import java.util.function.Consumer
 
 interface BuildScriptRunner {
@@ -10,6 +13,12 @@ interface BuildScriptRunner {
             Collection<URL> otherUrls,
             Map<String, Object> binding,
             Consumer<BuildScriptBase> configureBuildScript
+    )
+
+    Collection<Build> runBuildScript(
+            @DelegatesTo(value = BuildScriptBase, strategy = Closure.DELEGATE_FIRST)
+            @ClosureParams(value = SimpleType, options = 'com.jessebrault.ssg.buildscript.BuildScriptBase')
+            Closure<?> scriptBody
     )
 
     default Collection<Build> runBuildScript(

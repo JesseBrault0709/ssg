@@ -17,6 +17,8 @@ final class SimpleBuildScriptRunnerTests {
 
     /**
      * Must be non-static, otherwise Groovy gets confused inside the Closures.
+     *
+     * TODO: use the FileUtil.copyResourceToWriter method
      */
     @SuppressWarnings('GrMethodMayBeStatic')
     private void copyLocalResourceToWriter(String name, Writer target) {
@@ -93,6 +95,16 @@ final class SimpleBuildScriptRunnerTests {
                 [stringConsumer: stringConsumer]
         )
         verify(stringConsumer).accept('test')
+    }
+
+    @Test
+    void customScript() {
+        def runner = new SimpleBuildScriptRunner()
+        def result = runner.runBuildScript {
+            build('test') { }
+        }
+        assertEquals(1, result.size())
+        assertEquals('test', result[0].name)
     }
 
 }

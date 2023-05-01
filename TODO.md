@@ -8,6 +8,7 @@ Here will be kept all of the various todos for this project, organized by releas
 - [ ] Plan out plugin system such that we can create custom providers of texts, data, etc.
 - [ ] Provide a way to override `ssgBuilds` variables from the cli.
 - [ ] Add `Watchable` interface/trait back; an abstraction over FS watching and other sources (such as a database, etc.).
+- [ ] Explore `apply(Plugin)` in buildScripts.
 
 ### Fix
 
@@ -18,6 +19,7 @@ Here will be kept all of the various todos for this project, organized by releas
 - [x] Remove `lib` module.
 - [ ] Add a way for CLI to choose a build to do, or multiple builds, defaulting to 'default' if it exists.
 - [ ] Write lots of tests for buildscript dsl, etc.
+- [ ] Explore `base` in buildScript dsl.
 
 ### Fix
 - [ ] Update CHANGELOG to reflect the gsp-dsl changes.

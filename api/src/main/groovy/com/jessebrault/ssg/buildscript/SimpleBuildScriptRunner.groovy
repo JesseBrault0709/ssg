@@ -1,6 +1,8 @@
 package com.jessebrault.ssg.buildscript
 
 import groovy.transform.NullCheck
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.util.function.Consumer
@@ -27,6 +29,26 @@ final class SimpleBuildScriptRunner implements BuildScriptRunner {
         configureBuildScript.accept(buildScript)
         buildScript.run()
         buildScript.getBuilds()
+    }
+
+    @Override
+    Collection<Build> runBuildScript(
+            @DelegatesTo(value = BuildScriptBase, strategy = Closure.DELEGATE_FIRST)
+            @ClosureParams(value = SimpleType, options = 'com.jessebrault.ssg.buildscript.BuildScriptBase')
+            Closure<?> scriptBody
+    ) {
+        def base = new BuildScriptBase() {
+
+            @Override
+            Object run() {
+                scriptBody.delegate = this
+                scriptBody.resolveStrategy = Closure.DELEGATE_FIRST
+                scriptBody.call(this)
+            }
+
+        }
+        base.run()
+        base.getBuilds()
     }
 
 }
