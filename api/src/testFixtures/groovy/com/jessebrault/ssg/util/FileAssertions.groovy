@@ -7,9 +7,9 @@ import java.nio.file.Path
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-final class FileUtil {
+final class FileAssertions {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileUtil)
+    private static final Logger logger = LoggerFactory.getLogger(ResourceUtil)
 
     private static Map<String, Object> fileToMap(File file) {
         [
@@ -46,20 +46,6 @@ final class FileUtil {
         }
     }
 
-    static void copyResourceToWriter(String name, Writer target) {
-        FileUtil.getClassLoader().getResourceAsStream(name).withReader {
-            it.transferTo(target)
-        }
-    }
-
-    static void copyResourceToFile(String name, File target) {
-        FileUtil.getClassLoader().getResourceAsStream(name).withReader { Reader reader ->
-            target.withWriter { Writer writer ->
-                reader.transferTo(writer)
-            }
-        }
-    }
-
-    private FileUtil() {}
+    private FileAssertions() {}
 
 }

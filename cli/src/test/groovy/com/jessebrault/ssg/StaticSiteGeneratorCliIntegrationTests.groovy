@@ -1,6 +1,6 @@
 package com.jessebrault.ssg
 
-import org.junit.jupiter.api.Disabled
+import com.jessebrault.ssg.util.ResourceUtil
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -9,44 +9,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 final class StaticSiteGeneratorCliIntegrationTests {
 
     @Test
-    @Disabled('until we figure out how to do the base dir arg')
-    void defaultConfiguration() {
-        def partsDir = new File('parts').tap {
-            mkdir()
-            deleteOnExit()
-        }
-        def specialPagesDir = new File('specialPages').tap {
-            mkdir()
-            deleteOnExit()
-        }
-        def templatesDir = new File('templatesDir').tap {
-            mkdir()
-            deleteOnExit()
-        }
-        def textsDir = new File('textsDir').tap {
-            mkdir()
-            deleteOnExit()
-        }
+    void meatyInitAndBuild() {
+        def tempDir = File.createTempDir()
+        SsgInit.init(tempDir, true)
 
-        new File(partsDir, 'part.gsp').write('<%= binding.test %>')
-        new File(specialPagesDir, 'page.gsp').write('<%= parts.part.render([test: "Greetings!"]) %>')
-        new File(templatesDir, 'template.gsp').write('<%= text %>')
-        new File(textsDir, 'text.md').write('---\ntemplate: template.gsp\n---\n**Hello, World!**')
-
-        StaticSiteGeneratorCli.main('--trace')
-
-        def buildDir = new File('build').tap {
-            deleteOnExit()
+        def ssgBuild = new SsgBuild().tap {
+            it.cli = new StaticSiteGeneratorCli().tap {
+                it.logLevel = new StaticSiteGeneratorCli.LogLevel().tap {
+                    it.trace = true
+                }
+            }
+            it.baseDir = tempDir
+            it.requestedBuilds = ['production']
         }
+        assertEquals(0, ssgBuild.call())
+
+        def buildDir = new File(tempDir, 'build')
         assertTrue(buildDir.exists())
+        assertTrue(buildDir.directory)
 
-        def textHtml = new File(buildDir, 'text.html')
-        assertTrue(textHtml.exists())
-        assertEquals('<p><strong>Hello, World!</strong></p>\n', textHtml.text)
+        def textOutputFile = new File(buildDir, 'hello.html')
+        assertTrue(textOutputFile.exists())
+        assertTrue(textOutputFile.file)
+        def pageOutputFile = new File(buildDir, 'page.html')
+        assertTrue(pageOutputFile.exists())
+        assertTrue(pageOutputFile.file)
 
-        def specialPage = new File(buildDir, 'specialPage.html')
-        assertTrue(specialPage.exists())
-        assertEquals('Greetings!', specialPage.text)
+        def expectedText = ResourceUtil.loadResourceAsString('hello.html')
+        def expectedPage = ResourceUtil.loadResourceAsString('page.html')
+        assertEquals(expectedText, textOutputFile.text)
+        assertEquals(expectedPage, pageOutputFile)
     }
 
 }

@@ -14,7 +14,7 @@ final class SsgBuild extends AbstractBuildCommand {
     private static final Logger logger = LogManager.getLogger(SsgBuild)
 
     @Override
-    Integer doSubCommand() {
+    protected Integer doSubCommand() {
         logger.traceEntry()
         def result = 0
         this.requestedBuilds.each {

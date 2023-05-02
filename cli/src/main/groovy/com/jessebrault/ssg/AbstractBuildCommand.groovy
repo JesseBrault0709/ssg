@@ -12,32 +12,38 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
     private static final Logger logger = LogManager.getLogger(AbstractBuildCommand)
 
     @CommandLine.Option(
-            names = ['-s', '--script', '--buildScript'],
-            description = 'The build script file to execute.'
+            names = '--baseDir',
+            description = 'The base directory for all components.'
     )
-    protected File buildScript = null
+    File baseDir = new File('.')
+
+    @CommandLine.Option(
+            names = ['-s', '--script', '--buildScript'],
+            description = 'The build script file to execute, relative to the baseDir.'
+    )
+    File buildScript = new File('ssgBuilds.groovy')
 
     @CommandLine.Option(
             names = '--scriptArgs',
             description = 'Named argument(s) to pass directly to the build script.',
             split = ','
     )
-    protected Map<String, String> scriptArgs = [:]
+    Map<String, String> scriptArgs = [:]
 
     @CommandLine.Option(
             names = '--buildSrcDirs',
-            description = 'Path(s) to director(ies) containing Groovy classes and scripts which should be visible to the main build script.',
+            description = 'Path(s) to director(ies) containing Groovy classes and scripts which should be visible to the main build script, relative to the baseDir.',
             split = ',',
             paramLabel = 'buildSrcDir'
     )
-    protected Collection<File> buildSrcDirs = [new File('buildSrc')]
+    Collection<File> buildSrcDirs = [new File('buildSrc')]
 
     @CommandLine.Option(
             names = ['-b', '--build'],
             description = 'The name of a build to execute.',
             paramLabel = 'buildName'
     )
-    protected Collection<String> requestedBuilds = ['default']
+    Collection<String> requestedBuilds = ['default']
 
     protected StaticSiteGenerator staticSiteGenerator = null
 
@@ -47,9 +53,11 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         if (this.staticSiteGenerator == null) {
             this.staticSiteGenerator = new BuildScriptBasedStaticSiteGenerator(
                     new SimpleBuildScriptRunner(),
-                    new DefaultBuildScriptConfiguratorFactory(),
-                    this.buildScript,
-                    this.buildSrcDirs,
+                    new DefaultBuildScriptConfiguratorFactory(this.baseDir),
+                    this.buildScript == new File('ssgBuilds.groovy') || this.buildScript.exists()
+                            ? new File(this.baseDir, this.buildScript.path)
+                            : null,
+                    this.buildSrcDirs.collect { new File(this.baseDir, it.path) },
                     this.scriptArgs
             )
         }

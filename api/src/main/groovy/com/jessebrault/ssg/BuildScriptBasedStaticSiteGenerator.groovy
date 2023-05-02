@@ -4,6 +4,7 @@ import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
 import com.jessebrault.ssg.buildscript.BuildScriptRunner
 import com.jessebrault.ssg.util.Diagnostic
+import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
@@ -30,7 +31,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     BuildScriptBasedStaticSiteGenerator(
             BuildScriptRunner buildScriptRunner,
             BuildScriptConfiguratorFactory configuratorFactory,
-            File buildScript = null,
+            @Nullable File buildScript = null,
             Collection<File> buildSrcDirs = [],
             Map<String, Object> scriptArgs = [:]
     ) {

@@ -12,11 +12,20 @@ import com.jessebrault.ssg.template.TemplateTypes
 import com.jessebrault.ssg.template.TemplatesProviders
 import com.jessebrault.ssg.text.TextTypes
 import com.jessebrault.ssg.text.TextsProviders
+import com.jessebrault.ssg.util.ExtensionUtil
 import com.jessebrault.ssg.util.Result
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.NullCheck
+import groovy.transform.TupleConstructor
 
 import java.util.function.Consumer
 
+@TupleConstructor(includeFields = true, defaults = false)
+@NullCheck(includeGenerated = true)
+@EqualsAndHashCode(includeFields = true)
 final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfiguratorFactory {
+
+    private final File baseDir
 
     @Override
     Consumer<BuildScriptBase> get() {
@@ -30,10 +39,10 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
                 }
 
                 providers { types ->
-                    texts(TextsProviders.from(new File('texts'), types.textTypes))
-                    pages(PagesProviders.from(new File('pages'), types.pageTypes))
-                    templates(TemplatesProviders.from(new File('templates'), types.templateTypes))
-                    parts(PartsProviders.of(new File('parts'), types.partTypes))
+                    texts(TextsProviders.from(new File(this.baseDir, 'texts'), types.textTypes))
+                    pages(PagesProviders.from(new File(this.baseDir, 'pages'), types.pageTypes))
+                    templates(TemplatesProviders.from(new File(this.baseDir, 'templates'), types.templateTypes))
+                    parts(PartsProviders.of(new File(this.baseDir, 'parts'), types.partTypes))
                 }
 
                 taskFactories { sourceProviders ->
@@ -48,7 +57,11 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
                                 def templateValue = frontMatterResult.get().get('template')
                                 if (templateValue) {
                                     def template = templates.find { it.path == templateValue }
-                                    return Result.of(new TextToHtmlSpec(it, template, it.path))
+                                    return Result.of(new TextToHtmlSpec(
+                                            it,
+                                            template,
+                                            ExtensionUtil.stripExtension(it.path) + '.html'
+                                    ))
                                 } else {
                                     return null
                                 }
@@ -67,7 +80,7 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
             }
 
             it.build('default') {
-                outputDir = new File('build')
+                outputDir = new File(this.baseDir, 'build')
             }
         }
     }

@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import picocli.CommandLine
 
+import static com.jessebrault.ssg.util.ResourceUtil.copyResourceToFile
+
 @CommandLine.Command(
         name = 'init',
         mixinStandardHelpOptions = true,
@@ -11,44 +13,62 @@ import picocli.CommandLine
 )
 final class SsgInit extends AbstractSubCommand {
 
+    static void init(File targetDir, boolean meaty) {
+        new FileTreeBuilder(targetDir).with {
+            dir('texts') {
+                if (meaty) {
+                    file('hello.md').tap {
+                        copyResourceToFile('hello.md', it)
+                    }
+                }
+            }
+            dir('pages') {
+                if (meaty) {
+                    file('page.gsp').tap {
+                        copyResourceToFile('page.gsp', it)
+                    }
+                }
+            }
+            dir('templates') {
+                if (meaty) {
+                    file('hello.gsp').tap {
+                        copyResourceToFile('hello.gsp', it)
+                    }
+                }
+            }
+            dir('parts') {
+                if (meaty) {
+                    file('head.gsp').tap {
+                        copyResourceToFile('head.gsp', it)
+                    }
+                }
+            }
+
+            if (meaty) {
+                file('ssgBuilds.groovy').tap {
+                    copyResourceToFile('ssgBuilds.groovy', it)
+                }
+            } else {
+                file('ssgBuilds.groovy').tap {
+                    copyResourceToFile('ssgBuildsBasic.groovy', it)
+                }
+            }
+        }
+    }
+
     private static final Logger logger = LogManager.getLogger(SsgInit)
 
-    @CommandLine.Option(names = ['-s', '--skeleton'], description = 'Include some basic files in the generated project.')
-    boolean withSkeletonFiles
+    @CommandLine.Option(names = ['-m', '--meaty'], description = 'Include some basic files in the generated project.')
+    boolean meaty
+
+    @CommandLine.Option(names = '--targetDir', description = 'The directory in which to generate the project')
+    File target = new File('.')
 
     @Override
     Integer doSubCommand() {
         logger.traceEntry()
-        new FileTreeBuilder().with {
-            // Generate dirs
-            dir('texts') {
-                if (this.withSkeletonFiles) {
-                    file('hello.md', this.getClass().getResource('/hello.md').text)
-                }
-            }
-            dir('templates') {
-                if (this.withSkeletonFiles) {
-                    file('hello.gsp', this.getClass().getResource('/hello.gsp').text)
-                }
-            }
-            dir('parts') {
-                if (this.withSkeletonFiles) {
-                    file('head.gsp', this.getClass().getResource('/head.gsp').text)
-                }
-            }
-            dir('specialPages') {
-                if (this.withSkeletonFiles) {
-                    file('page.gsp', this.getClass().getResource('/page.gsp').text)
-                }
-            }
-
-            // Generate ssgBuilds.groovy
-            if (this.withSkeletonFiles) {
-                file('ssgBuilds.groovy', this.getClass().getResource('/ssgBuilds.groovy').text)
-            } else {
-                file('ssgBuilds.groovy', this.getClass().getResource('/ssgBuildsBasic.groovy').text)
-            }
-        }
+        init(this.target, this.meaty)
         logger.traceExit(0)
     }
+
 }

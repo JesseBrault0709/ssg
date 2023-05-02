@@ -1,7 +1,7 @@
 <html>
     <%
         out << parts['head.gsp'].render([
-            title: "${ globals.siteTitle }: ${ text.frontMatter.title }"
+            title: "${ siteSpec.name }: ${ text.frontMatter.title }"
         ])
     %>
     <body>

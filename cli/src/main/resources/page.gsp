@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>${ globals.siteTitle }: Page</title>
+        <title>${ siteSpec.name }: Page</title>
     </head>
     <body>
         <%= texts.find { it.path == 'hello.md' }.render() %>

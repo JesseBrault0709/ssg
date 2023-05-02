@@ -15,6 +15,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.commonmark/commonmark-ext-yaml-front-matter
     implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.21.0'
+
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation 'org.jsoup:jsoup:1.16.1'
 }
 
 jar {

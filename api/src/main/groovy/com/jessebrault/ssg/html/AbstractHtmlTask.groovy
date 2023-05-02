@@ -6,6 +6,7 @@ import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.util.Result
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
+import org.jsoup.Jsoup
 
 @NullCheck
 @EqualsAndHashCode
@@ -29,9 +30,12 @@ abstract class AbstractHtmlTask extends AbstractTask implements HtmlTask {
             transformResult.diagnostics
         } else {
             def content = transformResult.get()
+            def document = Jsoup.parse(content)
+            document.outputSettings().indentAmount(4)
+            def formatted = document.toString()
             def target = new File(this.buildDir, this.path)
             target.createParentDirectories()
-            target.write(content)
+            target.write(formatted)
             []
         }
     }
