@@ -1,8 +1,15 @@
 package com.jessebrault.ssg.provider
 
+import groovy.transform.NullCheck
+
 import java.util.function.Supplier
 
+@NullCheck
 final class Providers {
+
+    static <T> Provider<T> getEmpty() {
+        new EmptyProvider<>()
+    }
 
     static <T> Provider<T> of(T t) {
         new SimpleProvider<>(t)

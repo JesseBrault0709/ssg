@@ -20,4 +20,9 @@ final class SupplierBasedProvider<T> extends AbstractProvider<T> {
         this.supplier.get()
     }
 
+    @Override
+    String toString() {
+        "SupplierBasedProvider(supplier: ${ this.supplier })"
+    }
+
 }
