@@ -65,7 +65,7 @@ final class SsgInit extends AbstractSubCommand {
     File target = new File('.')
 
     @Override
-    Integer doSubCommand() {
+    protected Integer doSubCommand() {
         logger.traceEntry()
         init(this.target, this.meaty)
         logger.traceExit(0)
