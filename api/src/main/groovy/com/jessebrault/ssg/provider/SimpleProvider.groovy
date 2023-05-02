@@ -18,4 +18,9 @@ final class SimpleProvider<T> extends AbstractProvider<T> {
         this.t
     }
 
+    @Override
+    String toString() {
+        "SimpleProvider(t: ${ this.t })"
+    }
+
 }

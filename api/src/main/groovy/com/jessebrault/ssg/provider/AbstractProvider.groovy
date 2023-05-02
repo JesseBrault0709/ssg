@@ -23,4 +23,9 @@ abstract class AbstractProvider<T> implements Provider<T> {
         })
     }
 
+    @Override
+    boolean isEmpty() {
+        false
+    }
+
 }
