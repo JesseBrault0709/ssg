@@ -7,6 +7,7 @@ interface Provider<T> {
     @Deprecated
     CollectionProvider<T> plus(Provider<T> other)
 
+    @Deprecated
     CollectionProvider<T> asType(Class<CollectionProvider> collectionProviderClass)
 
     boolean isEmpty()
