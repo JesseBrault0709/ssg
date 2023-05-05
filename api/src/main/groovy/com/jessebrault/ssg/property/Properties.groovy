@@ -1,32 +1,19 @@
 package com.jessebrault.ssg.property
 
+import com.jessebrault.ssg.util.Monoid
+
 final class Properties {
 
-    static <T> Property<T> get() {
-        new SimpleProperty<>()
+    static <T> Property<T> get(Monoid<T> semiGroup) {
+        new SimpleProperty<>(semiGroup)
     }
 
-    static <T> Property<T> get(T convention) {
-        new SimpleProperty<>(convention)
+    static <T> Property<T> get(Monoid<T> semiGroup, T convention) {
+        new SimpleProperty<>(semiGroup, convention)
     }
 
-    static <T> Property<T> get(T convention, T t) {
-        new SimpleProperty<>(convention, t)
-    }
-
-    static <K, V> MapProperty<K, V> getMap() {
-        new SimpleMapProperty<K, V>()
-    }
-
-    static <K, V> MapProperty<K, V> getMap(Map<? extends K, ? extends V> convention) {
-        new SimpleMapProperty<K, V>(convention)
-    }
-
-    static <K, V> MapProperty<K, V> getMap(
-            Map<? extends K, ? extends V> convention,
-            Map<? extends K, ? extends V> value
-    ) {
-        new SimpleMapProperty<K, V>(convention, value)
+    static <T> Property<T> get(Monoid<T> semiGroup, T convention, T t) {
+        new SimpleProperty<>(semiGroup, convention, t)
     }
 
     private Properties() {}

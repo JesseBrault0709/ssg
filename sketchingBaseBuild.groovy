@@ -1,16 +1,17 @@
 abstractBuild(name: 'redDogAll', extends: 'default') {
-    siteSpec.merge {
+    // siteSpec(Closure) is short for siteSpec.merge(Closure)
+    siteSpec {
         name = 'Red Dog Ensemble'
         baseUrl = 'https://reddogensemble.com'
     }
 
-    globals.merge {
+    globals {
         greeting = 'Say hello to good music!'
     }
 
     sources { types ->
         models.map { acc ->
-            old + someMethodThatGetsEventModels()
+            acc + someMethodThatGetsEventModels()
         }
     }
 
@@ -26,11 +27,11 @@ abstractBuild(name: 'redDogAll', extends: 'default') {
 }
 
 build(name: 'preview', extends: 'redDogAll') {
-    siteSpec.merge {
-        baseUrl += '/preview' // if possible
+    siteSpec { base ->
+        baseUrl = base.baseUrl + '/preview' // if possible
     }
 
-    globals.merge {
+    globals {
         greeting = 'Hello from preview!'
     }
 }

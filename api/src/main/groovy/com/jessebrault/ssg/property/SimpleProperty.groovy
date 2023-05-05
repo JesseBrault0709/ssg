@@ -1,93 +1,85 @@
 package com.jessebrault.ssg.property
 
-import com.jessebrault.ssg.provider.AbstractProvider
-import com.jessebrault.ssg.provider.Provider
-import com.jessebrault.ssg.provider.Providers
+import com.jessebrault.ssg.util.Monoid
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.PackageScope
 
-import java.util.function.Function
 import java.util.function.UnaryOperator
 
+import static java.util.Objects.requireNonNull
+
 @PackageScope
-@NullCheck
+@NullCheck(includeGenerated = true)
 @EqualsAndHashCode(includeFields = true)
-final class SimpleProperty<T> extends AbstractProvider<T> implements Property<T> {
+final class SimpleProperty<T> implements Property<T> {
 
-    private Provider<T> convention = Providers.getEmpty()
-    private Provider<T> tProvider = Providers.getEmpty()
+    private final Monoid<T> monoid
 
-    SimpleProperty(T convention) {
-        this.convention = Providers.of(convention)
+    private T t
+    private T convention
+
+    SimpleProperty(Monoid<T> monoid) {
+        this.monoid = monoid
+        this.convention = this.monoid.empty.get()
     }
 
-    SimpleProperty(T convention, T t) {
-        this.convention = Providers.of(convention)
-        this.tProvider = Providers.of(t)
+    SimpleProperty(Monoid<T> monoid, T convention) {
+        this.monoid = monoid
+        this.convention = convention
     }
 
-    SimpleProperty() {}
+    SimpleProperty(Monoid<T> monoid, T convention, T t) {
+        this.monoid = monoid
+        this.t = t
+        this.convention = convention
+    }
 
     @Override
-    T provide() {
-        this.tProvider.present ? this.tProvider.provide() : this.convention.provide()
+    T get() {
+        this.t != null ? this.t : requireNonNull(this.convention)
     }
 
     @Override
     void set(T t) {
-        this.tProvider = Providers.of(t)
-    }
-
-    @Override
-    void set(Provider<T> provider) {
-        this.tProvider = provider
+        this.t = t
     }
 
     @Override
     void unset() {
-        this.tProvider = Providers.getEmpty()
+        this.t = null
     }
 
     @Override
     T getConvention() {
-        this.convention.provide()
+        requireNonNull(this.convention)
     }
 
     @Override
     void setConvention(T t) {
-        this.convention = Providers.of(t)
-    }
-
-    @Override
-    void setConvention(Provider<T> provider) {
-        this.convention = provider
+        this.convention = t
     }
 
     @Override
     void unsetConvention() {
-        this.convention = Providers.getEmpty()
+        this.t = null
     }
 
     @Override
-    void map(UnaryOperator<T> operator) {
-        def oldTProvider = this.tProvider
-        this.tProvider = Providers.fromSupplier {
-            operator.apply(oldTProvider.provide())
-        }
+    void map(UnaryOperator<T> mapper) {
+        this.t = requireNonNull(mapper.apply(this.t))
     }
 
     @Override
-    void flatMap(Function<T, Provider<T>> function) {
-        def oldTProvider = this.tProvider
-        this.tProvider = Providers.fromSupplier {
-            function.apply(oldTProvider.provide()).provide()
-        }
-    }
-
-    @Override
-    String toString() {
-        "SimpleProperty(convention: ${ this.convention }, tProvider: ${ this.tProvider })"
+    void merge(
+            @DelegatesTo(type = 'T', strategy = Closure.DELEGATE_FIRST)
+            Closure<?> configurator
+    ) {
+        def d = requireNonNull(this.monoid.empty.get())
+        configurator.delegate = d
+        configurator.resolveStrategy = Closure.DELEGATE_FIRST
+        configurator()
+        this.t = requireNonNull(this.monoid.concat.apply(this.t != null ? this.t : this.monoid.empty.get(), d))
     }
 
 }

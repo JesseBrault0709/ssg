@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.util.Monoid
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -8,6 +9,11 @@ import groovy.transform.TupleConstructor
 @NullCheck(includeGenerated = true)
 @EqualsAndHashCode
 final class SiteSpec {
+
+    static final Monoid<SiteSpec> defaultSemiGroup = new Monoid<>(
+            SiteSpec::concat,
+            SiteSpec::getBlank
+    )
 
     static SiteSpec getBlank() {
         new SiteSpec('', '')
