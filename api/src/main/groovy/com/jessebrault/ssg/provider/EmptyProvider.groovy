@@ -27,11 +27,6 @@ final class EmptyProvider<T> implements Provider<T> {
     }
 
     @Override
-    boolean isEmpty() {
-        true
-    }
-
-    @Override
     String toString() {
         "EmptyProvider()"
     }
