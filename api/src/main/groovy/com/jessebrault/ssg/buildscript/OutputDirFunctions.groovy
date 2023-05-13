@@ -1,10 +1,15 @@
 package com.jessebrault.ssg.buildscript
 
+import com.jessebrault.ssg.util.Monoid
+import com.jessebrault.ssg.util.Monoids
+
 import java.util.function.Function
 
 final class OutputDirFunctions {
 
     static final Function<Build, OutputDir> DEFAULT = { Build build -> new OutputDir(build.name) }
+
+    static final Monoid<Function<Build, OutputDir>> DEFAULT_MONOID = Monoids.of(DEFAULT, OutputDirFunctions::concat)
 
     static Function<Build, OutputDir> concat(
             Function<Build, OutputDir> f0,

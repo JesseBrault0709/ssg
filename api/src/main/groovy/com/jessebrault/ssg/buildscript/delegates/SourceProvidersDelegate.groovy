@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.buildscript.dsl
+package com.jessebrault.ssg.buildscript.delegates
 
 import com.jessebrault.ssg.buildscript.SourceProviders
 import com.jessebrault.ssg.model.Model
@@ -8,7 +8,11 @@ import com.jessebrault.ssg.provider.CollectionProvider
 import com.jessebrault.ssg.provider.CollectionProviders
 import com.jessebrault.ssg.template.Template
 import com.jessebrault.ssg.text.Text
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.NullCheck
 
+@NullCheck
+@EqualsAndHashCode
 final class SourceProvidersDelegate {
 
     private CollectionProvider<Text> textsProvider = CollectionProviders.getEmpty()

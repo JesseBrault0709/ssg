@@ -1,3 +1,3 @@
 def t = new AnotherTask()
 
-build('test') { }
+build(name: 'test') { }

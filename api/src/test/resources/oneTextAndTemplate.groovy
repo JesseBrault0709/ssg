@@ -13,20 +13,20 @@ import com.jessebrault.ssg.util.Result
 import groovy.transform.BaseScript
 
 @BaseScript
-BuildScriptBase base
+BuildScriptBase b
 
-build('test') {
-    outputDirFunction = { Build b -> new OutputDir(new File(args.sourceDir, 'build')) }
+build(name: 'test') {
+    outputDirFunction = { Build build -> new OutputDir(new File(args.sourceDir, 'build')) }
 
     types {
         textTypes << TextTypes.MARKDOWN
         templateTypes << TemplateTypes.GSP
     }
-    providers { types ->
+    sources { base, types ->
         texts TextsProviders.from(new File(args.sourceDir, 'texts'), types.textTypes)
         templates TemplatesProviders.from(new File(args.sourceDir, 'templates'), types.templateTypes)
     }
-    taskFactories { sources ->
+    taskFactories { base, sources ->
         register('textToHtml', TextToHtmlTaskFactory::new) {
             it.specProvider += CollectionProviders.fromSupplier {
                 def templates = sources.templatesProvider.provide()

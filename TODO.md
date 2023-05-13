@@ -19,10 +19,11 @@ Here will be kept all of the various todos for this project, organized by releas
 - [x] Remove `lib` module.
 - [ ] Add a way for CLI to choose a build to do, or multiple builds, defaulting to 'default' if it exists.
 - [ ] Write lots of tests for buildscript dsl, etc.
-- [ ] Explore `base` in buildScript dsl.
+- [x] Explore `base` in buildScript dsl.
   - Get rid of `allBuilds` concept, and replace it with composable/concat-able builds. In the dsl we could have a notion of `abstractBuild` which can be 'extended' (i.e., on the left side of a concat operation) but not actually run (since it doesn't have a name).
   - `OutputDir` should be concat-able, such that the left is the *base* for the right.
   - `OutputDirFunctions.concat` should be concat-able as well, such that both are `BiFunction<OutputDir, Build, OutputDir>`, and the output of the left is the input of the right. 
+  - Make the delegates as dumb as possible; no more `getResult` methods; make different classes/object handle concat'ing and getting results.
 
 ### Fix
 - [ ] Update CHANGELOG to reflect the gsp-dsl changes.

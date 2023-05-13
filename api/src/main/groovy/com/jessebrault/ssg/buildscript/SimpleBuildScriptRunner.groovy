@@ -4,6 +4,7 @@ import groovy.transform.NullCheck
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.jgrapht.traverse.DepthFirstIterator
 
 import java.util.function.Consumer
 
@@ -28,7 +29,7 @@ final class SimpleBuildScriptRunner implements BuildScriptRunner {
         assert buildScript instanceof BuildScriptBase
         configureBuildScript.accept(buildScript)
         buildScript.run()
-        buildScript.getBuilds()
+        BuildSpecUtil.getBuilds(buildScript.buildSpecs)
     }
 
     @Override
@@ -48,7 +49,7 @@ final class SimpleBuildScriptRunner implements BuildScriptRunner {
 
         }
         base.run()
-        base.getBuilds()
+        BuildSpecUtil.getBuilds(base.buildSpecs)
     }
 
 }

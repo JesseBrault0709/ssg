@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.buildscript.dsl
+package com.jessebrault.ssg.buildscript.delegates
 
 import com.jessebrault.ssg.buildscript.TypesContainer
 import com.jessebrault.ssg.page.PageType

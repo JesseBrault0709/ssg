@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 @ExtendWith(MockitoExtension)
 final class BuildScriptBaseTests {
 
-    private static Collection<Build> scriptToBuilds(
+    private static Collection<BuildSpec> scriptToBuildSpecs(
             @DelegatesTo(value = BuildScriptBase, strategy = Closure.DELEGATE_FIRST)
             Closure<?> script
     ) {
-        def s = new BuildScriptBase() {
+        def base = new BuildScriptBase() {
 
             @Override
             Object run() {
@@ -27,14 +27,22 @@ final class BuildScriptBaseTests {
             }
 
         }
-        s.run()
-        s.getBuilds()
+        base.run()
+        base.buildSpecs
+    }
+
+    @Deprecated
+    private static Collection<Build> scriptToBuilds(
+            @DelegatesTo(value = BuildScriptBase, strategy = Closure.DELEGATE_FIRST)
+            Closure<?> script
+    ) {
+        BuildSpecUtil.getBuilds(scriptToBuildSpecs(script))
     }
 
     @Test
     void oneBuildWithName0() {
-        def r = scriptToBuilds {
-            build('test') { }
+        def r = scriptToBuildSpecs {
+            build(name: 'test') { }
         }
         assertEquals(1, r.size())
         def b0 = r[0]
@@ -43,10 +51,8 @@ final class BuildScriptBaseTests {
 
     @Test
     void oneBuildWithName1() {
-        def r = scriptToBuilds {
-            build {
-                name = 'test'
-            }
+        def r = scriptToBuildSpecs {
+            build(name: 'test') { }
         }
         assertEquals(1, r.size())
         def b0 = r[0]
@@ -54,90 +60,64 @@ final class BuildScriptBaseTests {
     }
 
     @Test
-    void oneBuildOutputDirWithFunction(@Mock Function<Build, OutputDir> mockOutputDirFunction) {
-        def r = scriptToBuilds {
-            build {
-                outputDirFunction = mockOutputDirFunction
-            }
+    void twoBuildsNotRelated() {
+        def r = scriptToBuildSpecs {
+            build(name: 'b0') { }
+            build(name: 'b1') { }
         }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals(mockOutputDirFunction, b0.outputDirFunction)
+        assertEquals(2, r.size())
     }
 
     @Test
-    void oneBuildOutputDirWithFile() {
-        def f = new File('test')
-        def r = scriptToBuilds {
-            build {
-                outputDir = f
-            }
+    void childParentBuild() {
+        def r = scriptToBuildSpecs {
+            build(name: 'child', extending: 'parent') { }
+            build(name: 'parent') { }
         }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals(f, b0.outputDirFunction.apply(b0) as File)
+        assertEquals(2, r.size())
+        assertEquals(
+                [
+                        BuildSpec.get(name: 'child', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'parent')
+                ],
+                r
+        )
     }
 
     @Test
-    void oneBuildOutputDirWithString() {
-        def r = scriptToBuilds {
-            build {
-                outputDir = 'test'
-            }
+    void threeGenerations() {
+        def r = scriptToBuildSpecs {
+            build(name: 'child', extending: 'parent') { }
+            build(name: 'parent', extending: 'grandparent') { }
+            build(name: 'grandparent') { }
         }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals('test', b0.outputDirFunction.apply(b0) as String)
+        assertEquals(3, r.size())
+        assertEquals(
+                [
+                        BuildSpec.get(name: 'child', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'parent', extending: BuildExtension.get('grandparent')),
+                        BuildSpec.get(name: 'grandparent')
+                ],
+                r
+        )
     }
 
     @Test
-    void oneBuildSiteSpec() {
-        def r = scriptToBuilds {
-            build {
-                siteSpec {
-                    name = 'testSite'
-                    baseUrl = 'https://testsite.com'
-                }
-            }
+    void siblingsAndParent() {
+        def r = scriptToBuildSpecs {
+            build(name: 'child0', extending: 'parent') { }
+            build(name: 'child1', extending: 'parent') { }
+            build(name: 'parent') { }
         }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals(new SiteSpec('testSite', 'https://testsite.com'), b0.siteSpec)
-    }
-
-    @Test
-    void allBuildsProvidesSiteSpec() {
-        def r = scriptToBuilds {
-            allBuilds {
-                siteSpec {
-                    name = 'testSite'
-                    baseUrl = 'https://testsite.com'
-                }
-            }
-            build('test') { }
-        }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals(new SiteSpec('testSite', 'https://testsite.com'), b0.siteSpec)
-    }
-
-    @Test
-    void allBuildsSiteSpecOverwritten() {
-        def r = scriptToBuilds {
-            allBuilds {
-                siteSpec {
-                    name = 'no'
-                }
-            }
-            build {
-                siteSpec {
-                    name = 'yes'
-                }
-            }
-        }
-        assertEquals(1, r.size())
-        def b0 = r[0]
-        assertEquals(new SiteSpec('yes', ''), b0.siteSpec)
+        assertEquals(3, r.size())
+        assertEquals(
+                [
+                        BuildSpec.get(name: 'child0', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'child1', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'parent')
+                ],
+                r
+        )
     }
 
 }
