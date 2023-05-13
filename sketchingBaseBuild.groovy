@@ -1,5 +1,4 @@
 abstractBuild(name: 'redDogAll', extends: 'default') {
-    // siteSpec(Closure) is short for siteSpec.merge(Closure)
     siteSpec {
         name = 'Red Dog Ensemble'
         baseUrl = 'https://reddogensemble.com'
@@ -8,30 +7,14 @@ abstractBuild(name: 'redDogAll', extends: 'default') {
     globals {
         greeting = 'Say hello to good music!'
     }
-
-    sources { types ->
-        models.map { acc ->
-            acc + someMethodThatGetsEventModels()
-        }
-    }
-
-    taskFactories { sources ->
-        register(name: 'eventToHtml', supplier: ModelToHtmlFactory::new) {
-            modelsProvider.map { acc ->
-                acc + CollectionProviders.fromSupplier {
-                    sources.models.provide().findAll { it.name.startsWith('event/') }
-                }
-            }
-        }
-    }
 }
 
 build(name: 'preview', extends: 'redDogAll') {
     siteSpec { base ->
-        baseUrl = base.baseUrl + '/preview' // if possible
+        baseUrl = base.baseUrl + '/preview'
     }
 
     globals {
-        greeting = 'Hello from preview!'
+        greeting = 'Hello from preview!' // overwrite
     }
 }

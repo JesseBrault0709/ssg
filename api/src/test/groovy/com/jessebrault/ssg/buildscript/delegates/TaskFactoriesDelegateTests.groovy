@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.buildscript.dsl
+package com.jessebrault.ssg.buildscript.delegates
 
 import com.jessebrault.ssg.task.TaskFactory
 import org.junit.jupiter.api.Test
@@ -10,9 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.util.function.Consumer
 import java.util.function.Supplier
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.*
 
 @ExtendWith(MockitoExtension)
 final class TaskFactoriesDelegateTests {
@@ -28,9 +26,10 @@ final class TaskFactoriesDelegateTests {
             d.configure('test', TaskFactory, taskFactoryConsumer)
         } as Executable)
         def result = d.getResult()
-        assertTrue(result.containsKey('test'))
-        assertEquals(taskFactorySupplier, result['test'].supplier)
-        assertTrue(result['test'].configurators.contains(taskFactoryConsumer))
+        def testSpec = result.find { it.name == 'test' }
+        assertNotNull(testSpec)
+        assertEquals(taskFactorySupplier, testSpec.supplier)
+        assertTrue(testSpec.configurators.contains(taskFactoryConsumer))
     }
 
     @Test
@@ -41,9 +40,10 @@ final class TaskFactoriesDelegateTests {
         def d = new TaskFactoriesDelegate()
         d.register('test', taskFactorySupplier, taskFactoryConsumer)
         def result = d.getResult()
-        assertTrue(result.containsKey('test'))
-        assertEquals(taskFactorySupplier, result['test'].supplier)
-        assertTrue(result['test'].configurators.contains(taskFactoryConsumer))
+        def testSpec = result.find { it.name == 'test' }
+        assertNotNull(testSpec)
+        assertEquals(taskFactorySupplier, testSpec.supplier)
+        assertTrue(testSpec.configurators.contains(taskFactoryConsumer))
     }
 
 }

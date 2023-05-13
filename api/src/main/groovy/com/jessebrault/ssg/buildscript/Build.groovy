@@ -14,33 +14,6 @@ import java.util.function.Function
 @EqualsAndHashCode
 final class Build {
 
-    @TupleConstructor(defaults = false)
-    @NullCheck(includeGenerated = true)
-    @EqualsAndHashCode
-    static final class AllBuilds {
-
-        static AllBuilds concat(AllBuilds ab0, AllBuilds ab1) {
-            new AllBuilds(
-                    ab0.siteSpec + ab1.siteSpec,
-                    ab0.globals + ab1.globals,
-                    ab0.taskFactorySpecs + ab1.taskFactorySpecs
-            )
-        }
-
-        static AllBuilds getEmpty() {
-            new AllBuilds(SiteSpec.getBlank(), [:], [])
-        }
-
-        final SiteSpec siteSpec
-        final Map<String, Object> globals
-        final Collection<TaskFactorySpec<TaskFactory>> taskFactorySpecs
-
-        AllBuilds plus(AllBuilds other) {
-            concat(this, other)
-        }
-
-    }
-
     static Build getEmpty() {
         new Build(
                 '',
@@ -68,16 +41,6 @@ final class Build {
                 SiteSpec.concat(b0.siteSpec, b1.siteSpec),
                 b0.globals + b1.globals,
                 b0.taskFactorySpecs + b1.taskFactorySpecs
-        )
-    }
-
-    static Build from(AllBuilds allBuilds) {
-        new Build(
-                '',
-                OutputDirFunctions.DEFAULT,
-                allBuilds.siteSpec,
-                allBuilds.globals,
-                allBuilds.taskFactorySpecs
         )
     }
 

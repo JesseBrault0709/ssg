@@ -2,5 +2,9 @@ package com.jessebrault.ssg.util
 
 import org.jetbrains.annotations.ApiStatus
 
+import java.util.function.BinaryOperator
+
 @ApiStatus.Experimental
-interface Monoid<T> extends Semigroup<T>, Zero<T> {}
+interface Semigroup<T> {
+    BinaryOperator<T> getConcat()
+}

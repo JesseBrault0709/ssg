@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.apache.groovy/groovy
-    api 'org.apache.groovy:groovy:4.0.9'
+    api 'org.apache.groovy:groovy:4.0.12'
 
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
     api 'org.jetbrains:annotations:24.0.0'

@@ -16,68 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 @ExtendWith(MockitoExtension)
 final class BuildTests {
 
-    @ExtendWith(MockitoExtension)
-    static final class AllBuildsTests {
-
-        @Test
-        void twoEmptiesEqual() {
-            def ab0 = Build.AllBuilds.getEmpty()
-            def ab1 = Build.AllBuilds.getEmpty()
-            assertEquals(ab0, ab1)
-        }
-
-        @Test
-        void siteSpecsAdded() {
-            def ab0 = new Build.AllBuilds(
-                    new SiteSpec('test', ''),
-                    [:],
-                    []
-            )
-            def ab1 = new Build.AllBuilds(
-                    new SiteSpec('', 'test'),
-                    [:],
-                    []
-            )
-            def sum = ab0 + ab1
-            assertEquals(new SiteSpec('test', 'test'), sum.siteSpec)
-        }
-
-        @Test
-        void globalsAdded() {
-            def ab0 = new Build.AllBuilds(
-                    SiteSpec.getBlank(),
-                    [a: 0],
-                    []
-            )
-            def ab1 = new Build.AllBuilds(
-                    SiteSpec.getBlank(),
-                    [b: 1],
-                    []
-            )
-            def sum = ab0 + ab1
-            assertEquals([a: 0, b: 1], sum.globals)
-        }
-
-        @Test
-        void taskFactorySpecsAdded(@Mock Supplier<TaskFactory> taskFactorySupplier) {
-            def spec0 = new TaskFactorySpec<>(taskFactorySupplier, [])
-            def spec1 = new TaskFactorySpec<>(taskFactorySupplier, [])
-            def ab0 = new Build.AllBuilds(
-                    SiteSpec.getBlank(),
-                    [:],
-                    [spec0]
-            )
-            def ab1 = new Build.AllBuilds(
-                    SiteSpec.getBlank(),
-                    [:],
-                    [spec1]
-            )
-            def sum = ab0 + ab1
-            assertEquals([spec0, spec1], sum.taskFactorySpecs)
-        }
-
-    }
-
     @Test
     void twoEmptiesEqual() {
         def b0 = Build.getEmpty()
@@ -131,8 +69,8 @@ final class BuildTests {
 
     @Test
     void taskFactorySpecsAdded(@Mock Supplier<TaskFactory> taskFactorySupplier) {
-        def spec0 = new TaskFactorySpec<>(taskFactorySupplier, [])
-        def spec1 = new TaskFactorySpec<>(taskFactorySupplier, [])
+        def spec0 = new TaskFactorySpec<>('spec0', taskFactorySupplier, [])
+        def spec1 = new TaskFactorySpec<>('spec1', taskFactorySupplier, [])
         def b0 = Build.get(taskFactorySpecs: [spec0])
         def b1 = Build.get(taskFactorySpecs: [spec1])
         def sum = b0 + b1

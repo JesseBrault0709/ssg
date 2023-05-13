@@ -7,6 +7,8 @@ import com.jessebrault.ssg.provider.CollectionProvider
 import com.jessebrault.ssg.provider.CollectionProviders
 import com.jessebrault.ssg.template.Template
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.util.Monoid
+import com.jessebrault.ssg.util.Monoids
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
@@ -15,6 +17,8 @@ import groovy.transform.TupleConstructor
 @NullCheck(includeGenerated = true)
 @EqualsAndHashCode
 final class SourceProviders {
+
+    static final Monoid<SourceProviders> DEFAULT_MONOID = Monoids.of(getEmpty(), SourceProviders::concat)
 
     static SourceProviders concat(SourceProviders sp0, SourceProviders sp1) {
         new SourceProviders(
@@ -59,6 +63,13 @@ final class SourceProviders {
 
     SourceProviders plus(SourceProviders other) {
         concat(this, other)
+    }
+
+    @Override
+    String toString() {
+        "SourceProviders(textsProvider: ${ this.textsProvider }, modelsProvider: ${ this.modelsProvider }, " +
+                "pagesProvider: ${ this.pagesProvider }, templatesProvider: ${ this.templatesProvider }, " +
+                "partsProvider: ${ this.partsProvider })"
     }
 
 }

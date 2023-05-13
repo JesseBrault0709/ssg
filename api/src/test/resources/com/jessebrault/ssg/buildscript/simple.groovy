@@ -11,7 +11,5 @@ final Logger logger = LoggerFactory.getLogger('simple.groovy')
 
 logger.debug('executing simple buildScript')
 
-build {
-    name = 'test'
-}
+build(name: 'test') { }
 

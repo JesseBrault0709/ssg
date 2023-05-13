@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.buildscript.dsl
+package com.jessebrault.ssg.buildscript.delegates
 
 final class GlobalsDelegate {
 

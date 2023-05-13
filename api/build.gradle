@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.apache.groovy/groovy-templates
-    implementation 'org.apache.groovy:groovy-templates:4.0.9'
+    implementation 'org.apache.groovy:groovy-templates:4.0.12'
 
     // https://mvnrepository.com/artifact/org.commonmark/commonmark
     implementation 'org.commonmark:commonmark:0.21.0'
@@ -18,6 +18,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.jsoup/jsoup
     implementation 'org.jsoup:jsoup:1.16.1'
+
+    // https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core
+    implementation 'org.jgrapht:jgrapht-core:1.5.2'
 }
 
 jar {
