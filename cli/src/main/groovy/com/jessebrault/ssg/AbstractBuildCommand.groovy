@@ -1,7 +1,6 @@
 package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
-import com.jessebrault.ssg.buildscript.SimpleBuildScriptRunner
 import com.jessebrault.ssg.util.Diagnostic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -52,8 +51,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
         if (this.staticSiteGenerator == null) {
             this.staticSiteGenerator = new BuildScriptBasedStaticSiteGenerator(
-                    new SimpleBuildScriptRunner(),
-                    new DefaultBuildScriptConfiguratorFactory(this.baseDir),
+                    [new DefaultBuildScriptConfiguratorFactory(this.baseDir)],
                     this.buildScript == new File('ssgBuilds.groovy') || this.buildScript.exists()
                             ? new File(this.baseDir, this.buildScript.path)
                             : null,

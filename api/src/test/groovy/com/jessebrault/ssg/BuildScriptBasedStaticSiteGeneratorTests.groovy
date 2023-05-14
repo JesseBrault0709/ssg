@@ -2,7 +2,6 @@ package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.BuildScriptBase
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
-import com.jessebrault.ssg.buildscript.SimpleBuildScriptRunner
 import com.jessebrault.ssg.util.ResourceUtil
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -34,15 +33,14 @@ final class BuildScriptBasedStaticSiteGeneratorTests {
         }
 
         def ssg = new BuildScriptBasedStaticSiteGenerator(
-                new SimpleBuildScriptRunner(),
-                new BuildScriptConfiguratorFactory() {
+                [new BuildScriptConfiguratorFactory() {
 
                     @Override
                     Consumer<BuildScriptBase> get() {
                         return { }
                     }
 
-                },
+                }],
                 buildScript,
                 [],
                 [sourceDir: sourceDir]

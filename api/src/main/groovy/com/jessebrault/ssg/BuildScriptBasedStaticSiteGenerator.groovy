@@ -2,7 +2,7 @@ package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
-import com.jessebrault.ssg.buildscript.BuildScriptRunner
+import com.jessebrault.ssg.buildscript.BuildScripts
 import com.jessebrault.ssg.util.Diagnostic
 import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
@@ -18,25 +18,22 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker enter = MarkerFactory.getMarker('enter')
     private static final Marker exit = MarkerFactory.getMarker('exit')
 
-    private final BuildScriptRunner buildScriptRunner
-    private final BuildScriptConfiguratorFactory configuratorFactory
+    private final Collection<BuildScriptConfiguratorFactory> configuratorFactories
+    @Nullable
     private final File buildScript
     private final Collection<File> buildSrcDirs
     private final Map<String, Object> scriptArgs
-
     private final Collection<Build> builds = []
 
     private boolean ranBuildScript = false
 
     BuildScriptBasedStaticSiteGenerator(
-            BuildScriptRunner buildScriptRunner,
-            BuildScriptConfiguratorFactory configuratorFactory,
+            Collection<BuildScriptConfiguratorFactory> configuratorFactories = [],
             @Nullable File buildScript = null,
             Collection<File> buildSrcDirs = [],
             Map<String, Object> scriptArgs = [:]
     ) {
-        this.buildScriptRunner = buildScriptRunner
-        this.configuratorFactory = configuratorFactory
+        this.configuratorFactories = configuratorFactories
         this.buildScript = buildScript
         this.buildSrcDirs = buildSrcDirs
         this.scriptArgs = scriptArgs
@@ -47,19 +44,23 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
 
         if (this.buildScript == null) {
             logger.info('no specified build script; using defaults')
-            def result = this.buildScriptRunner.runBuildScript {
-                this.configuratorFactory.get().accept(it)
+            def result = BuildScripts.runBuildScript { base ->
+                this.configuratorFactories.each {
+                    it.get().accept(base)
+                }
             }
             this.builds.addAll(result)
         } else if (this.buildScript.exists() && this.buildScript.isFile()) {
             logger.info('running buildScript: {}', this.buildScript)
-            def result = this.buildScriptRunner.runBuildScript(
+            def result = BuildScripts.runBuildScript(
                     this.buildScript.name,
                     this.buildScript.parentFile.toURI().toURL(),
                     this.buildSrcDirs.collect { it.toURI().toURL() },
                     [args: this.scriptArgs]
-            ) {
-                this.configuratorFactory.get().accept(it)
+            ) { base ->
+                this.configuratorFactories.each {
+                    it.get().accept(base)
+                }
             }
             this.builds.addAll(result)
         } else {
