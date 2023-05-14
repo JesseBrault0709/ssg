@@ -5,6 +5,9 @@ import groovy.transform.stc.SimpleType
 
 import java.util.function.Consumer
 
+/**
+ * TODO: get rid of this, split it into two different classes/util functions (BuildScripts?)
+ */
 interface BuildScriptRunner {
 
     Collection<Build> runBuildScript(
