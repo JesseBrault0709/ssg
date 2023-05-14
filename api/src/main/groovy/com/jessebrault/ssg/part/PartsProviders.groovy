@@ -10,7 +10,7 @@ final class PartsProviders {
 
     private static final Logger logger = LoggerFactory.getLogger(PartsProviders)
 
-    static CollectionProvider<Part> of(File partsDir, Collection<PartType> partTypes) {
+    static CollectionProvider<Part> from(File partsDir, Collection<PartType> partTypes) {
         CollectionProviders.fromDirectory(partsDir) { file, relativePath ->
             def extension = ExtensionUtil.getExtension(relativePath)
             if (extension) {

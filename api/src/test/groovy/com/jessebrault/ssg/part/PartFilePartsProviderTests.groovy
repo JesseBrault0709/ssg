@@ -17,7 +17,7 @@ final class PartFilePartsProviderTests {
     @BeforeEach
     void beforeEach() {
         this.partsDir = File.createTempDir()
-        partsProvider = PartsProviders.of(this.partsDir, [gspPartType])
+        partsProvider = PartsProviders.from(this.partsDir, [gspPartType])
     }
 
     @Test
