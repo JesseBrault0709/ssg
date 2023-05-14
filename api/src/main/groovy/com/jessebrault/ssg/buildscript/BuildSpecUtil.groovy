@@ -2,6 +2,8 @@ package com.jessebrault.ssg.buildscript
 
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
+import com.jessebrault.ssg.task.TaskFactory
+import com.jessebrault.ssg.task.TaskFactorySpec
 import com.jessebrault.ssg.util.Monoid
 import com.jessebrault.ssg.util.Monoids
 import com.jessebrault.ssg.util.Zero
@@ -18,6 +20,13 @@ final class BuildSpecUtil {
     private static final Logger logger = LoggerFactory.getLogger(BuildSpecUtil)
     private static final Marker enter = MarkerFactory.getMarker('ENTER')
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
+
+    private static final Monoid<Map<String, Object>> globalsMonoid = Monoids.of([:]) { m0, m1 ->
+        m0 + m1
+    }
+
+    private static final Monoid<Collection<TaskFactorySpec<TaskFactory>>> taskFactoriesMonoid =
+            Monoids.getMergeCollectionMonoid(TaskFactorySpec.SAME_NAME_AND_SUPPLIER_EQ, TaskFactorySpec.DEFAULT_SEMIGROUP)
 
     private static <T> T reduceResults(
             Collection<BuildDelegate.Results> resultsCollection,
@@ -40,12 +49,6 @@ final class BuildSpecUtil {
         }
     }
 
-    private static Monoid<Map<String, Object>> getGlobalsMonoid() {
-        Monoids.of([:]) { m0, m1 ->
-            m0 + m1
-        }
-    }
-
     private static Build toBuild(
             Collection<BuildSpec> specs
     ) {
@@ -59,15 +62,26 @@ final class BuildSpecUtil {
         def siteSpecResult = reduceResults(allResults, SiteSpec.DEFAULT_MONOID) { acc, r ->
             r.getSiteSpecResult(acc, true, SiteSpec.DEFAULT_MONOID)
         }
-        def globalsResult = reduceResults(allResults, getGlobalsMonoid()) { acc, r ->
-            r.getGlobalsResult(acc, true, getGlobalsMonoid())
+        def globalsResult = reduceResults(allResults, globalsMonoid) { acc, r ->
+            r.getGlobalsResult(acc, true, globalsMonoid)
         }
+
+        def typesResult = reduceResults(allResults, TypesContainer.DEFAULT_MONOID) { acc, r ->
+            r.getTypesResult(acc, true, TypesContainer.DEFAULT_MONOID)
+        }
+        def sourcesResult = reduceResults(allResults, SourceProviders.DEFAULT_MONOID) { acc, r ->
+            r.getSourcesResult(acc, true, SourceProviders.DEFAULT_MONOID, typesResult)
+        }
+        def taskFactoriesResult = reduceResults(allResults, taskFactoriesMonoid) { acc, r ->
+            r.getTaskFactoriesResult(acc, true, taskFactoriesMonoid, sourcesResult)
+        }
+
         new Build(
                 specs[0].name,
                 outputDirFunctionResult,
                 siteSpecResult,
                 globalsResult,
-                [] // TODO
+                taskFactoriesResult
         )
     }
 

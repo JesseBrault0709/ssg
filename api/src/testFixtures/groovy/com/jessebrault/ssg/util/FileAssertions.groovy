@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 final class FileAssertions {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceUtil)
+    private static final Logger logger = LoggerFactory.getLogger(FileAssertions)
 
     private static Map<String, Object> fileToMap(File file) {
         [
