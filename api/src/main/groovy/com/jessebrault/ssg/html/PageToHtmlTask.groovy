@@ -3,6 +3,7 @@ package com.jessebrault.ssg.html
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.model.Model
 import com.jessebrault.ssg.page.Page
+import com.jessebrault.ssg.page.PageInput
 import com.jessebrault.ssg.part.Part
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.task.Task
@@ -14,7 +15,7 @@ import groovy.transform.NullCheck
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true, callSuper = true)
-final class PageToHtmlTask extends AbstractHtmlTask {
+final class PageToHtmlTask extends AbstractHtmlTask<PageInput> {
 
     private final SiteSpec siteSpec
     private final Map<String, Object> globals
@@ -24,14 +25,19 @@ final class PageToHtmlTask extends AbstractHtmlTask {
     private final Collection<Part> allParts
 
     PageToHtmlTask(
-            String path,
+            String relativeHtmlPath,
             TaskSpec taskSpec,
             Page page,
             Collection<Text> allTexts,
             Collection<Model<Object>> allModels,
             Collection<Part> allParts
     ) {
-        super("pageToHtml:${ path }", path, taskSpec.outputDir)
+        super(
+                "pageToHtml:${ relativeHtmlPath }",
+                relativeHtmlPath,
+                new PageInput(page.path, page),
+                taskSpec.outputDir
+        )
         this.siteSpec = taskSpec.siteSpec
         this.globals = taskSpec.globals
         this.page = page
@@ -44,7 +50,7 @@ final class PageToHtmlTask extends AbstractHtmlTask {
     protected Result<String> transform(Collection<Task> allTasks) {
         this.page.type.renderer.render(this.page, new RenderContext(
                 this.page.path,
-                this.path,
+                this.htmlPath,
                 allTasks,
                 this.allTexts,
                 this.allModels,

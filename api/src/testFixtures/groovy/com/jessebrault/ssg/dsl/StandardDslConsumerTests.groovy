@@ -169,7 +169,7 @@ interface StandardDslConsumerTests {
                 []
         )
         this.doDslAssertionTest(
-                '<%= assert tasks.find { it.path == "testHtml" } != null %>',
+                '<%= assert tasks.find { it.htmlPath == "testHtml" } != null %>',
                 new RenderContext(tasks: [task])
         )
     }
@@ -182,6 +182,28 @@ interface StandardDslConsumerTests {
                 '<% assert tasks.size() == 2 && ' +
                         'tasks.byType(TextToHtmlTask).size() == 1 &&' +
                         'tasks.byType(PageToHtmlTask).size() == 1 %>',
+                new RenderContext(tasks: [t0, t1])
+        )
+    }
+
+    @Test
+    default void htmlTaskInputAvailable() {
+        def t0 = blankTextToHtmlTask()
+        def t1 = blankPageToHtmlTask()
+        this.doDslAssertionTest(
+                '<% assert tasks.size() == 2 && ' +
+                        'tasks.inject(true) { acc, task -> acc && task.input != null } %>',
+                new RenderContext(tasks: [t0, t1])
+        )
+    }
+
+    @Test
+    default void htmlTaskOutputAvailable() {
+        def t0 = blankTextToHtmlTask()
+        def t1 = blankPageToHtmlTask()
+        this.doDslAssertionTest(
+                '<% assert tasks.size() == 2 && ' +
+                        'tasks.inject(true) { acc, task -> acc && task.output != null } %>',
                 new RenderContext(tasks: [t0, t1])
         )
     }

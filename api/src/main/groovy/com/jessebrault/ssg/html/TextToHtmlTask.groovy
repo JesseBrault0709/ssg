@@ -8,13 +8,14 @@ import com.jessebrault.ssg.task.Task
 import com.jessebrault.ssg.task.TaskSpec
 import com.jessebrault.ssg.template.Template
 import com.jessebrault.ssg.text.Text
+import com.jessebrault.ssg.text.TextInput
 import com.jessebrault.ssg.util.Result
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true, callSuper = true)
-final class TextToHtmlTask extends AbstractHtmlTask {
+final class TextToHtmlTask extends AbstractHtmlTask<TextInput> {
 
     private final SiteSpec siteSpec
     private final Map<String, Object> globals
@@ -25,7 +26,7 @@ final class TextToHtmlTask extends AbstractHtmlTask {
     private final Collection<Part> allParts
 
     TextToHtmlTask(
-            String path,
+            String relativeHtmlPath,
             TaskSpec taskSpec,
             Text text,
             Template template,
@@ -33,7 +34,12 @@ final class TextToHtmlTask extends AbstractHtmlTask {
             Collection<Model<Object>> allModels,
             Collection<Part> allParts
     ) {
-        super("textToHtml:${ path }", path, taskSpec.outputDir)
+        super(
+                "textToHtml:${ relativeHtmlPath }",
+                relativeHtmlPath,
+                new TextInput(text.path, text),
+                taskSpec.outputDir
+        )
         this.siteSpec = taskSpec.siteSpec
         this.globals = taskSpec.globals
         this.text = text
@@ -47,7 +53,7 @@ final class TextToHtmlTask extends AbstractHtmlTask {
     protected Result<String> transform(Collection<Task> allTasks) {
         this.template.type.renderer.render(this.template, this.text, new RenderContext(
                 this.text.path,
-                this.path,
+                this.htmlPath,
                 allTasks,
                 this.allTexts,
                 this.allModels,

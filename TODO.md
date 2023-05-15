@@ -6,7 +6,6 @@ Here will be kept all of the various todos for this project, organized by releas
 
 ### Add
 - [ ] Plan out plugin system such that we can create custom providers of texts, data, etc.
-- [ ] Provide a way to override `ssgBuilds` variables from the cli.
 - [ ] Add `Watchable` interface/trait back; an abstraction over FS watching and other sources (such as a database, etc.).
 - [ ] Explore `apply(Plugin)` in buildScripts.
 
@@ -17,19 +16,23 @@ Here will be kept all of the various todos for this project, organized by releas
 ### Add
 - [ ] Write manual.
 - [x] Remove `lib` module.
-- [ ] Add a way for CLI to choose a build to do, or multiple builds, defaulting to 'default' if it exists.
-- [ ] Write lots of tests for buildscript dsl, etc.
+- [x] Add a way for CLI to choose a build to do, or multiple builds, defaulting to 'default' if it exists.
+  - [ ] Still must work on 'default'-ing.
+- [x] Write lots of tests for buildscript dsl, etc.
 - [x] Explore `base` in buildScript dsl.
   - Get rid of `allBuilds` concept, and replace it with composable/concat-able builds. In the dsl we could have a notion of `abstractBuild` which can be 'extended' (i.e., on the left side of a concat operation) but not actually run (since it doesn't have a name).
   - `OutputDir` should be concat-able, such that the left is the *base* for the right.
   - `OutputDirFunctions.concat` should be concat-able as well, such that both are `BiFunction<OutputDir, Build, OutputDir>`, and the output of the left is the input of the right. 
   - Make the delegates as dumb as possible; no more `getResult` methods; make different classes/object handle concat'ing and getting results.
+- [x] Provide a way to override `ssgBuilds` variables from the cli.
 
 ### Fix
 - [ ] Update CHANGELOG to reflect the gsp-dsl changes.
   - [ ] `taskTypes` gone, use class name instead
   - [ ] introduction of `models`
 - [x] Change most instances of `Closure<Void>` to `Closure<?>` to help with IDE expectations.
+- [ ] Fix auto-imports in build script so we don't need to import things.
+- [ ] Re-introduce input/output concept to tasks, if possible
 
 ## Finished
 
