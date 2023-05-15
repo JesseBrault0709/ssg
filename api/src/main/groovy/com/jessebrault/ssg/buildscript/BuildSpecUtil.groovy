@@ -57,7 +57,7 @@ final class BuildSpecUtil {
         }
         def allResults = mapBuildSpecsToResults(specs)
         def outputDirFunctionResult = reduceResults(allResults, OutputDirFunctions.DEFAULT_MONOID) { acc, r ->
-            r.getOutputDirFunctionResult(acc, { OutputDirFunctions.DEFAULT_MONOID.zero })
+            r.getOutputDirFunctionResult(acc, { acc })
         }
         def siteSpecResult = reduceResults(allResults, SiteSpec.DEFAULT_MONOID) { acc, r ->
             r.getSiteSpecResult(acc, true, SiteSpec.DEFAULT_MONOID)
@@ -77,7 +77,7 @@ final class BuildSpecUtil {
         }
 
         new Build(
-                specs[0].name,
+                specs.last().name,
                 outputDirFunctionResult,
                 siteSpecResult,
                 globalsResult,

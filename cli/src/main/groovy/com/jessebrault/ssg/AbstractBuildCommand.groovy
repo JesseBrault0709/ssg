@@ -1,6 +1,5 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -9,12 +8,6 @@ import picocli.CommandLine
 abstract class AbstractBuildCommand extends AbstractSubCommand {
 
     private static final Logger logger = LogManager.getLogger(AbstractBuildCommand)
-
-    @CommandLine.Option(
-            names = '--baseDir',
-            description = 'The base directory for all components.'
-    )
-    File baseDir = new File('.')
 
     @CommandLine.Option(
             names = ['-s', '--script', '--buildScript'],
@@ -50,12 +43,10 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         logger.traceEntry('requestedBuild: {}', requestedBuild)
 
         if (this.staticSiteGenerator == null) {
-            this.staticSiteGenerator = new BuildScriptBasedStaticSiteGenerator(
-                    [new DefaultBuildScriptConfiguratorFactory(this.baseDir)],
-                    this.buildScript == new File('ssgBuilds.groovy') || this.buildScript.exists()
-                            ? new File(this.baseDir, this.buildScript.path)
-                            : null,
-                    this.buildSrcDirs.collect { new File(this.baseDir, it.path) },
+            this.staticSiteGenerator = new CliBasedStaticSiteGenerator(
+                    new File('.'),
+                    this.buildScript,
+                    this.buildSrcDirs,
                     this.scriptArgs
             )
         }

@@ -4,26 +4,19 @@ import groovy.transform.BaseScript
 import com.jessebrault.ssg.buildscript.BuildScriptBase
 
 @BaseScript
-BuildScriptBase base
+BuildScriptBase b
 
-allBuilds {
+abstractBuild(name: 'mySiteAll', extending: 'default') {
     siteSpec {
         name = 'My Site'
-    }
-
-    globals {
-        greeting = 'Hello from AllBuilds!'
+        baseUrl = 'https://mysite.com'
     }
 }
 
-build('production') {
-    siteSpec {
-        baseUrl = 'https://example.com'
-    }
-}
+build(name: 'production', extending: 'mySiteAll') { }
 
-build('preview') {
-    siteSpec {
-        baseUrl = 'https://example.com/preview'
+build(name: 'preview', extending: 'mySiteAll') {
+    siteSpec { base ->
+        baseUrl = base.baseUrl + '/preview' // https://mysite.com/preview
     }
 }

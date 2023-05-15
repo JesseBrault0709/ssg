@@ -1,13 +1,13 @@
 package com.jessebrault.ssg.buildscript
 
+import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.PackageScope
 import groovy.transform.TupleConstructor
 
 @PackageScope
-@TupleConstructor(defaults = false)
-@NullCheck(includeGenerated = true)
+@NullCheck()
 @EqualsAndHashCode(excludes = 'buildClosure')
 final class BuildSpec {
 
@@ -28,6 +28,19 @@ final class BuildSpec {
     final boolean isAbstract
     final BuildExtension extending
     final Closure<?> buildClosure
+
+    BuildSpec(
+            String name,
+            boolean isAbstract,
+            BuildExtension extending,
+            @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
+            Closure<?> buildClosure
+    ) {
+        this.name = name
+        this.isAbstract = isAbstract
+        this.extending = extending
+        this.buildClosure = buildClosure
+    }
 
     @Override
     String toString() {
