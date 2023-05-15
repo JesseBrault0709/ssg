@@ -11,7 +11,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
     @CommandLine.Option(
             names = ['-s', '--script', '--buildScript'],
-            description = 'The build script file to execute, relative to the baseDir.'
+            description = 'The build script file to execute.'
     )
     File buildScript = new File('ssgBuilds.groovy')
 
@@ -24,7 +24,7 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
     @CommandLine.Option(
             names = '--buildSrcDirs',
-            description = 'Path(s) to director(ies) containing Groovy classes and scripts which should be visible to the main build script, relative to the baseDir.',
+            description = 'Path(s) to director(ies) containing Groovy classes and scripts which should be visible to the main build script.',
             split = ',',
             paramLabel = 'buildSrcDir'
     )
