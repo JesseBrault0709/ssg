@@ -19,7 +19,7 @@ final class CollectionProviders {
         new SupplierBasedCollectionProvider<>(supplier)
     }
 
-    static <T> CollectionProvider<T> fromDirectory(
+    static <T> DirectoryCollectionProvider<T> fromDirectory(
             File baseDirectory,
             BiFunction<File, String, @Nullable T> elementFunction
     ) {

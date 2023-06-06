@@ -41,6 +41,29 @@ abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
     }
 
     @Override
+    <C extends CollectionProvider<T>> boolean containsType(Class<C> childCollectionProviderClass) {
+        if (childCollectionProviderClass.isAssignableFrom(this.class)) {
+            true
+        } else {
+            this.collectionProviderChildren.inject(false) { acc, childProvider ->
+                acc || childCollectionProviderClass.isAssignableFrom(childProvider.class)
+                        || childProvider.containsType(childCollectionProviderClass)
+            }
+        }
+    }
+
+    @Override
+    <C extends CollectionProvider<T>> Collection<C> getChildrenOfType(Class<C> childCollectionProviderClass) {
+        this.collectionProviderChildren.inject([] as Collection<C>) { acc, childProvider ->
+            if (childCollectionProviderClass.isAssignableFrom(childProvider.class)) {
+                acc + childProvider.getChildrenOfType(childCollectionProviderClass) + (childProvider as C)
+            } else {
+                acc + childProvider.getChildrenOfType(childCollectionProviderClass)
+            }
+        }
+    }
+
+    @Override
     CollectionProvider<T> plus(Provider<T> other) {
         concat(this, other)
     }
@@ -50,11 +73,24 @@ abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
         concat(this, other)
     }
 
+    private boolean searchProviderChildrenFor(Provider<T> descendant) {
+        this.providerChildren.inject(false) { acc, childProvider ->
+            acc || descendant in childProvider
+        }
+    }
+
+    private boolean searchCollectionProviderChildrenFor(Provider<T> descendant) {
+        this.collectionProviderChildren.inject(false) { acc, childProvider ->
+            acc || descendant in childProvider
+        }
+    }
+
     @Override
     boolean isCase(Provider<T> provider) {
-        provider in this.providerChildren || this.providerChildren.inject(false) { acc, childProvider ->
-            acc || provider in childProvider
-        }
+        provider in this.providerChildren
+                || this.searchProviderChildrenFor(provider)
+                || this.searchCollectionProviderChildrenFor(provider)
+
     }
 
     @Override

@@ -3,16 +3,27 @@ package com.jessebrault.ssg.provider
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
+import org.mockito.Answers
+import org.mockito.Mockito
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.function.Consumer
 
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 abstract class AbstractCollectionProviderTests {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractCollectionProviderTests)
+
+    @SuppressWarnings('GrMethodMayBeStatic')
+    protected Provider<Integer> getProvider(Integer t) {
+        Providers.of(t)
+    }
 
     protected abstract CollectionProvider<Integer> getCollectionProvider(Collection<Integer> ts)
 
@@ -43,7 +54,6 @@ abstract class AbstractCollectionProviderTests {
         })
     }
 
-    @SuppressWarnings('GrMethodMayBeStatic')
     @TestFactory
     Collection<DynamicTest> containsAndIsCaseCollectionProviderChildren() {
         def p0 = this.getCollectionProvider([])
@@ -63,10 +73,9 @@ abstract class AbstractCollectionProviderTests {
         }
     }
 
-    @SuppressWarnings('GrMethodMayBeStatic')
     @TestFactory
     Collection<DynamicTest> containsAndIsCaseProviderChildren() {
-        def p0 = this.getCollectionProvider([])
+        def p0 = this.getProvider(0)
         def p1 = this.getCollectionProvider([])
         def sum = p0 + p1
         ([
@@ -81,6 +90,30 @@ abstract class AbstractCollectionProviderTests {
         ]).collect { entry ->
             DynamicTest.dynamicTest(entry.key, { entry.value.accept(sum) })
         }
+    }
+
+    @Test
+    void containsDirectoryCollectionProvider() {
+        final CollectionProvider<Integer> dirProvider = CollectionProviders.fromDirectory(
+                new File(''),
+                { 0 }
+        )
+        final CollectionProvider<Integer> dummy = CollectionProviders.getEmpty()
+        def sum = dirProvider + dummy
+        assertTrue(sum.containsType(DirectoryCollectionProvider))
+    }
+
+    @Test
+    void getDirectoryCollectionProviderChild() {
+        final CollectionProvider<Integer> dirProvider = CollectionProviders.fromDirectory(
+                new File(''),
+                { 0 }
+        )
+        final CollectionProvider<Integer> dummy = CollectionProviders.getEmpty()
+        def sum = dirProvider + dummy
+        def children =
+                sum.<DirectoryCollectionProvider<Integer>>getChildrenOfType(DirectoryCollectionProvider)
+        assertTrue(dirProvider in children)
     }
 
 }

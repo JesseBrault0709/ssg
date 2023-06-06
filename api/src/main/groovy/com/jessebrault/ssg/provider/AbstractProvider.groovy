@@ -6,13 +6,27 @@ abstract class AbstractProvider<T> implements Provider<T> {
             Provider<T> p0,
             Provider<T> p1
     ) {
-        new SupplierBasedCollectionProvider<>({
+        new SupplierBasedCollectionProvider<>([], [p0, p1], {
             [p0.provide(), p1.provide()]
+        })
+    }
+
+    static <T> CollectionProvider<T> concat(
+            Provider<T> p0,
+            CollectionProvider<T> p1
+    ) {
+        new SupplierBasedCollectionProvider<>([p1], [p0], {
+            [p0.provide(), *p1.provide()]
         })
     }
 
     @Override
     CollectionProvider<T> plus(Provider<T> other) {
+        concat(this, other)
+    }
+
+    @Override
+    CollectionProvider<T> plus(CollectionProvider<T> other) {
         concat(this, other)
     }
 

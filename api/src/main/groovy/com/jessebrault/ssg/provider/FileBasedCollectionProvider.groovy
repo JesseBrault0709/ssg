@@ -14,7 +14,7 @@ import java.util.function.BiFunction
 @PackageScope
 @NullCheck
 @EqualsAndHashCode(includeFields = true, callSuper = true)
-final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T> {
+final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T> implements DirectoryCollectionProvider<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(FileBasedCollectionProvider)
 
@@ -25,6 +25,16 @@ final class FileBasedCollectionProvider<T> extends AbstractCollectionProvider<T>
         super([], [])
         this.baseDirectory = baseDirectory
         this.elementFunction = elementFunction
+    }
+
+    @Override
+    File getBaseDirectory() {
+        this.baseDirectory
+    }
+
+    @Override
+    BiFunction<File, String, T> getMapper() {
+        this.elementFunction
     }
 
     @Override

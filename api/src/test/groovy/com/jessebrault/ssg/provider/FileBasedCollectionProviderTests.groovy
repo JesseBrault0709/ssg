@@ -1,5 +1,9 @@
 package com.jessebrault.ssg.provider
 
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertTrue
+
 final class FileBasedCollectionProviderTests extends AbstractCollectionProviderTests {
 
     @Override
@@ -16,6 +20,12 @@ final class FileBasedCollectionProviderTests extends AbstractCollectionProviderT
             logger.debug('r: {}', r)
             r
         })
+    }
+
+    @Test
+    void containsSelfType() {
+        def p = new FileBasedCollectionProvider<String>(new File(''), { f -> '' })
+        assertTrue(p.containsType(DirectoryCollectionProvider))
     }
 
 }

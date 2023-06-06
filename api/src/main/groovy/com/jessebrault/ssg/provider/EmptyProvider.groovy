@@ -15,6 +15,13 @@ final class EmptyProvider<T> implements Provider<T> {
     }
 
     @Override
+    CollectionProvider<T> plus(CollectionProvider<T> other) {
+        CollectionProviders.fromSupplier {
+            other.provide()
+        }
+    }
+
+    @Override
     CollectionProvider<T> plus(Provider<T> other) {
         CollectionProviders.fromSupplier {
             [other.provide()] as Collection<T>
