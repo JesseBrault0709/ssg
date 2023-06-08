@@ -21,6 +21,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
+
+    // So we can use Grape dependency management
+    // https://mvnrepository.com/artifact/org.apache.ivy/ivy
+    runtimeOnly 'org.apache.ivy:ivy:2.5.1'
 }
 
 jar {

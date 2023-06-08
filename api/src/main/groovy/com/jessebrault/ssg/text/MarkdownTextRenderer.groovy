@@ -20,7 +20,7 @@ final class MarkdownTextRenderer implements TextRenderer {
     @Override
     Result<String> render(Text text) {
         try {
-            Result.of(htmlRenderer.render(parser.parse(text.text)))
+            Result.of(TextUtil.renderMarkdown(text.text))
         } catch (Exception e) {
             Result.of(
                     [new Diagnostic("There was an exception while rendering ${ text.path }:\n${ e }", e)],
