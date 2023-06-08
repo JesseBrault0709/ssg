@@ -64,6 +64,11 @@ abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
     }
 
     @Override
+    Collection<DirectoryCollectionProvider<T>> getDirectoryCollectionProviderChildren() {
+        this.getChildrenOfType(DirectoryCollectionProvider)
+    }
+
+    @Override
     CollectionProvider<T> plus(Provider<T> other) {
         concat(this, other)
     }
