@@ -1,28 +1,39 @@
 package com.jessebrault.ssg.render
 
+import com.jessebrault.gst.TemplateCreator
+import com.jessebrault.gst.groovy.GroovyTemplateCreator
+import com.jessebrault.gst.parser.ExtendedGstParser
 import com.jessebrault.ssg.dsl.StandardDslMap
-import groovy.text.GStringTemplateEngine
-import groovy.text.TemplateEngine
-import org.codehaus.groovy.control.CompilerConfiguration
+import com.jessebrault.ssg.util.Diagnostic
+import com.jessebrault.ssg.util.Result
 
 import java.util.function.Consumer
 
 final class StandardGspRenderer {
 
-    private final TemplateEngine engine
+    private final TemplateCreator templateCreator
 
     StandardGspRenderer(ClassLoader parentClassLoader) {
-        def cc = new CompilerConfiguration() // TODO: investigate if this makes any difference on the ultimate template
-        def gcl = new GroovyClassLoader(parentClassLoader, cc)
-        this.engine = new GStringTemplateEngine(gcl)
+        this.templateCreator = new GroovyTemplateCreator(ExtendedGstParser::new, [], parentClassLoader, true)
     }
 
-    String render(
-            String template,
+    Result<String> render(
+            String templateText,
             RenderContext context,
             Consumer<StandardDslMap.Builder> dslMapBuilderConsumer
     ) {
-        this.engine.createTemplate(template).make(StandardDslMap.get(context, dslMapBuilderConsumer)).toString()
+        try {
+            def templateCreateResult = this.templateCreator.create(templateText)
+            if (templateCreateResult.hasDiagnostics()) {
+                Result.ofDiagnostics(templateCreateResult.diagnostics.collect {
+                    new Diagnostic(it.message, it.exception)
+                })
+            } else {
+                Result.of(templateCreateResult.get().make(StandardDslMap.get(context, dslMapBuilderConsumer)))
+            }
+        } catch (Exception e) {
+            Result.ofDiagnostics([new Diagnostic(e.message, e)])
+        }
     }
 
 }

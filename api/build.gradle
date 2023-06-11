@@ -7,6 +7,9 @@ repositories {
 }
 
 dependencies {
+    // https://archiva.jessebrault.com/#artifact/com.jessebrault.gst/lib
+    implementation 'com.jessebrault.gst:lib:0.0.1'
+
     // https://mvnrepository.com/artifact/org.apache.groovy/groovy-templates
     implementation 'org.apache.groovy:groovy-templates:4.0.12'
 

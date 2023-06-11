@@ -26,24 +26,18 @@ final class GspPartRenderer implements PartRenderer {
         requireNonNull(binding)
         requireNonNull(context)
         def diagnostics = []
-        try {
-            def result = this.gspRenderer.render(part.text, context) {
-                it.putCustom('binding', binding)
-                it.diagnosticsConsumer = diagnostics.&addAll
-                it.loggerName = "GspPart(${ part.path })"
-                if (text) {
-                    it.text = text
-                }
+        def result = this.gspRenderer.render(part.text, context) {
+            it.putCustom('binding', binding)
+            it.diagnosticsConsumer = diagnostics.&addAll
+            it.loggerName = "GspPart(${ part.path })"
+            if (text) {
+                it.text = text
             }
-            Result.of(diagnostics, result.toString())
-        } catch (Exception e) {
-            Result.of(
-                    [*diagnostics, new Diagnostic(
-                            "An exception occurred while rendering part ${ part.path }:\n${ e }",
-                            e
-                    )],
-                    ''
-            )
+        }
+        if (result.hasDiagnostics()) {
+            Result.ofDiagnostics(diagnostics + result.diagnostics)
+        } else {
+            Result.of(diagnostics, result.get())
         }
     }
 

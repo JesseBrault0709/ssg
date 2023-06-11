@@ -21,21 +21,15 @@ final class GspTemplateRenderer implements TemplateRenderer {
             RenderContext context
     ) {
         def diagnostics = []
-        try {
-            def result = this.gspRenderer.render(template.text, context) {
-                it.diagnosticsConsumer = diagnostics.&addAll
-                it.loggerName = "GspTemplate(${ template.path })"
-                it.text = text
-            }
-            Result.of(diagnostics, result)
-        } catch (Exception e) {
-            Result.of(
-                    [*diagnostics, new Diagnostic(
-                            "An exception occurred while rendering Template ${ template.path }:\n${ e }",
-                            e
-                    )],
-                    ''
-            )
+        def result = this.gspRenderer.render(template.text, context) {
+            it.diagnosticsConsumer = diagnostics.&addAll
+            it.loggerName = "GspTemplate(${ template.path })"
+            it.text = text
+        }
+        if (result.hasDiagnostics()) {
+            Result.ofDiagnostics(diagnostics + result.diagnostics)
+        } else {
+            Result.of(diagnostics, result.get())
         }
     }
 
