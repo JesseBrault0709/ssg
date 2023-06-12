@@ -2,11 +2,8 @@ package com.jessebrault.ssg.part
 
 final class PartTypes {
 
-    @Deprecated
-    static final PartType GSP = new PartType(['.gsp'], new GspPartRenderer(PartTypes.classLoader, []))
-
-    static PartType getGsp(Collection<String> extensions, ClassLoader classLoader, Collection<URL> scriptBaseUrls) {
-        new PartType(extensions, new GspPartRenderer(classLoader, scriptBaseUrls))
+    static PartType getGsp(Collection<String> extensions, File tmpDir, GroovyScriptEngine engine) {
+        new PartType(extensions, new GspPartRenderer(tmpDir, engine))
     }
 
     private PartTypes() {}

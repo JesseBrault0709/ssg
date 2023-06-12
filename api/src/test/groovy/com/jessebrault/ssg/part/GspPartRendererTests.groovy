@@ -15,10 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 final class GspPartRendererTests implements StandardDslConsumerTests {
 
     private static GspPartRenderer getRenderer(
-            ClassLoader classLoader = GspPartRendererTests.classLoader,
+            ClassLoader parentClassLoader = GspPartRendererTests.classLoader,
             Collection<URL> urls = []
     ) {
-        new GspPartRenderer(classLoader, urls)
+        def tmpDir = File.createTempDir()
+        def engine = new GroovyScriptEngine([tmpDir.toURI().toURL(), *urls] as URL[], parentClassLoader)
+        new GspPartRenderer(tmpDir, engine)
     }
 
     private static Result<String> doRender(

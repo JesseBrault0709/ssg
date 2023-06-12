@@ -15,8 +15,8 @@ final class GspPartRenderer implements PartRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspPartRenderer(ClassLoader classLoader, Collection<URL> urls) {
-        this.gspRenderer = new StandardGspRenderer(classLoader, urls)
+    GspPartRenderer(File tmpDir, GroovyScriptEngine engine) {
+        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
     }
 
     @Override

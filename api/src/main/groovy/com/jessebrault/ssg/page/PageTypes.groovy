@@ -2,11 +2,8 @@ package com.jessebrault.ssg.page
 
 final class PageTypes {
 
-    @Deprecated
-    static final PageType GSP = new PageType(['.gsp'], new GspPageRenderer(PageTypes.classLoader, []))
-
-    static PageType getGsp(Collection<String> extensions, ClassLoader classLoader, Collection<URL> urls) {
-        new PageType(extensions, new GspPageRenderer(classLoader, urls))
+    static PageType getGsp(Collection<String> extensions, File tmpDir, GroovyScriptEngine engine) {
+        new PageType(extensions, new GspPageRenderer(tmpDir, engine))
     }
 
     private PageTypes() {}

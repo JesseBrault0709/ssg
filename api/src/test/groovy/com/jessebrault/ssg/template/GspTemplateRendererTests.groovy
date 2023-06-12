@@ -14,10 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 final class GspTemplateRendererTests implements StandardDslConsumerTests {
 
     private static TemplateRenderer getRenderer(
-            ClassLoader classLoader = GspTemplateRendererTests.classLoader,
+            ClassLoader parentLoader = GspTemplateRendererTests.class.classLoader,
             Collection<URL> urls = []
     ) {
-        new GspTemplateRenderer(classLoader, urls)
+        def tmpDir = File.createTempDir()
+        def engine = new GroovyScriptEngine([tmpDir.toURI().toURL(), *urls] as URL[], parentLoader)
+        new GspTemplateRenderer(tmpDir, engine)
     }
 
     private static Result<String> doRender(

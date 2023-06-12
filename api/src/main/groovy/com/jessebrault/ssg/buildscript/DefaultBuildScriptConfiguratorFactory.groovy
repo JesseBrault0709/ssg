@@ -23,8 +23,8 @@ import java.util.function.Consumer
 final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfiguratorFactory {
 
     private final File baseDir
-    private final ClassLoader classLoader
-    private final Collection<URL> scriptBaseUrls
+    private final File tmpDir
+    private final GroovyScriptEngine engine
 
     @Override
     Consumer<BuildScriptBase> get() {
@@ -36,9 +36,9 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
 
                 types {
                     textTypes << TextTypes.MARKDOWN
-                    pageTypes << PageTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
-                    templateTypes << TemplateTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
-                    partTypes << PartTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
+                    pageTypes << PageTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
+                    templateTypes << TemplateTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
+                    partTypes << PartTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
                 }
 
                 sources { base, types ->

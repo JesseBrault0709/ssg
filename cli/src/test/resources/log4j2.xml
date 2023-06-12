@@ -10,7 +10,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="warn">
+        <Root level="trace">
             <AppenderRef ref="standard" />
         </Root>
         <Logger name="com.jessebrault.fsm" level="OFF" />

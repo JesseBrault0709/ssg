@@ -13,8 +13,8 @@ final class GspPageRenderer implements PageRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspPageRenderer(ClassLoader classLoader, Collection<URL> urls) {
-        this.gspRenderer = new StandardGspRenderer(classLoader, urls)
+    GspPageRenderer(File tmpDir, GroovyScriptEngine engine) {
+        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
     }
 
     @Override

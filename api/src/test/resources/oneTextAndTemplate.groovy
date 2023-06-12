@@ -14,6 +14,8 @@ BuildScriptBase b
 
 final class Args {
     File sourceDir
+    File tmpDir
+    GroovyScriptEngine engine
 }
 
 def args = args as Args
@@ -23,7 +25,7 @@ build(name: 'test') {
 
     types {
         textTypes << TextTypes.MARKDOWN
-        templateTypes << TemplateTypes.GSP
+        templateTypes << TemplateTypes.getGsp(['.gsp'], args.tmpDir, args.engine)
     }
 
     sources { base, types ->

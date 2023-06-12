@@ -6,8 +6,13 @@ import com.jessebrault.ssg.util.Result
 
 final class GspPageRendererTests implements StandardDslConsumerTests {
 
-    private static GspPageRenderer getRenderer(ClassLoader classLoader, Collection<URL> urls) {
-        new GspPageRenderer(classLoader, urls)
+    private static GspPageRenderer getRenderer(
+            ClassLoader classLoader,
+            Collection<URL> urls
+    ) {
+        def tmpDir = File.createTempDir()
+        def engine = new GroovyScriptEngine([tmpDir.toURI().toURL(), *urls] as URL[], classLoader)
+        new GspPageRenderer(tmpDir, engine)
     }
 
     @Override

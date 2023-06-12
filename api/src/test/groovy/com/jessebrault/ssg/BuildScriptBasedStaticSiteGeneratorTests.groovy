@@ -32,19 +32,16 @@ final class BuildScriptBasedStaticSiteGeneratorTests {
             }
         }
 
-        def ssg = new BuildScriptBasedStaticSiteGenerator(
-                [new BuildScriptConfiguratorFactory() {
+        def tmpDir = File.createTempDir()
+        def engine = new GroovyScriptEngine([sourceDir.toURI().toURL(), tmpDir.toURI().toURL()] as URL[])
+        def ssg = new BuildScriptBasedStaticSiteGenerator(engine, [new BuildScriptConfiguratorFactory() {
 
-                    @Override
-                    Consumer<BuildScriptBase> get() {
-                        return { }
-                    }
+            @Override
+            Consumer<BuildScriptBase> get() {
+                return { }
+            }
 
-                }],
-                buildScript,
-                [],
-                [sourceDir: sourceDir]
-        )
+        }], buildScript, [sourceDir: sourceDir, tmpDir: tmpDir, engine: engine])
         assertTrue(ssg.doBuild('test') {
             it.each { logger.error(it.toString()) }
         })

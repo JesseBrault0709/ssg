@@ -18,24 +18,23 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker enter = MarkerFactory.getMarker('enter')
     private static final Marker exit = MarkerFactory.getMarker('exit')
 
+    private final GroovyScriptEngine engine
     private final Collection<BuildScriptConfiguratorFactory> configuratorFactories
-    @Nullable
-    private final File buildScript
-    private final Collection<File> buildSrcDirs
+    private final @Nullable File buildScript
     private final Map<String, Object> scriptArgs
     private final Collection<Build> builds = []
 
     private boolean ranBuildScript = false
 
     BuildScriptBasedStaticSiteGenerator(
+            GroovyScriptEngine engine,
             Collection<BuildScriptConfiguratorFactory> configuratorFactories = [],
             @Nullable File buildScript = null,
-            Collection<File> buildSrcDirs = [],
             Map<String, Object> scriptArgs = [:]
     ) {
+        this.engine = engine
         this.configuratorFactories = configuratorFactories
         this.buildScript = buildScript
-        this.buildSrcDirs = buildSrcDirs
         this.scriptArgs = scriptArgs
     }
 
@@ -54,13 +53,10 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             logger.info('running buildScript: {}', this.buildScript)
             def result = BuildScripts.runBuildScript(
                     this.buildScript.name,
-                    this.buildScript.parentFile.toURI().toURL(),
-                    this.buildSrcDirs.collect { it.toURI().toURL() },
+                    this.engine,
                     [args: this.scriptArgs]
             ) { base ->
-                this.configuratorFactories.each {
-                    it.get().accept(base)
-                }
+                this.configuratorFactories.each { it.get().accept(base) }
             }
             this.builds.addAll(result)
         } else {

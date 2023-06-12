@@ -33,6 +33,23 @@ final class BuildScripts {
 
     static Collection<Build> runBuildScript(
             String scriptName,
+            GroovyScriptEngine engine,
+            Map<String, Object> binding = [:],
+            Consumer<BuildScriptBase> configureBuildScript = { }
+    ) {
+        engine.config = new CompilerConfiguration().tap {
+            scriptBaseClass = 'com.jessebrault.ssg.buildscript.BuildScriptBase'
+        }
+
+        def base = engine.createScript(scriptName, new Binding(binding))
+        assert base instanceof BuildScriptBase
+        configureBuildScript.accept(base)
+        runBase(base)
+    }
+
+    @Deprecated
+    static Collection<Build> runBuildScript(
+            String scriptName,
             URL scriptBaseDirUrl,
             Collection<URL> otherUrls,
             Map<String, Object> binding,
@@ -50,6 +67,7 @@ final class BuildScripts {
         runBase(base)
     }
 
+    @Deprecated
     static Collection<Build> runBuildScript(
             String scriptName,
             URL scriptBaseDirUrl,
@@ -59,6 +77,7 @@ final class BuildScripts {
         runBuildScript(scriptName, scriptBaseDirUrl, otherUrls, binding) { }
     }
 
+    @Deprecated
     static Collection<Build> runBuildScript(
             String scriptName,
             URL scriptBaseDirUrl,
@@ -67,6 +86,7 @@ final class BuildScripts {
         runBuildScript(scriptName, scriptBaseDirUrl, otherUrls, [:]) { }
     }
 
+    @Deprecated
     static Collection<Build> runBuildScript(
             String scriptName,
             URL scriptBaseDirUrl

@@ -11,22 +11,30 @@ final class CliBasedStaticSiteGeneratorTests {
 
     @Test
     void meatyInitAndBuild() {
-        def tempDir = File.createTempDir()
-        SsgInit.init(tempDir, true)
+        def baseDir = File.createTempDir()
+        SsgInit.init(baseDir, true)
 
+        def tmpDir = File.createTempDir()
+        def engine = new GroovyScriptEngine([
+                new File(baseDir, 'buildSrc').toURI().toURL(),
+                tmpDir.toURI().toURL()
+        ] as URL[])
         def ssg = new CliBasedStaticSiteGenerator(
-                tempDir,
-                new File('ssgBuilds.groovy'),
-                [new File('buildSrc')],
-                [:],
-                this.class.classLoader,
-                [new File(tempDir, 'buildSrc').toURI().toURL()]
+                baseDir,
+                new File(baseDir, 'ssgBuilds.groovy'),
+                tmpDir,
+                engine,
+                [:]
         )
         def diagnostics = [] as Collection<Diagnostic>
-        assertTrue(ssg.doBuild('production', diagnostics.&addAll))
+        assertTrue(ssg.doBuild('production', diagnostics.&addAll), {
+            diagnostics.inject('') { acc, diagnostic ->
+                acc + '\n' + diagnostic.message
+            }
+        })
         assertTrue(diagnostics.empty)
 
-        def buildDir = new File(tempDir, 'production')
+        def buildDir = new File(baseDir, 'production')
         assertTrue(buildDir.exists())
         assertTrue(buildDir.directory)
 

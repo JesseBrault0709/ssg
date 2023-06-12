@@ -14,8 +14,8 @@ final class GspTemplateRenderer implements TemplateRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspTemplateRenderer(ClassLoader parentClassLoader, Collection<URL> urls) {
-        this.gspRenderer = new StandardGspRenderer(parentClassLoader, urls)
+    GspTemplateRenderer(File tmpDir, GroovyScriptEngine engine) {
+        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
     }
 
     @Override

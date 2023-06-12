@@ -11,38 +11,33 @@ final class CliBasedStaticSiteGenerator implements StaticSiteGenerator {
 
     private final File baseDir
     private final File buildScript
-    private final Collection<File> buildSrcDirs
+    private final File tmpDir
     private final Map<String, String> scriptArgs
-    private final ClassLoader classLoader
-    private final Collection<URL> scriptBaseUrls
+    private final GroovyScriptEngine engine
 
     private StaticSiteGenerator staticSiteGenerator
 
     CliBasedStaticSiteGenerator(
             File baseDir,
             File buildScript,
-            Collection<File> buildSrcDirs,
-            Map<String, String> scriptArgs,
-            ClassLoader classLoader,
-            Collection<URL> scriptBaseUrls
+            File tmpDir,
+            GroovyScriptEngine engine,
+            Map<String, String> scriptArgs
     ) {
         this.baseDir = baseDir
         this.buildScript = buildScript
-        this.buildSrcDirs = buildSrcDirs
+        this.tmpDir = tmpDir
         this.scriptArgs = scriptArgs
-        this.classLoader = classLoader
-        this.scriptBaseUrls = scriptBaseUrls
+        this.engine = engine
     }
 
     @Override
     boolean doBuild(String buildName, Consumer<Collection<Diagnostic>> diagnosticsConsumer) {
         if (this.staticSiteGenerator == null) {
             this.staticSiteGenerator = new BuildScriptBasedStaticSiteGenerator(
-                    [new DefaultBuildScriptConfiguratorFactory(this.baseDir, this.classLoader, this.scriptBaseUrls)],
-                    this.buildScript == new File('ssgBuilds.groovy') || this.buildScript.exists()
-                            ? new File(this.baseDir, this.buildScript.path)
-                            : null,
-                    this.buildSrcDirs.collect { new File(this.baseDir, it.path) },
+                    this.engine,
+                    [new DefaultBuildScriptConfiguratorFactory(this.baseDir, this.tmpDir, this.engine)],
+                    this.buildScript,
                     this.scriptArgs
             )
         }

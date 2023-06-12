@@ -48,10 +48,19 @@ final class BuildScriptsTests {
             tempDir
         }
 
+        private static Collection<Build> getBuilds(
+                String scriptName,
+                Collection<URL> urls,
+                Map<String, Object> binding = [:],
+                Consumer<BuildScriptBase> configureBase = { }
+        ) {
+            runBuildScript(scriptName, new GroovyScriptEngine(urls as URL[]), binding, configureBase)
+        }
+
         @Test
         void simpleScript() {
             def baseDir = this.setupScripts(['simple.groovy'])
-            def builds = runBuildScript('simple.groovy', baseDir.toURI().toURL())
+            def builds = getBuilds('simple.groovy', [baseDir.toURI().toURL()])
             assertEquals(1, builds.size())
             assertEquals('test', builds[0].name)
         }
@@ -59,7 +68,7 @@ final class BuildScriptsTests {
         @Test
         void testImport() {
             def baseDir = this.setupScripts(['testImport.groovy', 'TestHtmlTask.groovy'])
-            def builds = runBuildScript('testImport.groovy', baseDir.toURI().toURL())
+            def builds = getBuilds('testImport.groovy', [baseDir.toURI().toURL()])
             assertEquals(1, builds.size())
             assertEquals('test', builds[0].name)
         }
@@ -77,10 +86,12 @@ final class BuildScriptsTests {
                     }
                 }
             }
-            def builds = runBuildScript(
+            def builds = getBuilds(
                     'buildSrcTest.groovy',
-                    baseDir.toURI().toURL(),
-                    [new File(baseDir, 'buildSrc').toURI().toURL()]
+                    [
+                            baseDir.toURI().toURL(),
+                            new File(baseDir, 'buildSrc').toURI().toURL()
+                    ]
             )
             assertEquals(1, builds.size())
             assertEquals('test', builds[0].name)
@@ -89,12 +100,8 @@ final class BuildScriptsTests {
         @Test
         void withBinding(@Mock Consumer<String> stringConsumer) {
             def baseDir = this.setupScripts(['withBinding.groovy'])
-            runBuildScript(
-                    'withBinding.groovy',
-                    baseDir.toURI().toURL(),
-                    [],
-                    [stringConsumer: stringConsumer]
-            )
+            def engine = new GroovyScriptEngine([baseDir.toURI().toURL()] as URL[])
+            runBuildScript('withBinding.groovy', engine, [stringConsumer: stringConsumer])
             verify(stringConsumer).accept('test')
         }
 

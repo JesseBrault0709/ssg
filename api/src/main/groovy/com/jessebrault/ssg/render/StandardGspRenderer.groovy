@@ -13,8 +13,8 @@ final class StandardGspRenderer {
 
     private final TemplateCreator templateCreator
 
-    StandardGspRenderer(ClassLoader parentClassLoader, Collection<URL> urls) {
-        this.templateCreator = new GroovyTemplateCreator(ExtendedGstParser::new, urls, parentClassLoader, true)
+    StandardGspRenderer(File tmpDir, GroovyScriptEngine engine) {
+        this.templateCreator = new GroovyTemplateCreator(ExtendedGstParser::new, tmpDir, engine, true)
     }
 
     Result<String> render(

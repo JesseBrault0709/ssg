@@ -39,17 +39,16 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
 
     protected StaticSiteGenerator staticSiteGenerator = null
 
-    protected final Integer doSingleBuild(String requestedBuild) {
+    protected final Integer doSingleBuild(String requestedBuild, File tmpDir, GroovyScriptEngine engine) {
         logger.traceEntry('requestedBuild: {}', requestedBuild)
 
         if (this.staticSiteGenerator == null) {
             this.staticSiteGenerator = new CliBasedStaticSiteGenerator(
                     new File('.'),
                     this.buildScript,
-                    this.buildSrcDirs,
-                    this.scriptArgs,
-                    this.class.classLoader,
-                    this.buildSrcDirs.collect { it.toURI().toURL() }
+                    tmpDir,
+                    engine,
+                    this.scriptArgs
             )
         }
 
