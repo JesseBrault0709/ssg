@@ -23,6 +23,8 @@ import java.util.function.Consumer
 final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfiguratorFactory {
 
     private final File baseDir
+    private final ClassLoader classLoader
+    private final Collection<URL> scriptBaseUrls
 
     @Override
     Consumer<BuildScriptBase> get() {
@@ -34,9 +36,9 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
 
                 types {
                     textTypes << TextTypes.MARKDOWN
-                    pageTypes << PageTypes.GSP
-                    templateTypes << TemplateTypes.GSP
-                    partTypes << PartTypes.GSP
+                    pageTypes << PageTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
+                    templateTypes << TemplateTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
+                    partTypes << PartTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoader, this.scriptBaseUrls)
                 }
 
                 sources { base, types ->

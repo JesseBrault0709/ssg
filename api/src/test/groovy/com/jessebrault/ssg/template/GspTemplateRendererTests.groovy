@@ -13,21 +13,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 final class GspTemplateRendererTests implements StandardDslConsumerTests {
 
-    private final TemplateRenderer renderer = new GspTemplateRenderer()
+    private static TemplateRenderer getRenderer(
+            ClassLoader classLoader = GspTemplateRendererTests.classLoader,
+            Collection<URL> urls = []
+    ) {
+        new GspTemplateRenderer(classLoader, urls)
+    }
 
-    private Result<String> doRender(String scriptlet, Text text, RenderContext context) {
-        this.renderer.render(new Template('', new TemplateType([], this.renderer), scriptlet), text, context)
+    private static Result<String> doRender(
+            String scriptlet,
+            Text text,
+            RenderContext context,
+            ClassLoader classLoader,
+            Collection<URL> urls
+    ) {
+        def renderer = getRenderer(classLoader, urls)
+        renderer.render(new Template('', new TemplateType([], renderer), scriptlet), text, context)
     }
 
     @Override
-    Result<String> render(String scriptlet, RenderContext context) {
-        this.doRender(scriptlet, blankText(), context)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls) {
+        doRender(scriptlet, blankText(), context, classLoader, urls)
     }
 
     @Test
     void textAvailableToRender() {
-        def template = new Template('', new TemplateType([], this.renderer), '<%= text.render() %>')
-        def r = this.renderer.render(
+        def renderer = getRenderer()
+        def template = new Template('', new TemplateType([], renderer), '<%= text.render() %>')
+        def r = renderer.render(
                 template,
                 renderableText('Hello, World!'),
                 new RenderContext()

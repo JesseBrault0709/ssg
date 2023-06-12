@@ -13,7 +13,11 @@ import static java.util.Objects.requireNonNull
 @EqualsAndHashCode
 final class GspPartRenderer implements PartRenderer {
 
-    private final StandardGspRenderer gspRenderer = new StandardGspRenderer(this.class.classLoader)
+    private final StandardGspRenderer gspRenderer
+
+    GspPartRenderer(ClassLoader classLoader, Collection<URL> urls) {
+        this.gspRenderer = new StandardGspRenderer(classLoader, urls)
+    }
 
     @Override
     Result<String> render(

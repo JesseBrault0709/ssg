@@ -18,7 +18,9 @@ final class CliBasedStaticSiteGeneratorTests {
                 tempDir,
                 new File('ssgBuilds.groovy'),
                 [new File('buildSrc')],
-                [:]
+                [:],
+                this.class.classLoader,
+                [new File(tempDir, 'buildSrc').toURI().toURL()]
         )
         def diagnostics = [] as Collection<Diagnostic>
         assertTrue(ssg.doBuild('production', diagnostics.&addAll))

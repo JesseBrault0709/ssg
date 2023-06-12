@@ -11,7 +11,11 @@ import groovy.transform.NullCheck
 @EqualsAndHashCode
 final class GspPageRenderer implements PageRenderer {
 
-    private final StandardGspRenderer gspRenderer = new StandardGspRenderer(this.class.classLoader)
+    private final StandardGspRenderer gspRenderer
+
+    GspPageRenderer(ClassLoader classLoader, Collection<URL> urls) {
+        this.gspRenderer = new StandardGspRenderer(classLoader, urls)
+    }
 
     @Override
     Result<String> render(

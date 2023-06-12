@@ -12,7 +12,11 @@ import groovy.transform.NullCheck
 @EqualsAndHashCode
 final class GspTemplateRenderer implements TemplateRenderer {
 
-    private final StandardGspRenderer gspRenderer = new StandardGspRenderer(this.class.classLoader)
+    private final StandardGspRenderer gspRenderer
+
+    GspTemplateRenderer(ClassLoader parentClassLoader, Collection<URL> urls) {
+        this.gspRenderer = new StandardGspRenderer(parentClassLoader, urls)
+    }
 
     @Override
     Result<String> render(

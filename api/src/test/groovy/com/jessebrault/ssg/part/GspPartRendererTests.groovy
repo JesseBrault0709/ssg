@@ -4,6 +4,7 @@ import com.jessebrault.ssg.dsl.StandardDslConsumerTests
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.text.Text
 import com.jessebrault.ssg.util.Result
+import org.jetbrains.annotations.Nullable
 import org.junit.jupiter.api.Test
 
 import static com.jessebrault.ssg.text.TextMocks.renderableText
@@ -13,16 +14,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 
 final class GspPartRendererTests implements StandardDslConsumerTests {
 
-    private final PartRenderer renderer = new GspPartRenderer()
+    private static GspPartRenderer getRenderer(
+            ClassLoader classLoader = GspPartRendererTests.classLoader,
+            Collection<URL> urls = []
+    ) {
+        new GspPartRenderer(classLoader, urls)
+    }
 
-    private Result<String> doRender(
+    private static Result<String> doRender(
             String scriptlet,
             RenderContext context,
             Map binding = [:],
-            Text text = null
+            @Nullable Text text = null,
+            ClassLoader classLoader = GspPartRendererTests.classLoader,
+            Collection<URL> urls = []
     ) {
-        this.renderer.render(
-                new Part('', new PartType([], this.renderer), scriptlet),
+        def renderer = getRenderer(classLoader, urls)
+        renderer.render(
+                new Part('', new PartType([], renderer), scriptlet),
                 binding,
                 context,
                 text
@@ -30,22 +39,23 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
     }
 
     @Override
-    Result<String> render(String scriptlet, RenderContext context) {
-        this.doRender(scriptlet, context)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls) {
+        doRender(scriptlet, context, [:], null, classLoader, urls)
     }
 
     @Test
     void rendersWithBinding() {
         this.checkResult(
                 'Hello, World!',
-                this.doRender('<%= binding.greeting %>', new RenderContext(), [greeting: 'Hello, World!'])
+                doRender('<%= binding.greeting %>', new RenderContext(), [greeting: 'Hello, World!'])
         )
     }
 
     @Test
     void textAvailable() {
-        this.checkResult('Hello, World!', this.renderer.render(
-                new Part('', new PartType([], this.renderer), '<%= text.render() %>'),
+        def renderer = getRenderer()
+        this.checkResult('Hello, World!', renderer.render(
+                new Part('', new PartType([], renderer), '<%= text.render() %>'),
                 [:],
                 new RenderContext(),
                 renderableText('Hello, World!')
@@ -54,7 +64,8 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
 
     @Test
     void nestedPartDiagnosticBubblesUp() {
-        def partType = new PartType([], this.renderer)
+        def renderer = getRenderer()
+        def partType = new PartType([], renderer)
         def nestedProblemPart = new Part(
                 'nestedProblem.gsp',
                 partType,
@@ -65,7 +76,7 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
                 partType,
                 '<% parts["nestedProblem.gsp"].render() %>'
         )
-        def r = this.renderer.render(
+        def r = renderer.render(
                 callerPart,
                 [:],
                 new RenderContext(parts: [nestedProblemPart]),
@@ -79,7 +90,8 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
 
     @Test
     void nestedPartIsBlankWhenThrowingExceptionButCallerRendered() {
-        def partType = new PartType([], this.renderer)
+        def renderer = getRenderer()
+        def partType = new PartType([], renderer)
         def nestedProblemPart = new Part(
                 'nestedProblem.gsp',
                 partType,
@@ -90,7 +102,7 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
                 partType,
                 'Hello, World!<% parts["nestedProblem.gsp"].render() %>'
         )
-        def r = this.renderer.render(
+        def r = renderer.render(
                 callerPart,
                 [:],
                 new RenderContext(parts: [nestedProblemPart]),

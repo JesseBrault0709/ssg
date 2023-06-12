@@ -47,7 +47,9 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                     new File('.'),
                     this.buildScript,
                     this.buildSrcDirs,
-                    this.scriptArgs
+                    this.scriptArgs,
+                    this.class.classLoader,
+                    this.buildSrcDirs.collect { it.toURI().toURL() }
             )
         }
 

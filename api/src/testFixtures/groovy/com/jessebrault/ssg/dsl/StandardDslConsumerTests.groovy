@@ -33,21 +33,32 @@ import static org.mockito.Mockito.*
 @ExtendWith(MockitoExtension)
 interface StandardDslConsumerTests {
 
-    Result<String> render(String scriptlet, RenderContext context)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls)
 
     default void checkResult(String expected, Result<String> result) {
         assertEmptyDiagnostics(result)
         assertEquals(expected, result.get())
     }
 
-    default void doDslRenderTest(String expected, String scriptlet, RenderContext context = null) {
-        this.checkResult(expected, this.render(scriptlet, context ?: new RenderContext()))
+    default void doDslRenderTest(
+            String expected,
+            String scriptlet,
+            RenderContext context = new RenderContext(),
+            ClassLoader classLoader = this.class.classLoader,
+            Collection<URL> urls = []
+    ) {
+        this.checkResult(expected, this.render(scriptlet, context, classLoader, urls))
     }
 
-    default void doDslAssertionTest(String scriptlet, RenderContext context = null) {
+    default void doDslAssertionTest(
+            String scriptlet,
+            RenderContext context = new RenderContext(),
+            ClassLoader classLoader = this.class.classLoader,
+            Collection<URL> urls = []
+    ) {
         Result<String> result = null
         try {
-            result = this.render(scriptlet, context ?: new RenderContext())
+            result = this.render(scriptlet, context, classLoader, urls)
         } catch (Throwable e) {
             fail(e)
         }
@@ -239,6 +250,41 @@ interface StandardDslConsumerTests {
                 '../images/test.jpg',
                 '<%= urlBuilder.relative("images/test.jpg") %>',
                 new RenderContext(targetPath: 'test/test.html')
+        )
+    }
+
+    @Test
+    default void importFromClasspath() {
+        this.doDslAssertionTest('<%@ import com.jessebrault.ssg.dsl.Greeter %><% assert Greeter %>')
+    }
+
+    @Test
+    default void importFromClasspathIsClass() {
+        this.doDslAssertionTest(
+                '<%@ import com.jessebrault.ssg.dsl.Greeter %><% assert Greeter instanceof Class %>'
+        )
+    }
+
+    @Test
+    default void withConfiguredUrls() {
+        def parentClassLoader = this.class.classLoader
+        def greeterText = StandardDslConsumerTestsUtil.readResource(
+                'com/jessebrault/ssg/dsl/TmpGreeter.groovy', parentClassLoader
+        )
+        if (greeterText == null) {
+            fail('Could not load greeterText')
+        }
+        def greeterBaseUrl = StandardDslConsumerTestsUtil.writeGroovyClass(
+                'TmpGreeter',
+                ['com', 'jessebrault', 'ssg', 'tmp'],
+                greeterText
+        )
+        this.doDslRenderTest(
+                "Hello, World!",
+                "<%@ import com.jessebrault.ssg.tmp.TmpGreeter %><%= new TmpGreeter().greet() %>",
+                new RenderContext(),
+                parentClassLoader,
+                [greeterBaseUrl]
         )
     }
 
