@@ -4,12 +4,20 @@ import com.jessebrault.ssg.model.Model
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import org.jetbrains.annotations.Nullable
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.Marker
+import org.slf4j.MarkerFactory
 
 import java.util.function.Predicate
 
 @NullCheck
 @EqualsAndHashCode(includeFields = true)
 final class ModelCollection<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ModelCollection)
+    private static final Marker enter = MarkerFactory.getMarker('ENTER')
+    private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     @Delegate
     private final Collection<Model<T>> models = []
@@ -36,11 +44,20 @@ final class ModelCollection<T> {
         Optional.ofNullable(this.getByNameAndType(name, type))
     }
 
-    def <E extends T> ModelCollection<E> findAllByType(Class<E> type) {
+    def <E> ModelCollection<E> findAllByType(Class<E> type) {
+        logger.trace(enter, 'type: {}', type)
         def es = this.models.findResults {
-            type.isAssignableFrom(it.get().class) ? it as Model<E> : null
+            def itType = it.get().class
+            def itResult = type.isAssignableFrom(itType)
+            logger.debug(
+                    'it: {}, itType: {}, itType.classLoader: {}, itResult: {}',
+                    it, itType, itType.classLoader, itResult
+            )
+            itResult ? it as Model<E> : null
         }
-        new ModelCollection<>(es)
+        def result = new ModelCollection<>(es)
+        logger.trace(exit, 'result: {}', result)
+        result
     }
 
     def <E extends T> Optional<Model<E>> findOne(Class<E> type, Predicate<E> filter) {
