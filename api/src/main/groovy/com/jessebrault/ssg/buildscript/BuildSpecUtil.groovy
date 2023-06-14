@@ -25,6 +25,10 @@ final class BuildSpecUtil {
         m0 + m1
     }
 
+    private static final Monoid<Collection<String>> includedBuildsMonoid = Monoids.of([]) { c0, c1 ->
+        c0 + c1
+    }
+
     private static final Monoid<Collection<TaskFactorySpec<TaskFactory>>> taskFactoriesMonoid =
             Monoids.getMergeCollectionMonoid(TaskFactorySpec.SAME_NAME_AND_SUPPLIER_EQ, TaskFactorySpec.DEFAULT_SEMIGROUP)
 
@@ -76,12 +80,17 @@ final class BuildSpecUtil {
             r.getTaskFactoriesResult(acc, true, taskFactoriesMonoid, sourcesResult)
         }
 
-        new Build(
-                specs.last().name,
-                outputDirFunctionResult,
-                siteSpecResult,
-                globalsResult,
-                taskFactoriesResult
+        def includedBuildsResult = reduceResults(allResults, includedBuildsMonoid) { acc, r ->
+            r.getIncludedBuildsResult(acc, true, includedBuildsMonoid)
+        }
+
+        Build.get(
+                name: specs.last().name,
+                outputDirFunction: outputDirFunctionResult,
+                siteSpec: siteSpecResult,
+                globals: globalsResult,
+                taskFactorySpecs: taskFactoriesResult,
+                includedBuilds: includedBuildsResult
         )
     }
 

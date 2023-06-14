@@ -3,7 +3,11 @@ package com.jessebrault.ssg
 import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
 import com.jessebrault.ssg.buildscript.BuildScriptRunner
+import com.jessebrault.ssg.buildscript.BuildUtil
 import com.jessebrault.ssg.util.Diagnostic
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.NullCheck
+import groovy.transform.TupleConstructor
 import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -79,7 +83,15 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
         Objects.requireNonNull(this.buildScriptClassLoader)
     }
 
-    // TODO: cache
+    @TupleConstructor(defaults = false)
+    @NullCheck(includeGenerated = true)
+    @EqualsAndHashCode
+    private static final class IncludedBuildsResult {
+        final Collection<Build> builds
+        final Collection<Diagnostic> diagnostics
+    }
+
+    // TODO: cache build script results
     @Override
     boolean doBuild(
             String buildName,
@@ -96,23 +108,52 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             throw new IllegalArgumentException("there is no registered build with name: ${ buildName }")
         }
 
-        def buildTasksConverter = new SimpleBuildTasksConverter()
-        def successful = true
-        def tasksResult = buildTasksConverter.convert(build)
-        if (tasksResult.hasDiagnostics()) {
-            successful = false
-            diagnosticsConsumer.accept(tasksResult.diagnostics)
-        } else {
-            def tasks = tasksResult.get()
-            def taskDiagnostics = tasks.collectMany { it.execute(tasks) }
-            if (!taskDiagnostics.isEmpty()) {
-                successful = false
-                diagnosticsConsumer.accept(taskDiagnostics)
+        def includedBuildsResult = build.includedBuilds.inject(
+                new IncludedBuildsResult([], [])
+        ) { acc, includedBuildName ->
+            def includedBuild = this.builds.find { it.name == includedBuildName }
+            if (includedBuild == null) {
+                acc.diagnostics << new Diagnostic("There is no registered build ${ includedBuildName } that can be included.")
+            } else {
+                acc.builds << includedBuild
             }
+            acc
         }
 
-        logger.trace(exit, 'successful: {}', successful)
-        successful
+        if (includedBuildsResult.diagnostics.size() > 0) {
+            diagnosticsConsumer.accept(includedBuildsResult.diagnostics)
+            logger.trace(exit, 'result: false')
+            return false
+        }
+
+        def buildTasksConverter = new SimpleBuildTasksConverter()
+
+        def allBuilds = includedBuildsResult.builds + build
+        def allBuildsConvertResults = allBuilds.collect {
+            buildTasksConverter.convert(it)
+        }
+        def allBuildsConvertDiagnostics = allBuildsConvertResults.collectMany {
+            it.diagnostics
+        }
+
+        if (allBuildsConvertDiagnostics.size() > 0) {
+            diagnosticsConsumer.accept(allBuildsConvertDiagnostics)
+            logger.trace(exit, 'result: false')
+            return false
+        }
+
+        def allTasks = allBuildsConvertResults.collectMany {
+            it.get()
+        }
+        def allTasksDiagnostics = allTasks.collectMany { it.execute(allTasks) }
+        if (allTasksDiagnostics.size() > 0) {
+            diagnosticsConsumer.accept(allTasksDiagnostics)
+            logger.trace(exit, 'result: false')
+            return false
+        }
+
+        logger.trace(exit, 'result: true')
+        return true
     }
 
 }

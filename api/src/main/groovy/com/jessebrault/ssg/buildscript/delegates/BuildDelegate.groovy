@@ -145,6 +145,21 @@ final class BuildDelegate {
             }
         }
 
+        Collection<String> getIncludedBuildsResult(
+                Collection<String> base,
+                boolean onConcatWithBaseEmpty,
+                Monoid<Collection<String>> includedBuildsMonoid
+        ) {
+            def concatWithBase = this.delegate.includedBuildsConcatBase.isPresent()
+                    ? this.delegate.includedBuildsConcatBase.get()
+                    : onConcatWithBaseEmpty
+            if (concatWithBase) {
+                includedBuildsMonoid.concat.apply(base, this.delegate.includedBuilds)
+            } else {
+                this.delegate.includedBuilds
+            }
+        }
+
     }
 
     private final Mutable<Function<Build, OutputDir>> outputDirFunction = Mutables.getEmpty()
@@ -164,6 +179,9 @@ final class BuildDelegate {
 
     private final Mutable<Boolean> taskFactoriesConcatBase = Mutables.getEmpty()
     private final Mutable<Closure<?>> taskFactoriesClosure = Mutables.getEmpty()
+
+    private final Mutable<Boolean> includedBuildsConcatBase = Mutables.getEmpty()
+    private final Collection<String> includedBuilds = []
 
     void setOutputDirFunction(Function<Build, OutputDir> outputDirFunction) {
         this.outputDirFunction.set(outputDirFunction)
@@ -282,6 +300,14 @@ final class BuildDelegate {
     ) {
         this.taskFactoriesConcatBase.set(concatWithBase)
         this.taskFactoriesClosure.set(taskFactoriesClosure)
+    }
+
+    void setConcatIncludedBuildsWithBase(boolean value) {
+        this.includedBuildsConcatBase.set(value)
+    }
+
+    void includeBuild(String buildName) {
+        this.includedBuilds << buildName
     }
 
 }

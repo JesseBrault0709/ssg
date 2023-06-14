@@ -294,4 +294,31 @@ final class BuildDelegateTests {
         assertEquals([], spec0.configurators)
     }
 
+    private static Monoid<Collection<String>> getIncludedBuildsMonoid() {
+        Monoids.of([]) { c0, c1 -> c0 + c1 }
+    }
+
+    @Test
+    void includedBuildsNoBase() {
+        this.d.concatIncludedBuildsWithBase = false
+        this.d.includeBuild('included')
+        def r = this.results.getIncludedBuildsResult(
+                ['notIncluded'], true, getIncludedBuildsMonoid()
+        )
+        assertEquals(1, r.size())
+        def includedBuild0 = r[0]
+        assertEquals('included', includedBuild0)
+    }
+
+    @Test
+    void includedBuildsWithBase() {
+        this.d.concatIncludedBuildsWithBase = true
+        def r = this.results.getIncludedBuildsResult(
+                ['baseIncluded'], true, getIncludedBuildsMonoid()
+        )
+        assertEquals(1, r.size())
+        def includedBuild0 = r[0]
+        assertEquals('baseIncluded', includedBuild0)
+    }
+
 }

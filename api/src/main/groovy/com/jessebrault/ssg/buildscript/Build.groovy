@@ -20,6 +20,7 @@ final class Build {
                 OutputDirFunctions.DEFAULT,
                 SiteSpec.getBlank(),
                 [:],
+                [],
                 []
         )
     }
@@ -30,7 +31,8 @@ final class Build {
                 args.outputDirFunction as Function<Build, OutputDir> ?: OutputDirFunctions.DEFAULT,
                 args.siteSpec as SiteSpec ?: SiteSpec.getBlank(),
                 args.globals as Map<String, Object> ?: [:],
-                args.taskFactorySpecs as Collection<TaskFactorySpec<TaskFactory>> ?: []
+                args.taskFactorySpecs as Collection<TaskFactorySpec<TaskFactory>> ?: [],
+                args.includedBuilds as Collection<String> ?: []
         )
     }
 
@@ -40,7 +42,8 @@ final class Build {
                 OutputDirFunctions.concat(b0.outputDirFunction, b1.outputDirFunction),
                 SiteSpec.concat(b0.siteSpec, b1.siteSpec),
                 b0.globals + b1.globals,
-                b0.taskFactorySpecs + b1.taskFactorySpecs
+                b0.taskFactorySpecs + b1.taskFactorySpecs,
+                b0.includedBuilds + b1.includedBuilds
         )
     }
 
@@ -49,6 +52,7 @@ final class Build {
     final SiteSpec siteSpec
     final Map<String, Object> globals
     final Collection<TaskFactorySpec<TaskFactory>> taskFactorySpecs
+    final Collection<String> includedBuilds
 
     Build plus(Build other) {
         concat(this, other)
@@ -56,7 +60,7 @@ final class Build {
 
     @Override
     String toString() {
-        "Build(name: ${ this.name }, siteSpec: ${ this.siteSpec }, globals: ${ this.globals })"
+        "Build(name: ${ this.name }, siteSpec: ${ this.siteSpec }, globals: ${ this.globals }, includedBuilds: ${ this.includedBuilds })"
     }
 
 }
