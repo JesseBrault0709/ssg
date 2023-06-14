@@ -3,7 +3,6 @@ package com.jessebrault.ssg.part
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.render.StandardGspRenderer
 import com.jessebrault.ssg.text.Text
-import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.util.Result
 import groovy.transform.EqualsAndHashCode
 import org.jetbrains.annotations.Nullable
@@ -15,8 +14,8 @@ final class GspPartRenderer implements PartRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspPartRenderer(File tmpDir, GroovyScriptEngine engine) {
-        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
+    GspPartRenderer(ClassLoader parentClassLoader) {
+        this.gspRenderer = new StandardGspRenderer(parentClassLoader)
     }
 
     @Override

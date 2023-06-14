@@ -1,5 +1,6 @@
 package com.jessebrault.ssg.buildscript
 
+import com.jessebrault.ssg.html.PageToHtmlSpecProviders
 import com.jessebrault.ssg.html.PageToHtmlTaskFactory
 import com.jessebrault.ssg.html.TextToHtmlSpecProviders
 import com.jessebrault.ssg.html.TextToHtmlTaskFactory
@@ -16,6 +17,7 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 import java.util.function.Consumer
+import java.util.function.Supplier
 
 @TupleConstructor(includeFields = true, defaults = false)
 @NullCheck(includeGenerated = true)
@@ -23,8 +25,7 @@ import java.util.function.Consumer
 final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfiguratorFactory {
 
     private final File baseDir
-    private final File tmpDir
-    private final GroovyScriptEngine engine
+    private final Supplier<ClassLoader> classLoaderSupplier
 
     @Override
     Consumer<BuildScriptBase> get() {
@@ -36,9 +37,9 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
 
                 types {
                     textTypes << TextTypes.MARKDOWN
-                    pageTypes << PageTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
-                    templateTypes << TemplateTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
-                    partTypes << PartTypes.getGsp(['.gsp', '.ssg.gst'], this.tmpDir, this.engine)
+                    pageTypes << PageTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoaderSupplier.get())
+                    templateTypes << TemplateTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoaderSupplier.get())
+                    partTypes << PartTypes.getGsp(['.gsp', '.ssg.gst'], this.classLoaderSupplier.get())
                 }
 
                 sources { base, types ->
@@ -50,14 +51,14 @@ final class DefaultBuildScriptConfiguratorFactory implements BuildScriptConfigur
 
                 taskFactories { base, sources ->
                     register('textToHtml', TextToHtmlTaskFactory::new) {
-                        it.specProvider += TextToHtmlSpecProviders.from(sources)
+                        it.specsProvider += TextToHtmlSpecProviders.from(sources)
                         it.allTextsProvider += sources.textsProvider
                         it.allPartsProvider += sources.partsProvider
                         it.allModelsProvider += sources.modelsProvider
                     }
 
                     register('pageToHtml', PageToHtmlTaskFactory::new) {
-                        it.pagesProvider += sources.pagesProvider
+                        it.specsProvider += PageToHtmlSpecProviders.from(sources.pagesProvider)
                         it.allTextsProvider += sources.textsProvider
                         it.allPartsProvider += sources.partsProvider
                         it.allModelsProvider += sources.modelsProvider

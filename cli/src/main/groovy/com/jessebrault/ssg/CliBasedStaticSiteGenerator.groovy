@@ -1,6 +1,6 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
+import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import groovy.transform.PackageScope
 
@@ -9,40 +9,43 @@ import java.util.function.Consumer
 @PackageScope
 final class CliBasedStaticSiteGenerator implements StaticSiteGenerator {
 
-    private final File baseDir
     private final File buildScript
-    private final File tmpDir
-    private final Map<String, String> scriptArgs
-    private final GroovyScriptEngine engine
+    private final Collection<URL> buildScriptClassLoaderUrls
 
-    private StaticSiteGenerator staticSiteGenerator
+    private BuildScriptBasedStaticSiteGenerator delegate
 
+    /**
+     * @param buildScript The buildScript File.
+     * @param buildScriptClassLoaderUrls all the necessary urls to needed to run the given buildScript.
+     *          Likely includes the parent directory of the buildScript, as well as buildSrc dir(s).
+     */
     CliBasedStaticSiteGenerator(
-            File baseDir,
             File buildScript,
-            File tmpDir,
-            GroovyScriptEngine engine,
-            Map<String, String> scriptArgs
+            Collection<URL> buildScriptClassLoaderUrls
     ) {
-        this.baseDir = baseDir
         this.buildScript = buildScript
-        this.tmpDir = tmpDir
-        this.scriptArgs = scriptArgs
-        this.engine = engine
+        this.buildScriptClassLoaderUrls = buildScriptClassLoaderUrls
     }
 
     @Override
-    boolean doBuild(String buildName, Consumer<Collection<Diagnostic>> diagnosticsConsumer) {
-        if (this.staticSiteGenerator == null) {
-            this.staticSiteGenerator = new BuildScriptBasedStaticSiteGenerator(
-                    this.engine,
-                    [new DefaultBuildScriptConfiguratorFactory(this.baseDir, this.tmpDir, this.engine)],
-                    this.buildScript,
-                    this.scriptArgs
+    boolean doBuild(
+            String buildName,
+            Collection<BuildScriptConfiguratorFactory> configuratorFactories,
+            Map<String, Object> buildScriptArgs,
+            Consumer<Collection<Diagnostic>> diagnosticsConsumer
+    ) {
+        if (this.delegate == null) {
+            this.delegate = new BuildScriptBasedStaticSiteGenerator(
+                    this.buildScriptClassLoaderUrls,
+                    this.buildScript
             )
         }
 
-        this.staticSiteGenerator.doBuild(buildName, diagnosticsConsumer)
+        this.delegate.doBuild(buildName, configuratorFactories, buildScriptArgs, diagnosticsConsumer)
+    }
+
+    GroovyClassLoader getBuildScriptClassLoader() {
+        this.delegate.buildScriptClassLoader
     }
 
 }

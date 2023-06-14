@@ -14,13 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 
 final class GspPartRendererTests implements StandardDslConsumerTests {
 
-    private static GspPartRenderer getRenderer(
-            ClassLoader parentClassLoader = GspPartRendererTests.classLoader,
-            Collection<URL> urls = []
-    ) {
-        def tmpDir = File.createTempDir()
-        def engine = new GroovyScriptEngine([tmpDir.toURI().toURL(), *urls] as URL[], parentClassLoader)
-        new GspPartRenderer(tmpDir, engine)
+    private static GspPartRenderer getRenderer(ClassLoader parentClassLoader = GspPartRendererTests.classLoader) {
+        new GspPartRenderer(parentClassLoader)
     }
 
     private static Result<String> doRender(
@@ -28,10 +23,9 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
             RenderContext context,
             Map binding = [:],
             @Nullable Text text = null,
-            ClassLoader classLoader = GspPartRendererTests.classLoader,
-            Collection<URL> urls = []
+            ClassLoader classLoader = GspPartRendererTests.classLoader
     ) {
-        def renderer = getRenderer(classLoader, urls)
+        def renderer = getRenderer(classLoader)
         renderer.render(
                 new Part('', new PartType([], renderer), scriptlet),
                 binding,
@@ -41,8 +35,8 @@ final class GspPartRendererTests implements StandardDslConsumerTests {
     }
 
     @Override
-    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls) {
-        doRender(scriptlet, context, [:], null, classLoader, urls)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader) {
+        doRender(scriptlet, context, [:], null, classLoader)
     }
 
     @Test

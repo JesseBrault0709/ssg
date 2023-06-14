@@ -2,7 +2,7 @@ package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
-import com.jessebrault.ssg.buildscript.BuildScripts
+import com.jessebrault.ssg.buildscript.BuildScriptRunner
 import com.jessebrault.ssg.util.Diagnostic
 import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
@@ -18,45 +18,50 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker enter = MarkerFactory.getMarker('enter')
     private static final Marker exit = MarkerFactory.getMarker('exit')
 
-    private final GroovyScriptEngine engine
-    private final Collection<BuildScriptConfiguratorFactory> configuratorFactories
     private final @Nullable File buildScript
-    private final Map<String, Object> scriptArgs
     private final Collection<Build> builds = []
 
     private boolean ranBuildScript = false
+    private GroovyClassLoader buildScriptClassLoader
 
+    /**
+     * @param buildScriptClassLoaderUrls the urls to pass to the buildScriptRunner's GroovyClassLoader.
+     *          These should include the URL needed to find the given buildScript file, if present, as
+     *          well as any script dependencies (such as the buildSrc dir).
+     * @param buildScript The buildScript File, may be <code>null</code>.
+     */
     BuildScriptBasedStaticSiteGenerator(
-            GroovyScriptEngine engine,
-            Collection<BuildScriptConfiguratorFactory> configuratorFactories = [],
-            @Nullable File buildScript = null,
-            Map<String, Object> scriptArgs = [:]
+            Collection<URL> buildScriptClassLoaderUrls,
+            @Nullable File buildScript = null
     ) {
-        this.engine = engine
-        this.configuratorFactories = configuratorFactories
         this.buildScript = buildScript
-        this.scriptArgs = scriptArgs
     }
 
-    private void runBuildScript() {
-        logger.trace(enter, '')
+    private void runBuildScript(
+            Collection<BuildScriptConfiguratorFactory> configuratorFactories,
+            Map<String, Object> buildScriptArgs
+    ) {
+        logger.trace(enter, 'configuratorFactories: {}, buildScriptArgs: {}', configuratorFactories, buildScriptArgs)
 
         if (this.buildScript == null) {
             logger.info('no specified build script; using defaults')
-            def result = BuildScripts.runBuildScript { base ->
-                this.configuratorFactories.each {
+            def result = BuildScriptRunner.runClosureScript { base ->
+                configuratorFactories.each {
                     it.get().accept(base)
                 }
             }
             this.builds.addAll(result)
         } else if (this.buildScript.exists() && this.buildScript.isFile()) {
             logger.info('running buildScript: {}', this.buildScript)
-            def result = BuildScripts.runBuildScript(
+            def buildScriptRunner = new BuildScriptRunner([
+                    this.buildScript.parentFile.toURI().toURL()
+            ])
+            this.buildScriptClassLoader = buildScriptRunner.getBuildScriptClassLoader()
+            def result = buildScriptRunner.runBuildScript(
                     this.buildScript.name,
-                    this.engine,
-                    [args: this.scriptArgs]
+                    [args: buildScriptArgs]
             ) { base ->
-                this.configuratorFactories.each { it.get().accept(base) }
+                configuratorFactories.each { it.get().accept(base) }
             }
             this.builds.addAll(result)
         } else {
@@ -67,12 +72,27 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
         logger.trace(exit, '')
     }
 
+    /**
+     * @return The classLoader used to load the buildScript.
+     * @throws NullPointerException if the buildScriptRunner was not initialized yet (make sure to call
+     *          {@link #doBuild} first).
+     */
+    GroovyClassLoader getBuildScriptClassLoader() {
+        Objects.requireNonNull(this.buildScriptClassLoader)
+    }
+
+    // TODO: cache
     @Override
-    boolean doBuild(String buildName, Consumer<Collection<Diagnostic>> diagnosticsConsumer = { }) {
+    boolean doBuild(
+            String buildName,
+            Collection<BuildScriptConfiguratorFactory> configuratorFactories,
+            Map<String, Object> buildScriptArgs,
+            Consumer<Collection<Diagnostic>> diagnosticsConsumer
+    ) {
         logger.trace(enter, 'buildName: {}, diagnosticsConsumer: {}', buildName, diagnosticsConsumer)
 
         if (!this.ranBuildScript) {
-            this.runBuildScript()
+            this.runBuildScript(configuratorFactories, buildScriptArgs)
         }
 
         def build = this.builds.find { it.name == buildName }

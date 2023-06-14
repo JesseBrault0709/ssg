@@ -21,6 +21,8 @@ final class SourceProvidersDelegate {
     private CollectionProvider<Template> templatesProvider = CollectionProviders.getEmpty()
     private CollectionProvider<Part> partsProvider = CollectionProviders.getEmpty()
 
+    private final Map<String, CollectionProvider<Object>> custom = [:]
+
     void texts(CollectionProvider<Text> textsProvider) {
         this.textsProvider += textsProvider
     }
@@ -41,13 +43,18 @@ final class SourceProvidersDelegate {
         this.partsProvider += partsProvider
     }
 
+    void custom(String name, CollectionProvider<?> customProvider) {
+        this.custom.put(name, customProvider as CollectionProvider<Object>)
+    }
+
     SourceProviders getResult() {
         new SourceProviders(
                 this.textsProvider,
                 this.modelsProvider,
                 this.pagesProvider,
                 this.templatesProvider,
-                this.partsProvider
+                this.partsProvider,
+                this.custom
         )
     }
 

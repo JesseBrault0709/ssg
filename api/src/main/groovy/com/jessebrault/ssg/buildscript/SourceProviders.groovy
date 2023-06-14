@@ -13,8 +13,7 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-@TupleConstructor(defaults = false)
-@NullCheck(includeGenerated = true)
+@NullCheck
 @EqualsAndHashCode
 final class SourceProviders {
 
@@ -26,22 +25,24 @@ final class SourceProviders {
                 sp0.modelsProvider + sp1.modelsProvider,
                 sp0.pagesProvider + sp1.pagesProvider,
                 sp0.templatesProvider + sp1.templatesProvider,
-                sp0.partsProvider + sp1.partsProvider
+                sp0.partsProvider + sp1.partsProvider,
+                sp0.custom + sp1.custom
         )
     }
 
     static SourceProviders get(Map<String, Object> args) {
         new SourceProviders(
-                args?.textsProvider as CollectionProvider<Text>
+                args.textsProvider as CollectionProvider<Text>
                         ?: CollectionProviders.getEmpty() as CollectionProvider<Text>,
-                args?.modelsProvider as CollectionProvider<Model<Object>>
+                args.modelsProvider as CollectionProvider<Model<Object>>
                         ?: CollectionProviders.getEmpty() as CollectionProvider<Model<Object>>,
-                args?.pagesProvider as CollectionProvider<Page>
+                args.pagesProvider as CollectionProvider<Page>
                         ?: CollectionProviders.getEmpty() as CollectionProvider<Page>,
-                args?.templatesProvider as CollectionProvider<Template>
+                args.templatesProvider as CollectionProvider<Template>
                         ?: CollectionProviders.getEmpty() as CollectionProvider<Template>,
-                args?.partsProvider as CollectionProvider<Part>
-                        ?: CollectionProviders.getEmpty() as CollectionProvider<Part>
+                args.partsProvider as CollectionProvider<Part>
+                        ?: CollectionProviders.getEmpty() as CollectionProvider<Part>,
+                args.custom as Map<String, CollectionProvider<?>> ?: [:]
         )
     }
 
@@ -51,7 +52,8 @@ final class SourceProviders {
                 CollectionProviders.getEmpty(),
                 CollectionProviders.getEmpty(),
                 CollectionProviders.getEmpty(),
-                CollectionProviders.getEmpty()
+                CollectionProviders.getEmpty(),
+                [:]
         )
     }
 
@@ -61,8 +63,38 @@ final class SourceProviders {
     final CollectionProvider<Template> templatesProvider
     final CollectionProvider<Part> partsProvider
 
+    private final Map<String, CollectionProvider<Object>> custom
+
+    SourceProviders(
+            CollectionProvider<Text> textsProvider,
+            CollectionProvider<Model<Object>> modelsProvider,
+            CollectionProvider<Page> pagesProvider,
+            CollectionProvider<Template> templatesProvider,
+            CollectionProvider<Part> partsProvider,
+            Map<String, CollectionProvider<Object>> custom
+    ) {
+        this.textsProvider = textsProvider
+        this.modelsProvider = modelsProvider
+        this.pagesProvider = pagesProvider
+        this.templatesProvider = templatesProvider
+        this.partsProvider = partsProvider
+        this.custom = custom
+    }
+
     SourceProviders plus(SourceProviders other) {
         concat(this, other)
+    }
+
+    def <T> CollectionProvider<T> getCustom(String name, Class<T> tClass) {
+        this.custom.get(name) as CollectionProvider<T>
+    }
+
+    void putCustom(String name, CollectionProvider<?> customProvider) {
+        this.custom.put(name, customProvider as CollectionProvider<Object>)
+    }
+
+    Map<String, CollectionProvider<Object>> getAllCustom() {
+        this.custom
     }
 
     @Override

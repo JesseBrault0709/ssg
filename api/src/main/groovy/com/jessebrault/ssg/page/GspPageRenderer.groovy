@@ -2,7 +2,6 @@ package com.jessebrault.ssg.page
 
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.render.StandardGspRenderer
-import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.util.Result
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -13,8 +12,8 @@ final class GspPageRenderer implements PageRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspPageRenderer(File tmpDir, GroovyScriptEngine engine) {
-        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
+    GspPageRenderer(ClassLoader parentClassLoader) {
+        this.gspRenderer = new StandardGspRenderer(parentClassLoader)
     }
 
     @Override

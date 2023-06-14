@@ -1,7 +1,6 @@
 package com.jessebrault.ssg.template
 
 import com.jessebrault.ssg.render.StandardGspRenderer
-import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.render.RenderContext
 import com.jessebrault.ssg.util.Result
 import com.jessebrault.ssg.text.Text
@@ -14,8 +13,8 @@ final class GspTemplateRenderer implements TemplateRenderer {
 
     private final StandardGspRenderer gspRenderer
 
-    GspTemplateRenderer(File tmpDir, GroovyScriptEngine engine) {
-        this.gspRenderer = new StandardGspRenderer(tmpDir, engine)
+    GspTemplateRenderer(ClassLoader parentClassLoader) {
+        this.gspRenderer = new StandardGspRenderer(parentClassLoader)
     }
 
     @Override

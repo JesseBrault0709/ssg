@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*
 @ExtendWith(MockitoExtension)
 interface StandardDslConsumerTests {
 
-    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader)
 
     default void checkResult(String expected, Result<String> result) {
         assertEmptyDiagnostics(result)
@@ -44,21 +44,19 @@ interface StandardDslConsumerTests {
             String expected,
             String scriptlet,
             RenderContext context = new RenderContext(),
-            ClassLoader classLoader = this.class.classLoader,
-            Collection<URL> urls = []
+            ClassLoader classLoader = this.class.classLoader
     ) {
-        this.checkResult(expected, this.render(scriptlet, context, classLoader, urls))
+        this.checkResult(expected, this.render(scriptlet, context, classLoader))
     }
 
     default void doDslAssertionTest(
             String scriptlet,
             RenderContext context = new RenderContext(),
-            ClassLoader classLoader = this.class.classLoader,
-            Collection<URL> urls = []
+            ClassLoader classLoader = this.class.classLoader
     ) {
         Result<String> result = null
         try {
-            result = this.render(scriptlet, context, classLoader, urls)
+            result = this.render(scriptlet, context, classLoader)
         } catch (Throwable e) {
             fail(e)
         }
@@ -279,12 +277,13 @@ interface StandardDslConsumerTests {
                 ['com', 'jessebrault', 'ssg', 'tmp'],
                 greeterText
         )
+        def configuredClassLoader = new GroovyClassLoader(this.class.classLoader)
+        configuredClassLoader.addURL(greeterBaseUrl)
         this.doDslRenderTest(
                 "Hello, World!",
                 "<%@ import com.jessebrault.ssg.tmp.TmpGreeter %><%= new TmpGreeter().greet() %>",
                 new RenderContext(),
-                parentClassLoader,
-                [greeterBaseUrl]
+                configuredClassLoader
         )
     }
 

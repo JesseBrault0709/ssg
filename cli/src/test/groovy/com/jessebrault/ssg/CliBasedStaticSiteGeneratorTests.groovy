@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.util.ResourceUtil
 import org.junit.jupiter.api.Test
@@ -14,20 +15,17 @@ final class CliBasedStaticSiteGeneratorTests {
         def baseDir = File.createTempDir()
         SsgInit.init(baseDir, true)
 
-        def tmpDir = File.createTempDir()
-        def engine = new GroovyScriptEngine([
-                new File(baseDir, 'buildSrc').toURI().toURL(),
-                tmpDir.toURI().toURL()
-        ] as URL[])
-        def ssg = new CliBasedStaticSiteGenerator(
-                baseDir,
-                new File(baseDir, 'ssgBuilds.groovy'),
-                tmpDir,
-                engine,
-                [:]
-        )
+        def groovyClassLoader = new GroovyClassLoader()
+        [baseDir.toURI().toURL(), new File(baseDir, 'buildSrc').toURI().toURL()]
+                .each(groovyClassLoader::addURL)
+
+        def ssg = new CliBasedStaticSiteGenerator(new File(baseDir, 'ssgBuilds.groovy'), [])
+        def configuratorFactories = [
+                new DefaultBuildScriptConfiguratorFactory(baseDir, ssg::getBuildScriptClassLoader)
+        ]
+
         def diagnostics = [] as Collection<Diagnostic>
-        assertTrue(ssg.doBuild('production', diagnostics.&addAll), {
+        assertTrue(ssg.doBuild('production', configuratorFactories, [:], diagnostics.&addAll), {
             diagnostics.inject('') { acc, diagnostic ->
                 acc + '\n' + diagnostic.message
             }

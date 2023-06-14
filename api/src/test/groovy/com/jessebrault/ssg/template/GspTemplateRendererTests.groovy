@@ -13,29 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 final class GspTemplateRendererTests implements StandardDslConsumerTests {
 
-    private static TemplateRenderer getRenderer(
-            ClassLoader parentLoader = GspTemplateRendererTests.class.classLoader,
-            Collection<URL> urls = []
-    ) {
-        def tmpDir = File.createTempDir()
-        def engine = new GroovyScriptEngine([tmpDir.toURI().toURL(), *urls] as URL[], parentLoader)
-        new GspTemplateRenderer(tmpDir, engine)
+    private static TemplateRenderer getRenderer(ClassLoader parentClassLoader = GspTemplateRendererTests.classLoader) {
+        new GspTemplateRenderer(parentClassLoader)
     }
 
     private static Result<String> doRender(
             String scriptlet,
             Text text,
             RenderContext context,
-            ClassLoader classLoader,
-            Collection<URL> urls
+            ClassLoader classLoader
     ) {
-        def renderer = getRenderer(classLoader, urls)
+        def renderer = getRenderer(classLoader)
         renderer.render(new Template('', new TemplateType([], renderer), scriptlet), text, context)
     }
 
     @Override
-    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader, Collection<URL> urls) {
-        doRender(scriptlet, blankText(), context, classLoader, urls)
+    Result<String> render(String scriptlet, RenderContext context, ClassLoader classLoader) {
+        doRender(scriptlet, blankText(), context, classLoader)
     }
 
     @Test

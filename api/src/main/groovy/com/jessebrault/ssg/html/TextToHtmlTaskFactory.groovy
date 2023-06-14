@@ -12,12 +12,12 @@ import static java.util.Objects.requireNonNull
 
 final class TextToHtmlTaskFactory extends AbstractRenderTaskFactory {
 
-    CollectionProvider<Result<TextToHtmlSpec>> specProvider = CollectionProviders.getEmpty()
+    CollectionProvider<Result<TextToHtmlSpec>> specsProvider = CollectionProviders.getEmpty()
 
     @Override
     Result<Collection<Task>> getTasks(TaskSpec taskSpec) {
         super.checkProviders()
-        requireNonNull(this.specProvider)
+        requireNonNull(this.specsProvider)
 
         def allTexts = this.allTextsProvider.provide()
         def allModels = this.allModelsProvider.provide()
@@ -25,23 +25,22 @@ final class TextToHtmlTaskFactory extends AbstractRenderTaskFactory {
 
         Collection<Diagnostic> diagnostics = []
 
-        final Collection<Task> tasks = this.specProvider.provide()
-                .findResults {
-                    if (it.hasDiagnostics()) {
-                        diagnostics.addAll(it.diagnostics)
-                    } else {
-                        def spec = it.get()
-                        new TextToHtmlTask(
-                                spec.path,
-                                taskSpec,
-                                spec.text,
-                                spec.template,
-                                allTexts,
-                                allModels,
-                                allParts
-                        )
-                    }
-                }
+        final Collection<Task> tasks = this.specsProvider.provide().findResults {
+            if (it.hasDiagnostics()) {
+                diagnostics.addAll(it.diagnostics)
+            } else {
+                def spec = it.get()
+                new TextToHtmlTask(
+                        spec.toRelativeHtmlPath.apply(taskSpec),
+                        taskSpec,
+                        spec.text,
+                        spec.template,
+                        allTexts,
+                        allModels,
+                        allParts
+                )
+            }
+        }
         Result.of(diagnostics, tasks)
     }
 

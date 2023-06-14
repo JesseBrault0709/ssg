@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
 import com.jessebrault.ssg.util.Diagnostic
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -37,23 +38,32 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
     )
     Collection<String> requestedBuilds = ['default']
 
-    protected StaticSiteGenerator staticSiteGenerator = null
+    protected CliBasedStaticSiteGenerator staticSiteGenerator = null
 
-    protected final Integer doSingleBuild(String requestedBuild, File tmpDir, GroovyScriptEngine engine) {
+    protected final Integer doSingleBuild(
+            String requestedBuild,
+            Collection<BuildScriptConfiguratorFactory> configuratorFactories,
+            Map<String, Object> buildScriptBinding
+    ) {
         logger.traceEntry('requestedBuild: {}', requestedBuild)
 
         if (this.staticSiteGenerator == null) {
             this.staticSiteGenerator = new CliBasedStaticSiteGenerator(
-                    new File('.'),
                     this.buildScript,
-                    tmpDir,
-                    engine,
-                    this.scriptArgs
+                    [
+                            this.buildScript.parentFile.toURI().toURL(),
+                            *this.buildSrcDirs.collect { it.toURI().toURL() }
+                    ]
             )
         }
 
         final Collection<Diagnostic> diagnostics = []
-        if (!this.staticSiteGenerator.doBuild(requestedBuild, diagnostics.&addAll)) {
+        if (!this.staticSiteGenerator.doBuild(
+                requestedBuild,
+                configuratorFactories,
+                buildScriptBinding,
+                diagnostics.&addAll
+        )) {
             diagnostics.each { logger.warn(it) }
             logger.traceExit(1)
         } else {

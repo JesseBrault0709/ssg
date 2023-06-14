@@ -1,5 +1,6 @@
 package com.jessebrault.ssg
 
+import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import picocli.CommandLine
@@ -17,13 +18,15 @@ final class SsgBuild extends AbstractBuildCommand {
     protected Integer doSubCommand() {
         logger.traceEntry()
         def result = 0
-        def tmpDir = File.createTempDir()
-        def urls = [tmpDir, *this.buildSrcDirs, new File('.')].collect {
-            it.toURI().toURL()
-        } as URL[]
-        def engine = new GroovyScriptEngine(urls)
         this.requestedBuilds.each {
-            def buildResult = this.doSingleBuild(it, tmpDir, engine)
+            def buildResult = this.doSingleBuild(
+                    it,
+                    [new DefaultBuildScriptConfiguratorFactory(
+                            new File('.'),
+                            this.staticSiteGenerator::getBuildScriptClassLoader
+                    )],
+                    this.scriptArgs
+            )
             if (buildResult == 1) {
                 result = 1
             }
