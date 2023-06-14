@@ -23,7 +23,7 @@ final class SsgBuild extends AbstractBuildCommand {
                     it,
                     [new DefaultBuildScriptConfiguratorFactory(
                             new File('.'),
-                            this.staticSiteGenerator::getBuildScriptClassLoader
+                            { this.staticSiteGenerator.buildScriptClassLoader }
                     )],
                     this.scriptArgs
             )

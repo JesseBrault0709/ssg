@@ -48,13 +48,18 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
         logger.traceEntry('requestedBuild: {}', requestedBuild)
 
         if (this.staticSiteGenerator == null) {
-            this.staticSiteGenerator = new CliBasedStaticSiteGenerator(
-                    this.buildScript,
-                    [
-                            this.buildScript.parentFile.toURI().toURL(),
-                            *this.buildSrcDirs.collect { it.toURI().toURL() }
-                    ]
-            )
+            final Collection<URL> buildScriptUrls = []
+
+            def buildScriptParentFile = this.buildScript.parentFile
+            if (buildScriptParentFile == null) {
+                buildScriptUrls.add(new File('.').toURI().toURL())
+            } else {
+                buildScriptUrls.add(buildScriptParentFile.toURI().toURL())
+            }
+
+            buildScriptUrls.addAll(this.buildSrcDirs.collect { it.toURI().toURL() })
+
+            this.staticSiteGenerator = new CliBasedStaticSiteGenerator(this.buildScript, buildScriptUrls)
         }
 
         final Collection<Diagnostic> diagnostics = []

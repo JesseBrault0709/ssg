@@ -46,7 +46,7 @@ final class SsgInit extends AbstractSubCommand {
 
             if (meaty) {
                 file('ssgBuilds.groovy').tap {
-                    copyResourceToFile('ssgBuilds.groovy', it)
+                    copyResourceToFile('ssgBuildsMeaty.groovy', it)
                 }
             } else {
                 file('ssgBuilds.groovy').tap {

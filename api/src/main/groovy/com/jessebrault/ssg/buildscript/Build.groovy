@@ -54,4 +54,9 @@ final class Build {
         concat(this, other)
     }
 
+    @Override
+    String toString() {
+        "Build(name: ${ this.name }, siteSpec: ${ this.siteSpec }, globals: ${ this.globals })"
+    }
+
 }

@@ -5,11 +5,19 @@ import groovy.transform.NullCheck
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.Marker
+import org.slf4j.MarkerFactory
 
 import java.util.function.Consumer
 
 @NullCheck
 final class BuildScriptRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(BuildScriptRunner)
+    private static final Marker enter = MarkerFactory.getMarker('ENTER')
+    private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
     private static Collection<Build> runBase(BuildScriptBase base) {
         base.run()
@@ -55,17 +63,15 @@ final class BuildScriptRunner {
             Map<String, Object> binding,
             Consumer<BuildScriptBase> configureBuildScript
     ) {
-        Class<?> scriptClass = this.buildScriptClassLoader.loadClass(
-                ExtensionUtil.stripExtension(scriptName),
-                true,
-                false,
-                false
-        )
+        logger.trace(enter, 'scriptName: {}, binding: {}', scriptName, binding)
+        Class<?> scriptClass = this.buildScriptClassLoader.loadClass(ExtensionUtil.stripExtension(scriptName))
         def scriptObject = scriptClass.getConstructor().newInstance()
         assert scriptObject instanceof BuildScriptBase
         scriptObject.setBinding(new Binding(binding))
         configureBuildScript.accept(scriptObject)
-        runBase(scriptObject)
+        def result = runBase(scriptObject)
+        logger.trace(exit, 'result: {}', result)
+        result
     }
 
 }

@@ -18,10 +18,10 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     private static final Marker enter = MarkerFactory.getMarker('enter')
     private static final Marker exit = MarkerFactory.getMarker('exit')
 
+    private final Collection<URL> buildScriptClassLoaderUrls
     private final @Nullable File buildScript
     private final Collection<Build> builds = []
 
-    private boolean ranBuildScript = false
     private GroovyClassLoader buildScriptClassLoader
 
     /**
@@ -34,6 +34,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             Collection<URL> buildScriptClassLoaderUrls,
             @Nullable File buildScript = null
     ) {
+        this.buildScriptClassLoaderUrls = buildScriptClassLoaderUrls
         this.buildScript = buildScript
     }
 
@@ -53,9 +54,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             this.builds.addAll(result)
         } else if (this.buildScript.exists() && this.buildScript.isFile()) {
             logger.info('running buildScript: {}', this.buildScript)
-            def buildScriptRunner = new BuildScriptRunner([
-                    this.buildScript.parentFile.toURI().toURL()
-            ])
+            def buildScriptRunner = new BuildScriptRunner(this.buildScriptClassLoaderUrls)
             this.buildScriptClassLoader = buildScriptRunner.getBuildScriptClassLoader()
             def result = buildScriptRunner.runBuildScript(
                     this.buildScript.name,
@@ -67,7 +66,6 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
         } else {
             throw new IllegalArgumentException("given buildScript ${ this.buildScript } either does not exist or is not a file")
         }
-        this.ranBuildScript = true
 
         logger.trace(exit, '')
     }
@@ -91,9 +89,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     ) {
         logger.trace(enter, 'buildName: {}, diagnosticsConsumer: {}', buildName, diagnosticsConsumer)
 
-        if (!this.ranBuildScript) {
-            this.runBuildScript(configuratorFactories, buildScriptArgs)
-        }
+        this.runBuildScript(configuratorFactories, buildScriptArgs)
 
         def build = this.builds.find { it.name == buildName }
         if (!build) {

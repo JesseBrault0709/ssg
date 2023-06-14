@@ -15,11 +15,9 @@ final class CliBasedStaticSiteGeneratorTests {
         def baseDir = File.createTempDir()
         SsgInit.init(baseDir, true)
 
-        def groovyClassLoader = new GroovyClassLoader()
-        [baseDir.toURI().toURL(), new File(baseDir, 'buildSrc').toURI().toURL()]
-                .each(groovyClassLoader::addURL)
+        def urls = [baseDir.toURI().toURL(), new File(baseDir, 'buildSrc').toURI().toURL()]
 
-        def ssg = new CliBasedStaticSiteGenerator(new File(baseDir, 'ssgBuilds.groovy'), [])
+        def ssg = new CliBasedStaticSiteGenerator(new File(baseDir, 'ssgBuilds.groovy'), urls)
         def configuratorFactories = [
                 new DefaultBuildScriptConfiguratorFactory(baseDir, ssg::getBuildScriptClassLoader)
         ]
