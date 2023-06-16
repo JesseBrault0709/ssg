@@ -1,10 +1,7 @@
 package com.jessebrault.ssg.buildscript.delegates
 
 import com.jessebrault.ssg.SiteSpec
-import com.jessebrault.ssg.buildscript.Build
-import com.jessebrault.ssg.buildscript.OutputDir
-import com.jessebrault.ssg.buildscript.SourceProviders
-import com.jessebrault.ssg.buildscript.TypesContainer
+import com.jessebrault.ssg.buildscript.*
 import com.jessebrault.ssg.mutable.Mutable
 import com.jessebrault.ssg.mutable.Mutables
 import com.jessebrault.ssg.task.TaskFactory
@@ -18,7 +15,6 @@ import groovy.transform.stc.FromString
 import groovy.transform.stc.SimpleType
 
 import java.util.function.Function
-import java.util.function.Supplier
 import java.util.function.UnaryOperator
 
 @NullCheck(includeGenerated = true)
@@ -28,133 +24,107 @@ final class BuildDelegate {
     @TupleConstructor(includeFields = true, defaults = false)
     @NullCheck(includeGenerated = true)
     @EqualsAndHashCode(includeFields = true)
-    static final class Results {
+    static final class BuildDelegateBuildIntermediate implements BuildIntermediate {
 
+        private final BuildSpec buildSpec
         private final BuildDelegate delegate
+        private final BuildIntermediate parent
 
-        Function<Build, OutputDir> getOutputDirFunctionResult(
-                Function<Build, OutputDir> base,
-                Supplier<Function<Build, OutputDir>> onEmpty
-        ) {
+        private final Monoid<SiteSpec> siteSpecMonoid
+        private final Monoid<Map<String, Object>> globalsMonoid
+        private final Monoid<TypesContainer> typesMonoid
+        private final Monoid<SourceProviders> sourcesMonoid
+        private final Monoid<Collection<TaskFactorySpec<TaskFactory>>> taskFactoriesMonoid
+        private final Monoid<Collection<String>> includedBuildsMonoid
+
+        @Override
+        BuildSpec getBuildSpec() {
+            this.buildSpec
+        }
+
+        @Override
+        Function<Build, OutputDir> getOutputDirFunction() {
             this.delegate.outputDirFunction.getOrElse {
-                this.delegate.outputDirFunctionMapper.match(onEmpty) {
-                    it.apply(base)
+                this.delegate.outputDirFunctionMapper.match({ parent.outputDirFunction }) {
+                    it.apply(this.parent.outputDirFunction)
                 }
             }
         }
 
-        SiteSpec getSiteSpecResult(
-                SiteSpec base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<SiteSpec> siteSpecMonoid
-        ) {
-            def concatWithBase = this.delegate.siteSpecConcatBase.isPresent()
-                    ? this.delegate.siteSpecConcatBase.get()
-                    : onConcatWithBaseEmpty
-            def onEmpty = { concatWithBase ? base : siteSpecMonoid.zero }
-            this.delegate.siteSpecClosure.match(onEmpty) {
-                def d = new SiteSpecDelegate(siteSpecMonoid)
-                it.delegate = d
-                //noinspection UnnecessaryQualifiedReference
-                it.resolveStrategy = Closure.DELEGATE_FIRST
-                it(base)
-                def r = d.getResult()
-                concatWithBase ? siteSpecMonoid.concat.apply(base, r) : r
+        @Override
+        SiteSpec getSiteSpec() {
+            def siteSpecClosure = this.delegate.siteSpecClosure.getOrElse { return { } }
+            def d = new SiteSpecDelegate(this.siteSpecMonoid)
+            siteSpecClosure.delegate = d
+            siteSpecClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            siteSpecClosure(this.parent.siteSpec)
+            if (this.delegate.siteSpecConcatBase.getOrElse { true }) {
+                this.siteSpecMonoid.concat.apply(this.parent.siteSpec, d.result)
+            } else {
+                d.result
             }
         }
 
-        Map<String, Object> getGlobalsResult(
-                Map<String, Object> base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<Map<String, Object>> globalsMonoid
-        ) {
-            def concatWithBase = this.delegate.globalsConcatBase.isPresent()
-                    ? this.delegate.globalsConcatBase.get()
-                    : onConcatWithBaseEmpty
-            def onEmpty = { concatWithBase ? base : globalsMonoid.zero }
-            this.delegate.globalsClosure.match(onEmpty) {
-                def d = new GlobalsDelegate()
-                it.delegate = d
-                //noinspection UnnecessaryQualifiedReference
-                it.resolveStrategy = Closure.DELEGATE_FIRST
-                it(base)
-                def r = d.getResult()
-                concatWithBase ? globalsMonoid.concat.apply(base, r) : r
+        @Override
+        Map<String, Object> getGlobals() {
+            def globalsClosure = this.delegate.globalsClosure.getOrElse { return { } }
+            def d = new GlobalsDelegate()
+            globalsClosure.delegate = d
+            globalsClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            globalsClosure(this.parent.globals)
+            if (this.delegate.globalsConcatBase.getOrElse { true }) {
+                this.globalsMonoid.concat.apply(this.parent.globals, d.getResult())
+            } else {
+                d.getResult()
             }
         }
 
-        TypesContainer getTypesResult(
-                TypesContainer base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<TypesContainer> typesContainerMonoid
-        ) {
-            def concatWithBase = this.delegate.typesConcatBase.isPresent()
-                    ? this.delegate.typesConcatBase.get()
-                    : onConcatWithBaseEmpty
-            def onEmpty = { concatWithBase ? base : typesContainerMonoid.zero }
-            this.delegate.typesClosure.match(onEmpty) {
-                def d = new TypesDelegate()
-                it.delegate = d
-                //noinspection UnnecessaryQualifiedReference
-                it.resolveStrategy = Closure.DELEGATE_FIRST
-                it(base)
-                def r = d.getResult()
-                concatWithBase ? typesContainerMonoid.concat.apply(base, r) : r
+        @Override
+        TypesContainer getTypes() {
+            def typesClosure = this.delegate.typesClosure.getOrElse { return { } }
+            def d = new TypesDelegate()
+            typesClosure.delegate = d
+            typesClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            typesClosure(this.parent.types)
+            if (this.delegate.typesConcatBase.getOrElse { true }) {
+                this.typesMonoid.concat.apply(this.parent.types, d.result)
+            } else {
+                d.result
             }
         }
 
-        SourceProviders getSourcesResult(
-                SourceProviders base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<SourceProviders> sourceProvidersMonoid,
-                TypesContainer types
-        ) {
-            def concatWithBase = this.delegate.sourcesConcatBase.isPresent()
-                    ? this.delegate.sourcesConcatBase.get()
-                    : onConcatWithBaseEmpty
-            def onEmpty = { concatWithBase ? base : sourceProvidersMonoid.zero }
-            this.delegate.sourcesClosure.match(onEmpty) {
-                def d = new SourceProvidersDelegate()
-                it.delegate = d
-                //noinspection UnnecessaryQualifiedReference
-                it.resolveStrategy = Closure.DELEGATE_FIRST
-                it(base, types)
-                def r = d.getResult()
-                concatWithBase ? sourceProvidersMonoid.concat.apply(base, r) : r
+        @Override
+        SourceProviders getSources() {
+            def sourcesClosure = this.delegate.sourcesClosure.getOrElse { return { base, types -> } }
+            def d = new SourceProvidersDelegate()
+            sourcesClosure.delegate = d
+            sourcesClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            sourcesClosure(this.parent.sources, this.types)
+            if (this.delegate.sourcesConcatBase.getOrElse { true }) {
+                this.sourcesMonoid.concat.apply(this.parent.sources, d.result)
+            } else {
+                d.result
             }
         }
 
-        Collection<TaskFactorySpec<TaskFactory>> getTaskFactoriesResult(
-                Collection<TaskFactorySpec<TaskFactory>> base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<Collection<TaskFactorySpec<TaskFactory>>> taskFactorySpecsMonoid,
-                SourceProviders sources
-        ) {
-            def concatWithBase = this.delegate.taskFactoriesConcatBase.isPresent()
-                    ? this.delegate.taskFactoriesConcatBase.get()
-                    : onConcatWithBaseEmpty
-            def onEmpty = { concatWithBase ? base : taskFactorySpecsMonoid.zero }
-            this.delegate.taskFactoriesClosure.match(onEmpty) {
-                def d = new TaskFactoriesDelegate()
-                it.delegate = d
-                //noinspection UnnecessaryQualifiedReference
-                it.resolveStrategy = Closure.DELEGATE_FIRST
-                it(base, sources)
-                def r = d.getResult()
-                concatWithBase ? taskFactorySpecsMonoid.concat.apply(base, r) : r
+        @Override
+        Collection<TaskFactorySpec<TaskFactory>> getTaskFactorySpecs() {
+            def taskFactoriesClosure = this.delegate.taskFactoriesClosure.getOrElse { return { base, sources -> } }
+            def d = new TaskFactoriesDelegate()
+            taskFactoriesClosure.delegate = d
+            taskFactoriesClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            taskFactoriesClosure(this.parent.taskFactorySpecs, this.sources)
+            if (this.delegate.taskFactoriesConcatBase.getOrElse { true }) {
+                this.taskFactoriesMonoid.concat.apply(this.parent.taskFactorySpecs, d.result)
+            } else {
+                d.result
             }
         }
 
-        Collection<String> getIncludedBuildsResult(
-                Collection<String> base,
-                boolean onConcatWithBaseEmpty,
-                Monoid<Collection<String>> includedBuildsMonoid
-        ) {
-            def concatWithBase = this.delegate.includedBuildsConcatBase.isPresent()
-                    ? this.delegate.includedBuildsConcatBase.get()
-                    : onConcatWithBaseEmpty
-            if (concatWithBase) {
-                includedBuildsMonoid.concat.apply(base, this.delegate.includedBuilds)
+        @Override
+        Collection<String> getIncludedBuilds() {
+            if (this.delegate.includedBuildsConcatBase.getOrElse { true }) {
+                this.includedBuildsMonoid.concat.apply(this.parent.includedBuilds, this.delegate.includedBuilds)
             } else {
                 this.delegate.includedBuilds
             }

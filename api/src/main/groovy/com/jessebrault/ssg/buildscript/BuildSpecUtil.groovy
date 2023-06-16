@@ -1,13 +1,8 @@
 package com.jessebrault.ssg.buildscript
 
-import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
-import com.jessebrault.ssg.task.TaskFactory
-import com.jessebrault.ssg.task.TaskFactorySpec
 import com.jessebrault.ssg.util.Monoid
-import com.jessebrault.ssg.util.Monoids
-import com.jessebrault.ssg.util.Zero
-import org.jgrapht.traverse.DepthFirstIterator
+import groovy.transform.NullCheck
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
@@ -15,98 +10,79 @@ import org.slf4j.MarkerFactory
 
 import java.util.function.BiFunction
 
+@NullCheck
 final class BuildSpecUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildSpecUtil)
     private static final Marker enter = MarkerFactory.getMarker('ENTER')
     private static final Marker exit = MarkerFactory.getMarker('EXIT')
 
-    private static final Monoid<Map<String, Object>> globalsMonoid = Monoids.of([:]) { m0, m1 ->
-        m0 + m1
-    }
-
-    private static final Monoid<Collection<String>> includedBuildsMonoid = Monoids.of([]) { c0, c1 ->
-        c0 + c1
-    }
-
-    private static final Monoid<Collection<TaskFactorySpec<TaskFactory>>> taskFactoriesMonoid =
-            Monoids.getMergeCollectionMonoid(TaskFactorySpec.SAME_NAME_AND_SUPPLIER_EQ, TaskFactorySpec.DEFAULT_SEMIGROUP)
-
-    private static <T> T reduceResults(
-            Collection<BuildDelegate.Results> resultsCollection,
-            Zero<T> tZero,
-            BiFunction<T, BuildDelegate.Results, T> resultsToT
-    ) {
-        resultsCollection.inject(tZero.zero) { acc, r ->
-            resultsToT.apply(acc, r)
-        }
-    }
-
-    private static Collection<BuildDelegate.Results> mapBuildSpecsToResults(Collection<BuildSpec> buildSpecs) {
-        buildSpecs.collect {
-            def delegate = new BuildDelegate()
-            it.buildClosure.delegate = delegate
-            //noinspection UnnecessaryQualifiedReference
-            it.buildClosure.resolveStrategy = Closure.DELEGATE_FIRST
-            it.buildClosure()
-            new BuildDelegate.Results(delegate)
-        }
-    }
-
-    private static Build toBuild(
-            Collection<BuildSpec> specs
-    ) {
-        if (specs.empty) {
-            throw new IllegalArgumentException('specs must contain at least one BuildSpec')
-        }
-        def allResults = mapBuildSpecsToResults(specs)
-        def outputDirFunctionResult = reduceResults(allResults, OutputDirFunctions.DEFAULT_MONOID) { acc, r ->
-            r.getOutputDirFunctionResult(acc, { acc })
-        }
-        def siteSpecResult = reduceResults(allResults, SiteSpec.DEFAULT_MONOID) { acc, r ->
-            r.getSiteSpecResult(acc, true, SiteSpec.DEFAULT_MONOID)
-        }
-        def globalsResult = reduceResults(allResults, globalsMonoid) { acc, r ->
-            r.getGlobalsResult(acc, true, globalsMonoid)
-        }
-
-        def typesResult = reduceResults(allResults, TypesContainer.DEFAULT_MONOID) { acc, r ->
-            r.getTypesResult(acc, true, TypesContainer.DEFAULT_MONOID)
-        }
-        def sourcesResult = reduceResults(allResults, SourceProviders.DEFAULT_MONOID) { acc, r ->
-            r.getSourcesResult(acc, true, SourceProviders.DEFAULT_MONOID, typesResult)
-        }
-        def taskFactoriesResult = reduceResults(allResults, taskFactoriesMonoid) { acc, r ->
-            r.getTaskFactoriesResult(acc, true, taskFactoriesMonoid, sourcesResult)
-        }
-
-        def includedBuildsResult = reduceResults(allResults, includedBuildsMonoid) { acc, r ->
-            r.getIncludedBuildsResult(acc, true, includedBuildsMonoid)
-        }
-
+    private static Build intermediateToBuild(BuildIntermediate intermediate) {
         Build.get(
-                name: specs.last().name,
-                outputDirFunction: outputDirFunctionResult,
-                siteSpec: siteSpecResult,
-                globals: globalsResult,
-                taskFactorySpecs: taskFactoriesResult,
-                includedBuilds: includedBuildsResult
+                name: intermediate.buildSpec.name,
+                outputDirFunction: intermediate.outputDirFunction,
+                siteSpec: intermediate.siteSpec,
+                globals: intermediate.globals,
+                taskFactorySpecs: intermediate.taskFactorySpecs,
+                includedBuilds: intermediate.includedBuilds
         )
     }
 
-    static Collection<Build> getBuilds(Collection<BuildSpec> buildSpecs) {
-        logger.trace(enter, '')
-        def graph = BuildGraphUtil.getDependencyGraph(buildSpecs)
-        def r = new DepthFirstIterator<>(graph).findResults {
-            if (it.isAbstract) {
-                return null
+    private static BuildIntermediate specToIntermediate(BuildSpec buildSpec, BuildIntermediate parent) {
+        def d = new BuildDelegate()
+        buildSpec.buildClosure.delegate = d
+        buildSpec.buildClosure.resolveStrategy = Closure.DELEGATE_FIRST
+        buildSpec.buildClosure()
+        new BuildDelegate.BuildDelegateBuildIntermediate(
+                buildSpec,
+                d,
+                parent,
+                BuildMonoids.siteSpecMonoid,
+                BuildMonoids.globalsMonoid,
+                BuildMonoids.typesMonoid,
+                BuildMonoids.sourcesMonoid,
+                BuildMonoids.taskFactoriesMonoid,
+                BuildMonoids.includedBuildsMonoid
+        )
+    }
+
+    private static BuildIntermediate reduceWithParents(
+            BuildSpec rootSpec,
+            BuildGraph buildGraph,
+            Monoid<BuildIntermediate> buildIntermediateMonoid,
+            BiFunction<BuildIntermediate, BuildSpec, BuildIntermediate> parentAndSpecToIntermediate
+    ) {
+        final List<BuildSpec> parents = buildGraph.getParents(rootSpec)
+        if (parents.size() == 0) {
+            parentAndSpecToIntermediate.apply(buildIntermediateMonoid.zero, rootSpec)
+        } else {
+            final List<BuildIntermediate> parentIntermediates = parents.collect {
+                reduceWithParents(it, buildGraph, buildIntermediateMonoid, parentAndSpecToIntermediate)
             }
-            def ancestors = BuildGraphUtil.getAncestors(it, graph)
-            logger.debug('ancestors of {}: {}', it, ancestors)
-            toBuild([*ancestors, it])
+            final BuildIntermediate parentsReduced = parentIntermediates.inject(buildIntermediateMonoid.zero)
+                    { acc, bi ->
+                        buildIntermediateMonoid.concat.apply(acc, bi)
+                    }
+            parentAndSpecToIntermediate.apply(parentsReduced, rootSpec)
         }
-        logger.trace(exit, 'r: {}', r)
-        r
+    }
+
+    static Collection<Build> getBuilds(Collection<BuildSpec> buildSpecs) {
+        logger.trace(enter, 'buildSpecs: {}', buildSpecs)
+        def graph = new BuildGraph(buildSpecs)
+        def intermediates = buildSpecs.findResults {
+            if (it.isAbstract) {
+                null
+            } else {
+                reduceWithParents(it, graph, BuildMonoids.buildIntermediateMonoid)
+                        { parent, spec ->
+                            specToIntermediate(spec, parent)
+                        }
+            }
+        }
+        def builds = intermediates.collect { intermediateToBuild(it) }
+        logger.trace(exit, 'builds: {}', builds)
+        builds
     }
 
     private BuildSpecUtil() {}

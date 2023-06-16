@@ -14,12 +14,12 @@ final class BuildSpecUtilTests {
 
     @Test
     void overwrittenOutputDir(@Mock Function<Build, OutputDir> spec1OutputDirFunction) {
-        def spec0 = new BuildSpec('spec0', true, BuildExtension.getEmpty(), {
+        def spec0 = BuildSpec.get('spec0', true, []) {
             outputDirFunction = { }
-        })
-        def spec1 = new BuildSpec('spec1', false, BuildExtension.get('spec0'), {
+        }
+        def spec1 = BuildSpec.get('spec1', false, ['spec0']) {
             outputDirFunction = spec1OutputDirFunction
-        })
+        }
         def r = BuildSpecUtil.getBuilds([spec0, spec1])
         assertEquals(1, r.size())
         def b0 = r[0]
@@ -29,16 +29,16 @@ final class BuildSpecUtilTests {
 
     @Test
     void outputDirManualConcat() {
-        def spec0 = new BuildSpec('spec0', true, BuildExtension.getEmpty(), {
+        def spec0 = BuildSpec.get('spec0', true, []) {
             outputDirFunction = OutputDirFunctions.DEFAULT
-        })
-        def spec1 = new BuildSpec('spec1', false, BuildExtension.get('spec0'), {
+        }
+        def spec1 = BuildSpec.get('spec1', false, ['spec0']) {
             outputDirFunction {
                 it.andThen {
                     new OutputDir(new File(it.asFile(), 'spec1'))
                 }
             }
-        })
+        }
         def r = BuildSpecUtil.getBuilds([spec0, spec1])
         assertEquals(1, r.size())
         def b0 = r[0]

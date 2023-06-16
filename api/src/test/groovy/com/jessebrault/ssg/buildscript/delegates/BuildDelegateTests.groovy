@@ -2,8 +2,12 @@ package com.jessebrault.ssg.buildscript.delegates
 
 import com.jessebrault.ssg.SiteSpec
 import com.jessebrault.ssg.buildscript.Build
+import com.jessebrault.ssg.buildscript.BuildIntermediate
+import com.jessebrault.ssg.buildscript.BuildMonoids
+import com.jessebrault.ssg.buildscript.BuildSpec
 import com.jessebrault.ssg.buildscript.OutputDir
 import com.jessebrault.ssg.buildscript.SourceProviders
+import com.jessebrault.ssg.buildscript.SyntheticBuildIntermediate
 import com.jessebrault.ssg.buildscript.TypesContainer
 import com.jessebrault.ssg.provider.CollectionProvider
 import com.jessebrault.ssg.provider.CollectionProviders
@@ -11,8 +15,6 @@ import com.jessebrault.ssg.task.TaskFactory
 import com.jessebrault.ssg.task.TaskFactorySpec
 import com.jessebrault.ssg.text.Text
 import com.jessebrault.ssg.text.TextTypes
-import com.jessebrault.ssg.util.Monoid
-import com.jessebrault.ssg.util.Monoids
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
@@ -29,42 +31,39 @@ final class BuildDelegateTests {
 
     private final BuildDelegate d = new BuildDelegate()
 
-    private BuildDelegate.Results getResults() {
-        new BuildDelegate.Results(this.d)
+    private BuildIntermediate getResults(BuildIntermediate parent = SyntheticBuildIntermediate.getEmpty()) {
+        new BuildDelegate.BuildDelegateBuildIntermediate(
+                BuildSpec.getEmpty(),
+                this.d,
+                parent,
+                BuildMonoids.siteSpecMonoid,
+                BuildMonoids.globalsMonoid,
+                BuildMonoids.typesMonoid,
+                BuildMonoids.sourcesMonoid,
+                BuildMonoids.taskFactoriesMonoid,
+                BuildMonoids.includedBuildsMonoid
+        )
     }
 
     @Test
-    void simpleOutputDirFunction(
-            @Mock Function<Build, OutputDir> expected,
-            @Mock Function<Build, OutputDir> base,
-            @Mock Supplier<Function<Build, OutputDir>> onEmpty
-    ) {
+    void simpleOutputDirFunction(@Mock Function<Build, OutputDir> expected) {
         this.d.outputDirFunction = expected
-        def r = this.results.getOutputDirFunctionResult(base, onEmpty)
+        def r = this.getResults().outputDirFunction
         assertEquals(expected, r)
     }
 
     @Test
-    void mappedOutputDirFunction(
-            @Mock Supplier<Function<Build, OutputDir>> onEmpty
-    ) {
+    void mappedOutputDirFunction() {
         final Function<Build, OutputDir> base = { Build b ->
             new OutputDir('test')
         }
         this.d.outputDirFunction {
             it.andThen { new OutputDir(it.asString() + '/nested') }
         }
-        def r = this.results.getOutputDirFunctionResult(base, onEmpty)
+        def r = this.getResults(SyntheticBuildIntermediate.get(outputDirFunction: base))
+                .outputDirFunction
         def outputDir = r.apply(Build.getEmpty())
         assertEquals('test/nested', outputDir.asString())
-    }
-
-    @Test
-    void emptyOutputDirFunction(
-            @Mock Function<Build, OutputDir> base,
-            @Mock Function<Build, OutputDir> empty
-    ) {
-        assertEquals(empty, this.results.getOutputDirFunctionResult(base, { empty }))
     }
 
     @Test
@@ -73,11 +72,7 @@ final class BuildDelegateTests {
             name = 'test'
             baseUrl = 'testUrl'
         }
-        def r = this.results.getSiteSpecResult(
-                SiteSpec.getBlank(),
-                true,
-                SiteSpec.DEFAULT_MONOID
-        )
+        def r = this.getResults().siteSpec
         assertEquals('test', r.name)
         assertEquals('testUrl', r.baseUrl)
     }
@@ -88,11 +83,9 @@ final class BuildDelegateTests {
             name = base.name + 'Preview'
             baseUrl = base.baseUrl + '/preview'
         }
-        def r = this.results.getSiteSpecResult(
-                new SiteSpec('mySite', 'https://mysite.com'),
-                true,
-                SiteSpec.DEFAULT_MONOID
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(siteSpec: new SiteSpec('mySite', 'https://mysite.com'))
+        ).siteSpec
         assertEquals('mySitePreview', r.name)
         assertEquals('https://mysite.com/preview', r.baseUrl)
     }
@@ -102,11 +95,9 @@ final class BuildDelegateTests {
         this.d.siteSpec {
             name = '123'
         }
-        def r = this.results.getSiteSpecResult(
-                new SiteSpec('', '456'),
-                true,
-                SiteSpec.DEFAULT_MONOID
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(siteSpec: new SiteSpec('', '456'))
+        ).siteSpec
         assertEquals('123', r.name)
         assertEquals('456', r.baseUrl)
     }
@@ -116,25 +107,16 @@ final class BuildDelegateTests {
         this.d.siteSpec(false) {
             name = '123'
         }
-        def r = this.results.getSiteSpecResult(
-                new SiteSpec('', '456'),
-                true,
-                SiteSpec.DEFAULT_MONOID
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(siteSpec: new SiteSpec('', '456'))
+        ).siteSpec
         assertEquals('123', r.name)
         assertEquals(SiteSpec.DEFAULT_MONOID.zero.baseUrl, r.baseUrl)
     }
 
     @Test
     void emptySiteSpec() {
-        assertEquals(
-                SiteSpec.getBlank(),
-                this.results.getSiteSpecResult(SiteSpec.getBlank(), true, SiteSpec.DEFAULT_MONOID)
-        )
-    }
-
-    private static Monoid<Map<String, Object>> getGlobalsMonoid() {
-        Monoids.of([:]) { m0, m1 -> m0 + m1 }
+        assertEquals(SiteSpec.getBlank(), this.getResults().siteSpec)
     }
 
     @Test
@@ -142,7 +124,7 @@ final class BuildDelegateTests {
         this.d.globals {
             test = 'abc'
         }
-        def r = this.results.getGlobalsResult([:], true, getGlobalsMonoid())
+        def r = this.getResults().globals
         assertEquals([test: 'abc'], r)
     }
 
@@ -151,17 +133,13 @@ final class BuildDelegateTests {
         this.d.globals { base ->
             test = base.test
         }
-        def r = this.results.getGlobalsResult(
-                [test: 'abc'],
-                true,
-                getGlobalsMonoid()
-        )
+        def r = this.getResults(SyntheticBuildIntermediate.get(globals: [test: 'abc'])).globals
         assertEquals([test: 'abc'], r)
     }
 
     @Test
     void globalsEmpty() {
-        assertEquals([:], this.results.getGlobalsResult([:], true, getGlobalsMonoid()))
+        assertEquals([:], this.getResults().globals)
     }
 
     @Test
@@ -169,11 +147,7 @@ final class BuildDelegateTests {
         this.d.types {
             textTypes << TextTypes.MARKDOWN
         }
-        def r = this.results.getTypesResult(
-                TypesContainer.getEmpty(),
-                true,
-                TypesContainer.DEFAULT_MONOID
-        )
+        def r = this.getResults().types
         assertEquals(TypesContainer.get(textTypes: [TextTypes.MARKDOWN]), r)
     }
 
@@ -182,11 +156,9 @@ final class BuildDelegateTests {
         this.d.types(false) { base ->
             textTypes.addAll(base.textTypes)
         }
-        def r = this.results.getTypesResult(
-                TypesContainer.get(textTypes: [TextTypes.MARKDOWN]),
-                true,
-                TypesContainer.DEFAULT_MONOID
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(types: TypesContainer.get(textTypes: [TextTypes.MARKDOWN]))
+        ).types
         assertEquals(TypesContainer.get(textTypes: [TextTypes.MARKDOWN]), r)
     }
 
@@ -195,12 +167,7 @@ final class BuildDelegateTests {
         this.d.sources { base, types ->
             texts textsProvider
         }
-        def r = this.results.getSourcesResult(
-                SourceProviders.getEmpty(),
-                true,
-                SourceProviders.DEFAULT_MONOID,
-                TypesContainer.getEmpty()
-        )
+        def r = this.getResults().sources
         assertTrue(textsProvider in r.textsProvider)
     }
 
@@ -217,31 +184,19 @@ final class BuildDelegateTests {
         this.d.sources { base, types ->
             texts base.textsProvider
         }
-        def r = this.results.getSourcesResult(
-                SourceProviders.get(textsProvider: textsProvider),
-                true,
-                SourceProviders.DEFAULT_MONOID,
-                TypesContainer.getEmpty()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(sources: SourceProviders.get(textsProvider: textsProvider))
+        ).sources
         assertTrue(textsProvider in r.textsProvider)
     }
 
     @Test
     void sourceProvidersMergeBase() {
         def textsProvider = CollectionProviders.fromCollection([] as Collection<Text>)
-        def r = this.results.getSourcesResult(
-                SourceProviders.get(textsProvider: textsProvider),
-                true,
-                SourceProviders.DEFAULT_MONOID,
-                TypesContainer.getEmpty()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(sources: SourceProviders.get(textsProvider: textsProvider))
+        ).sources
         assertTrue(textsProvider in r.textsProvider)
-    }
-
-    private static Monoid<Collection<TaskFactorySpec<TaskFactory>>> getTaskFactoriesMonoid() {
-        Monoids.of([] as Collection<TaskFactorySpec<TaskFactory>>) { c0, c1 ->
-            c0 + c1
-        }
     }
 
     @Test
@@ -249,12 +204,7 @@ final class BuildDelegateTests {
         this.d.taskFactories { base, sources ->
             register('f0', taskFactorySupplier)
         }
-        def r = this.results.getTaskFactoriesResult(
-                [],
-                true,
-                getTaskFactoriesMonoid(),
-                SourceProviders.getEmpty()
-        )
+        def r = this.getResults().taskFactorySpecs
         assertEquals(1, r.size())
         def spec0 = r[0]
         assertEquals('f0', spec0.name)
@@ -266,12 +216,11 @@ final class BuildDelegateTests {
         this.d.taskFactories(false) { base, sources ->
             registerAll(base)
         }
-        def r = this.results.getTaskFactoriesResult(
-                [new TaskFactorySpec<TaskFactory>('spec0', taskFactorySupplier, [])],
-                true,
-                getTaskFactoriesMonoid(),
-                SourceProviders.getEmpty()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(
+                        taskFactorySpecs: [new TaskFactorySpec<TaskFactory>('spec0', taskFactorySupplier, [])]
+                )
+        ).taskFactorySpecs
         assertEquals(1, r.size())
         def spec0 = r[0]
         assertEquals('spec0', spec0.name)
@@ -281,12 +230,11 @@ final class BuildDelegateTests {
 
     @Test
     void taskFactoriesMergeBase(@Mock Supplier<TaskFactory> taskFactorySupplier) {
-        def r = this.results.getTaskFactoriesResult(
-                [new TaskFactorySpec<TaskFactory>('spec0', taskFactorySupplier, [])],
-                true,
-                getTaskFactoriesMonoid(),
-                SourceProviders.getEmpty()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(
+                        taskFactorySpecs: [new TaskFactorySpec<TaskFactory>('spec0', taskFactorySupplier, [])]
+                )
+        ).taskFactorySpecs
         assertEquals(1, r.size())
         def spec0 = r[0]
         assertEquals('spec0', spec0.name)
@@ -294,17 +242,13 @@ final class BuildDelegateTests {
         assertEquals([], spec0.configurators)
     }
 
-    private static Monoid<Collection<String>> getIncludedBuildsMonoid() {
-        Monoids.of([]) { c0, c1 -> c0 + c1 }
-    }
-
     @Test
     void includedBuildsNoBase() {
         this.d.concatIncludedBuildsWithBase = false
         this.d.includeBuild('included')
-        def r = this.results.getIncludedBuildsResult(
-                ['notIncluded'], true, getIncludedBuildsMonoid()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(includedBuilds: ['notIncluded'])
+        ).includedBuilds
         assertEquals(1, r.size())
         def includedBuild0 = r[0]
         assertEquals('included', includedBuild0)
@@ -313,9 +257,9 @@ final class BuildDelegateTests {
     @Test
     void includedBuildsWithBase() {
         this.d.concatIncludedBuildsWithBase = true
-        def r = this.results.getIncludedBuildsResult(
-                ['baseIncluded'], true, getIncludedBuildsMonoid()
-        )
+        def r = this.getResults(
+                SyntheticBuildIntermediate.get(includedBuilds: ['baseIncluded'])
+        ).includedBuilds
         assertEquals(1, r.size())
         def includedBuild0 = r[0]
         assertEquals('baseIncluded', includedBuild0)

@@ -28,6 +28,14 @@ final class Monoids {
         })
     }
 
+    static <T> Monoid<Collection<T>> getCollectionMonoid() {
+        of([], { c0, c1 -> c0 + c1 })
+    }
+
+    static <T, U> Monoid<Map<T, U>> getMapMonoid() {
+        of([:], { m0, m1 -> m0 + m1 })
+    }
+
     private Monoids() {}
 
 }

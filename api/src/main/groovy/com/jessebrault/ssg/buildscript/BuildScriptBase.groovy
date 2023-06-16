@@ -15,10 +15,19 @@ abstract class BuildScriptBase extends Script {
     protected static final Marker enter = MarkerFactory.getMarker('ENTER')
     protected static final Marker exit = MarkerFactory.getMarker('EXIT')
 
+    private static Collection<String> convertExtendingArg(Object arg) {
+        arg instanceof Collection<String> ? arg as Collection<String>
+                : arg instanceof String ? [arg] as Collection<String> : []
+    }
+
     protected final Collection<BuildSpec> buildSpecs = []
 
     /**
-     * args keys: name (required), extending (optional)
+     * args keys and values:
+     * <ul>
+     *     <li><code>name: String<code></li>
+     *     <li><code>extending?: String | Collection&lt;String&gt;</code></li>
+     * </ul>
      *
      * @param args
      * @param buildClosure
@@ -28,16 +37,21 @@ abstract class BuildScriptBase extends Script {
             @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
             Closure<?> buildClosure
     ) {
-        this.buildSpecs << new BuildSpec(
-                requireNonNull(args.name as String),
-                true,
-                args.extending != null ? BuildExtension.get(args.extending as String) : BuildExtension.getEmpty(),
-                buildClosure
+        final Collection<String> extending = convertExtendingArg(args.extending)
+        this.buildSpecs << BuildSpec.get(
+                name: requireNonNull(args.name as String),
+                isAbstract:  true,
+                extending:  extending,
+                buildClosure: buildClosure
         )
     }
 
     /**
-     * args keys: name (required), extending (optional)
+     * args keys and values:
+     * <ul>
+     *     <li><code>name: String<code></li>
+     *     <li><code>extending?: String | Collection&lt;String&gt;</code></li>
+     * </ul>
      *
      * @param args
      * @param buildClosure
@@ -47,11 +61,12 @@ abstract class BuildScriptBase extends Script {
             @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
             Closure<?> buildClosure
     ) {
-        this.buildSpecs << new BuildSpec(
-                requireNonNull(args.name as String),
-                false,
-                args.extending != null ? BuildExtension.get(args.extending as String) : BuildExtension.getEmpty(),
-                buildClosure
+        final Collection<String> extending = convertExtendingArg(args.extending)
+        this.buildSpecs << BuildSpec.get(
+                name: requireNonNull(args.name as String),
+                isAbstract:  false,
+                extending:  extending,
+                buildClosure: buildClosure
         )
     }
 

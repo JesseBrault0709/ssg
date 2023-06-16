@@ -77,7 +77,7 @@ final class BuildScriptBaseTests {
         assertEquals(2, r.size())
         assertEquals(
                 [
-                        BuildSpec.get(name: 'child', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'child', extending: ['parent']),
                         BuildSpec.get(name: 'parent')
                 ],
                 r
@@ -94,8 +94,8 @@ final class BuildScriptBaseTests {
         assertEquals(3, r.size())
         assertEquals(
                 [
-                        BuildSpec.get(name: 'child', extending: BuildExtension.get('parent')),
-                        BuildSpec.get(name: 'parent', extending: BuildExtension.get('grandparent')),
+                        BuildSpec.get(name: 'child', extending: ['parent']),
+                        BuildSpec.get(name: 'parent', extending: ['grandparent']),
                         BuildSpec.get(name: 'grandparent')
                 ],
                 r
@@ -112,8 +112,8 @@ final class BuildScriptBaseTests {
         assertEquals(3, r.size())
         assertEquals(
                 [
-                        BuildSpec.get(name: 'child0', extending: BuildExtension.get('parent')),
-                        BuildSpec.get(name: 'child1', extending: BuildExtension.get('parent')),
+                        BuildSpec.get(name: 'child0', extending: ['parent']),
+                        BuildSpec.get(name: 'child1', extending: ['parent']),
                         BuildSpec.get(name: 'parent')
                 ],
                 r
