@@ -45,4 +45,9 @@ final class TaskFactorySpec<T extends TaskFactory> {
         concat(this, other)
     }
 
+    @Override
+    String toString() {
+        "TaskFactorySpec(name: ${ this.name })"
+    }
+
 }

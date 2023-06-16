@@ -3,12 +3,14 @@ package com.jessebrault.ssg.page
 import com.jessebrault.ssg.provider.CollectionProvider
 import com.jessebrault.ssg.provider.CollectionProviders
 import com.jessebrault.ssg.util.ExtensionUtil
+import groovy.transform.NullCheck
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.function.BiPredicate
 import java.util.function.Predicate
 
+@NullCheck
 final class PagesProviders {
 
     private static final Logger logger = LoggerFactory.getLogger(PagesProviders)
@@ -17,7 +19,11 @@ final class PagesProviders {
         from(pagesDirectory, pageTypes) { file, path -> true }
     }
 
-    static CollectionProvider<Page> from(File pagesDirectory, Collection<PageType> pageTypes, BiPredicate<File, String> filter) {
+    static CollectionProvider<Page> from(
+            File pagesDirectory,
+            Collection<PageType> pageTypes,
+            BiPredicate<File, String> filter
+    ) {
         CollectionProviders.fromDirectory(pagesDirectory) { file, relativePath ->
             if (filter.test(file, relativePath)) {
                 def extension = ExtensionUtil.getExtension(relativePath)

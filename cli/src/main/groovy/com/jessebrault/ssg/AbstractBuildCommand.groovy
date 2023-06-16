@@ -69,7 +69,12 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                 buildScriptBinding,
                 diagnostics.&addAll
         )) {
-            diagnostics.each { logger.warn(it) }
+            diagnostics.each {
+                logger.error(it.message)
+                if (it.exception != null) {
+                    it.exception.printStackTrace()
+                }
+            }
             logger.traceExit(1)
         } else {
             logger.traceExit(0)
