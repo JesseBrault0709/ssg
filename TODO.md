@@ -32,7 +32,7 @@ Here will be kept all of the various todos for this project, organized by releas
   - [ ] introduction of `models`
 - [x] Change most instances of `Closure<Void>` to `Closure<?>` to help with IDE expectations.
 - [ ] Fix auto-imports in build script so we don't need to import things.
-- [ ] Re-introduce input/output concept to tasks, if possible
+- [x] Re-introduce input/output concept to tasks, if possible
 
 ## Finished
 
