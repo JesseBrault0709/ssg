@@ -29,6 +29,12 @@ dependencies {
     testing libs.mockito.junit.jupiter
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 testing {
     suites {
         test {

@@ -26,3 +26,8 @@ Have the following layout of dirs and files. It is a combined gradle/ssg project
 - texts: a general folder for texts and other textual data, can be .md, .txt, .html, etc.
 - build.gradle: the root project build.gradle 
 - settings.gradle: the usual gradle settings
+
+## Api TODO
+- [ ] Move from `Provider`/`Property` in `api` to `groowt.util.provider`.
+- [ ] Move from all the fp-util stuff to `groowt.util.fp`.
+- [ ] Get rid of graph-dependency.
