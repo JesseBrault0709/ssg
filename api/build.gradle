@@ -1,5 +1,6 @@
 plugins {
     id 'ssg-common'
+    id 'groovy'
     id 'java-library'
     id 'java-test-fixtures'
 }

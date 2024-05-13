@@ -1,0 +1,4 @@
+plugins {
+    id 'ssg-common'
+    id 'java-gradle-plugin'
+}

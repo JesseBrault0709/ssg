@@ -1,7 +1,6 @@
 plugins {
     id 'com.jessebrault.jbarchiva'
     id 'java'
-    id 'groovy'
 }
 
 group 'com.jessebrault.ssg'

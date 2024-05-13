@@ -1,5 +1,6 @@
 plugins {
     id 'ssg-common'
+    id 'groovy'
     id 'application'
 }
 
