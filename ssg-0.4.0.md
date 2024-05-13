@@ -1,0 +1,23 @@
+# Targeting 0.4.0: Ideas and Plans
+
+- Have the following layout of dirs and files. It is a combined gradle/ssg project.
+  - bin: a folder for shell scripts
+    - ssg: a shell script to invoke the ssg-cli
+  - pages: a source set for pages
+    - groovy
+    - wvc
+    - gst
+  - parts: a source set for parts/components
+    - groovy
+    - wvc
+    - gst
+  - ssg: the folder for the build logic
+    - buildSrc: a gradle subproject where we can put custom build logic that is accessible from scripts.
+      - src
+        - groovy
+      - build.gradle
+    - production.ssg.groovy: a 'production' build
+    - preview.ssg.groovy: a 'preview' build
+  - texts: a general folder for texts and other textual data, can be .md, .txt, .html, etc.
+  - build.gradle: the root project build.gradle 
+  - settings.gradle: the usual gradle settings
