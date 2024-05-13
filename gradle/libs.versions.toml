@@ -1,0 +1,22 @@
+[versions]
+commonmark = '0.22.0'
+groovy = '4.0.21'
+log4j2 = '2.23.1'
+mockito = '5.12.0'
+junit = '5.10.2'
+
+[libraries]
+commonmark = { module = 'org.commonmark:commonmark', version.ref = 'commonmark' }
+commonmark-frontmatter = { module = 'org.commonmark:commonmark-ext-yaml-front-matter', version.ref = 'commonmark' }
+groovy = { module = 'org.apache.groovy:groovy', version.ref = 'groovy' }
+groovy-templates = { module = 'org.apache.groovy:groovy-templates', version.ref = 'groovy' }
+jetbrains-anontations = 'org.jetbrains:annotations:24.1.0'
+jsoup = 'org.jsoup:jsoup:1.17.2'
+junit-jupiter-api = { module = 'org.junit.jupiter:junit-jupiter-api', version.ref = 'junit' }
+log4j2-api = { module = 'org.apache.logging.log4j:log4j-api', version.ref = 'log4j2' }
+log4j2-core = { module = 'org.apache.logging.log4j:log4j-core', version.ref = 'log4j2' }
+log4j2-slf4j2-impl = { module = 'org.apache.logging.log4j:log4j-slf4j2-impl', version.ref = 'log4j2' }
+mockito-core = { module = 'org.mockito:mockito-core', version.ref = 'mockito' }
+mockito-junit-jupiter = { module = 'org.mockito:mockito-junit-jupiter', version.ref = 'mockito' }
+picocli = 'info.picocli:picocli:4.7.6'
+slf4j-api = 'org.slf4j:slf4j-api:2.0.13'

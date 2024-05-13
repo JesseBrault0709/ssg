@@ -1,0 +1,39 @@
+plugins {
+    id 'com.jessebrault.jbarchiva'
+    id 'java'
+    id 'groovy'
+}
+
+group 'com.jessebrault.ssg'
+version '0.4.0'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    testing {
+        canBeConsumed = false
+        canBeResolved = false
+    }
+    testImplementation {
+        extendsFrom configurations.testing
+    }
+}
+
+dependencies {
+    implementation libs.slf4j.api
+
+    testing libs.slf4j.api
+    testing libs.junit.jupiter.api
+    testing libs.mockito.core
+    testing libs.mockito.junit.jupiter
+}
+
+testing {
+    suites {
+        test {
+            useJUnitJupiter()
+        }
+    }
+}

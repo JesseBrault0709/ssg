@@ -1,5 +1,5 @@
 plugins {
-    id 'ssg.common'
+    id 'ssg-common'
     id 'application'
 }
 
@@ -9,21 +9,11 @@ repositories {
 
 dependencies {
     implementation project(':api')
+    implementation libs.picocli
+    implementation libs.log4j2.api
+    implementation libs.log4j2.core
 
-    // https://mvnrepository.com/artifact/info.picocli/picocli
-    implementation 'info.picocli:picocli:4.7.1'
-
-    /**
-     * Logging
-     */
-    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api
-    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
-
-    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j2-impl
-    runtimeOnly 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
-
-    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    runtimeOnly libs.log4j2.slf4j2.impl
 }
 
 application {

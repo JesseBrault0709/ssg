@@ -1,33 +1,39 @@
 plugins {
-    id 'ssg.common'
+    id 'ssg-common'
+    id 'java-library'
+    id 'java-test-fixtures'
 }
 
 repositories {
     mavenCentral()
 }
 
+configurations {
+    testFixturesApi {
+        extendsFrom configurations.testing
+    }
+}
+
 dependencies {
+    api libs.groovy
+
+    compileOnlyApi libs.jetbrains.anontations
+
+    api libs.groovy
+    implementation libs.groovy.templates
+    implementation libs.commonmark
+    implementation libs.commonmark.frontmatter
+    implementation libs.jsoup
+
     // https://archiva.jessebrault.com/#artifact/com.jessebrault.gst/lib
     implementation 'com.jessebrault.gst:lib:0.0.5'
-
-    // https://mvnrepository.com/artifact/org.apache.groovy/groovy-templates
-    implementation 'org.apache.groovy:groovy-templates:4.0.12'
-
-    // https://mvnrepository.com/artifact/org.commonmark/commonmark
-    implementation 'org.commonmark:commonmark:0.21.0'
-
-    // https://mvnrepository.com/artifact/org.commonmark/commonmark-ext-yaml-front-matter
-    implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.21.0'
-
-    // https://mvnrepository.com/artifact/org.jsoup/jsoup
-    implementation 'org.jsoup:jsoup:1.16.1'
 
     // https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
 
     // So we can use Grape dependency management
     // https://mvnrepository.com/artifact/org.apache.ivy/ivy
-    runtimeOnly 'org.apache.ivy:ivy:2.5.1'
+    runtimeOnly 'org.apache.ivy:ivy:2.5.2'
 }
 
 jar {
