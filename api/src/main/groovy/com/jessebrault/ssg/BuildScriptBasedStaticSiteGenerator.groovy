@@ -1,6 +1,6 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.buildscript.Build
+import com.jessebrault.ssg.buildscript.BuildSpec
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
 import com.jessebrault.ssg.buildscript.FileBuildScriptGetter
 import com.jessebrault.ssg.util.Diagnostic
@@ -23,7 +23,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
 
     private final Collection<URL> buildScriptClassLoaderUrls
     private final @Nullable File buildScript
-    private final Collection<Build> builds = []
+    private final Collection<BuildSpec> builds = []
 
     private GroovyClassLoader buildScriptClassLoader
 
@@ -59,7 +59,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             logger.info('running buildScript: {}', this.buildScript)
             def buildScriptRunner = new FileBuildScriptGetter(this.buildScriptClassLoaderUrls)
             this.buildScriptClassLoader = buildScriptRunner.getBuildScriptClassLoader()
-            def result = buildScriptRunner.getBuildInfo(
+            def result = buildScriptRunner.getBuildScript(
                     this.buildScript.name,
                     [args: buildScriptArgs]
             ) { base ->
@@ -86,7 +86,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
     @NullCheck(includeGenerated = true)
     @EqualsAndHashCode
     private static final class IncludedBuildsResult {
-        final Collection<Build> builds
+        final Collection<BuildSpec> builds
         final Collection<Diagnostic> diagnostics
     }
 

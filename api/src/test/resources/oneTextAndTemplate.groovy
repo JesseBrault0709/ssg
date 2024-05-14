@@ -1,4 +1,4 @@
-import com.jessebrault.ssg.buildscript.Build
+import com.jessebrault.ssg.buildscript.BuildSpec
 import com.jessebrault.ssg.buildscript.BuildScriptBase
 import com.jessebrault.ssg.buildscript.OutputDir
 import com.jessebrault.ssg.html.TextToHtmlSpecProviders
@@ -22,7 +22,7 @@ final class Args {
 def args = args as Args
 
 build(name: 'test') {
-    outputDirFunction = { Build build -> new OutputDir(new File(args.sourceDir, 'build')) }
+    outputDirFunction = { BuildSpec build -> new OutputDir(new File(args.sourceDir, 'build')) }
 
     types {
         textTypes << TextTypes.MARKDOWN

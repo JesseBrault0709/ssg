@@ -7,11 +7,10 @@ import groovy.transform.TupleConstructor
 @TupleConstructor(includeFields = true)
 final class FileBuildScriptGetter {
 
-    private final File projectRoot
-    private final GroovyClassLoader gcl
+    private final GroovyClassLoader groovyClassLoader
 
-    BuildScriptBase getBuildInfo(String name) {
-        Class<?> scriptClass = this.gcl.loadClass(name, true, false)
+    BuildScriptBase getBuildScript(String name) {
+        Class<?> scriptClass = this.groovyClassLoader.loadClass(name, true, false)
         def scriptObject = scriptClass.getConstructor().newInstance()
         assert scriptObject instanceof BuildScriptBase
         scriptObject

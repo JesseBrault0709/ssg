@@ -1,6 +1,6 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.buildscript.Build
+import com.jessebrault.ssg.buildscript.BuildSpec
 import com.jessebrault.ssg.task.Task
 import com.jessebrault.ssg.task.TaskSpec
 import com.jessebrault.ssg.util.Diagnostic
@@ -9,7 +9,7 @@ import com.jessebrault.ssg.util.Result
 final class SimpleBuildTasksConverter implements BuildTasksConverter {
 
     @Override
-    Result<Collection<Task>> convert(Build build) {
+    Result<Collection<Task>> convert(BuildSpec build) {
         def taskSpec = new TaskSpec(
                 build.name,
                 build.outputDirFunction.apply(build).asFile(),

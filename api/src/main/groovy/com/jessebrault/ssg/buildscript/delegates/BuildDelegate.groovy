@@ -1,14 +1,9 @@
 package com.jessebrault.ssg.buildscript.delegates
 
-import com.jessebrault.ssg.model.Model
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
 import groowt.util.fp.property.Property
-import groowt.util.fp.provider.DefaultNamedProvider
-import groowt.util.fp.provider.DefaultNamedSetProvider
 import groowt.util.fp.provider.DefaultSetProvider
-import groowt.util.fp.provider.NamedProvider
-import groowt.util.fp.provider.NamedSetProvider
 import groowt.util.fp.provider.Provider
 import groowt.util.fp.provider.SetProvider
 
@@ -33,7 +28,6 @@ final class BuildDelegate {
     }
 
     private final Set<Provider<File>> textsDirs = []
-    private final Set<NamedProvider<Model>> models = []
 
     void siteName(String siteName) {
         this.siteName.set(siteName)
@@ -83,21 +77,6 @@ final class BuildDelegate {
 
     SetProvider<File> getTextsDirs() {
         new DefaultSetProvider(this.textsDirs)
-    }
-
-    void models(@DelegatesTo(ModelsDelegate) Closure modelsClosure) {
-        def modelsDelegate = new ModelsDelegate()
-        modelsClosure.delegate = modelsDelegate
-        modelsClosure()
-        models.addAll(modelsDelegate.result)
-    }
-
-    void models(Set<NamedProvider<Model>> models) {
-        this.models.addAll(models)
-    }
-
-    NamedSetProvider<Model> getModels() {
-        new DefaultNamedSetProvider(this.models)
     }
 
 }
