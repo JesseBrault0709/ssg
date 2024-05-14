@@ -15,15 +15,14 @@ final class SupplierBasedCollectionProvider<T> extends AbstractCollectionProvide
 
     SupplierBasedCollectionProvider(
             Collection<CollectionProvider<T>> collectionProviderChildren,
-            Collection<Provider<T>> providerChildren,
             Supplier<Collection<T>> supplier
     ) {
-        super(collectionProviderChildren, providerChildren)
+        super(collectionProviderChildren)
         this.supplier = supplier
     }
 
     SupplierBasedCollectionProvider(Supplier<Collection<T>> supplier) {
-        this([], [], supplier)
+        this([], supplier)
     }
 
     @Override

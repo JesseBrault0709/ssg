@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.*;
 
 @ApiStatus.Experimental
+@Deprecated
 public interface Mutable<T> {
     T get();
     void set(T t);

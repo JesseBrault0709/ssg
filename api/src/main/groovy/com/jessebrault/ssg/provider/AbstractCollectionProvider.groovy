@@ -10,30 +10,15 @@ import groovy.transform.TupleConstructor
 abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
 
     static <T> CollectionProvider<T> concat(
-            CollectionProvider<T> cp,
-            Provider<T> p
-    ) {
-        new SupplierBasedCollectionProvider<>([cp], [p], {
-            [*cp.provide(), p.provide()]
-        })
-    }
-
-    static <T> CollectionProvider<T> concat(
             CollectionProvider<T> cp0,
             CollectionProvider<T> cp1
     ) {
-        new SupplierBasedCollectionProvider<>([cp0, cp1], [], {
+        new SupplierBasedCollectionProvider<>([cp0, cp1], {
             cp0.provide() + cp1.provide()
         })
     }
 
     private final Collection<CollectionProvider<T>> collectionProviderChildren
-    private final Collection<Provider<T>> providerChildren
-
-    @Override
-    boolean contains(Provider<T> provider) {
-        provider in this
-    }
 
     @Override
     boolean contains(CollectionProvider<T> collectionProvider) {
@@ -69,33 +54,8 @@ abstract class AbstractCollectionProvider<T> implements CollectionProvider<T> {
     }
 
     @Override
-    CollectionProvider<T> plus(Provider<T> other) {
-        concat(this, other)
-    }
-
-    @Override
     CollectionProvider<T> plus(CollectionProvider<T> other) {
         concat(this, other)
-    }
-
-    private boolean searchProviderChildrenFor(Provider<T> descendant) {
-        this.providerChildren.inject(false) { acc, childProvider ->
-            acc || descendant in childProvider
-        }
-    }
-
-    private boolean searchCollectionProviderChildrenFor(Provider<T> descendant) {
-        this.collectionProviderChildren.inject(false) { acc, childProvider ->
-            acc || descendant in childProvider
-        }
-    }
-
-    @Override
-    boolean isCase(Provider<T> provider) {
-        provider in this.providerChildren
-                || this.searchProviderChildrenFor(provider)
-                || this.searchCollectionProviderChildrenFor(provider)
-
     }
 
     @Override

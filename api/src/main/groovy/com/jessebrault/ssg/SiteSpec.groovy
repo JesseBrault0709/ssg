@@ -27,10 +27,6 @@ final class SiteSpec {
     final String name
     final String baseUrl
 
-    SiteSpec plus(SiteSpec other) {
-        concat(this, other)
-    }
-
     @Override
     String toString() {
         "SiteSpec(${ this.name }, ${ this.baseUrl })"

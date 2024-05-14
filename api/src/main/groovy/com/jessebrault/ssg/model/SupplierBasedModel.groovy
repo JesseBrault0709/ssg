@@ -8,13 +8,17 @@ import groovy.transform.TupleConstructor
 import java.util.function.Supplier
 
 @PackageScope
-@TupleConstructor(includeFields = true, defaults = false)
 @NullCheck(includeGenerated = true)
 @EqualsAndHashCode(includeFields = true)
 final class SupplierBasedModel<T> implements Model<T> {
 
     final String name
-    private final Supplier<T> supplier
+    private final Supplier<? extends T> supplier
+
+    SupplierBasedModel(String name, Supplier<? extends T> supplier) {
+        this.name = name
+        this.supplier = supplier
+    }
 
     @Override
     T get() {

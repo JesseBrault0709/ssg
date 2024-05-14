@@ -24,10 +24,43 @@ Have the following layout of dirs and files. It is a combined gradle/ssg project
   - production.ssg.groovy: a 'production' build
   - preview.ssg.groovy: a 'preview' build
 - texts: a general folder for texts and other textual data, can be .md, .txt, .html, etc.
-- build.gradle: the root project build.gradle 
+- build.gradle: the root project build.gradle
 - settings.gradle: the usual gradle settings
 
 ## Api TODO
 - [ ] Move from `Provider`/`Property` in `api` to `groowt.util.provider`.
 - [ ] Move from all the fp-util stuff to `groowt.util.fp`.
 - [ ] Get rid of graph-dependency.
+
+## New Build Script DSL
+
+Simple example:
+```groovy
+extendsFrom('default')
+
+// isAbstract = true
+
+siteName = 'Hello, World!'
+baseUrl = 'https://helloworld.com/'
+buildDir = new File('hello-world-build')
+
+globals {
+    someProp = 'Some property.'
+}
+
+includedBuilds << 'anotherBuild'
+```
+
+Example with models:
+```groovy
+Set<NamedModel> myModels = [
+        new NamedModel(name: 'thing0'),
+        new NamedModel(name: 'thing1')
+]
+
+models {
+    myModels.each {
+        add(it.name, it)
+    }
+}
+```

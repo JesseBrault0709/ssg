@@ -2,8 +2,7 @@ package com.jessebrault.ssg
 
 import com.jessebrault.ssg.buildscript.Build
 import com.jessebrault.ssg.buildscript.BuildScriptConfiguratorFactory
-import com.jessebrault.ssg.buildscript.BuildScriptRunner
-import com.jessebrault.ssg.buildscript.BuildUtil
+import com.jessebrault.ssg.buildscript.FileBuildScriptGetter
 import com.jessebrault.ssg.util.Diagnostic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
@@ -50,7 +49,7 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
 
         if (this.buildScript == null) {
             logger.info('no specified build script; using defaults')
-            def result = BuildScriptRunner.runClosureScript { base ->
+            def result = FileBuildScriptGetter.runClosureScript { base ->
                 configuratorFactories.each {
                     it.get().accept(base)
                 }
@@ -58,9 +57,9 @@ final class BuildScriptBasedStaticSiteGenerator implements StaticSiteGenerator {
             this.builds.addAll(result)
         } else if (this.buildScript.exists() && this.buildScript.isFile()) {
             logger.info('running buildScript: {}', this.buildScript)
-            def buildScriptRunner = new BuildScriptRunner(this.buildScriptClassLoaderUrls)
+            def buildScriptRunner = new FileBuildScriptGetter(this.buildScriptClassLoaderUrls)
             this.buildScriptClassLoader = buildScriptRunner.getBuildScriptClassLoader()
-            def result = buildScriptRunner.runBuildScript(
+            def result = buildScriptRunner.getBuildInfo(
                     this.buildScript.name,
                     [args: buildScriptArgs]
             ) { base ->

@@ -1,7 +1,8 @@
 package com.jessebrault.ssg.buildscript
 
 import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
-import groovy.transform.PackageScope
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
@@ -9,70 +10,47 @@ import org.slf4j.MarkerFactory
 
 import static java.util.Objects.requireNonNull
 
+@SuppressWarnings('unused')
 abstract class BuildScriptBase extends Script {
 
-    protected static final Logger logger = LoggerFactory.getLogger(BuildScriptBase)
-    protected static final Marker enter = MarkerFactory.getMarker('ENTER')
-    protected static final Marker exit = MarkerFactory.getMarker('EXIT')
+    static final Logger logger = LoggerFactory.getLogger(BuildScriptBase)
+    static final Marker enter = MarkerFactory.getMarker('ENTER')
+    static final Marker exit = MarkerFactory.getMarker('EXIT')
 
-    private static Collection<String> convertExtendingArg(Object arg) {
-        arg instanceof Collection<String> ? arg as Collection<String>
-                : arg instanceof String ? [arg] as Collection<String> : []
+    private String extending
+    private Closure buildClosure
+    private File projectRoot
+
+    File getProjectRoot() {
+        requireNonNull(this.projectRoot)
     }
 
-    protected final Collection<BuildSpec> buildSpecs = []
-
-    /**
-     * args keys and values:
-     * <ul>
-     *     <li><code>name: String<code></li>
-     *     <li><code>extending?: String | Collection&lt;String&gt;</code></li>
-     * </ul>
-     *
-     * @param args
-     * @param buildClosure
-     */
-    void abstractBuild(
-            Map<String, Object> args,
-            @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<?> buildClosure
-    ) {
-        final Collection<String> extending = convertExtendingArg(args.extending)
-        this.buildSpecs << BuildSpec.get(
-                name: requireNonNull(args.name as String),
-                isAbstract:  true,
-                extending:  extending,
-                buildClosure: buildClosure
-        )
+    void setProjectRoot(File projectRoot) {
+        this.projectRoot = requireNonNull(projectRoot)
     }
 
-    /**
-     * args keys and values:
-     * <ul>
-     *     <li><code>name: String<code></li>
-     *     <li><code>extending?: String | Collection&lt;String&gt;</code></li>
-     * </ul>
-     *
-     * @param args
-     * @param buildClosure
-     */
-    void build(
-            Map<String, Object> args,
-            @DelegatesTo(value = BuildDelegate, strategy = Closure.DELEGATE_FIRST)
-            Closure<?> buildClosure
-    ) {
-        final Collection<String> extending = convertExtendingArg(args.extending)
-        this.buildSpecs << BuildSpec.get(
-                name: requireNonNull(args.name as String),
-                isAbstract:  false,
-                extending:  extending,
-                buildClosure: buildClosure
-        )
+    File file(String name) {
+        new File(this.projectRoot, name)
     }
 
-    @PackageScope
-    Collection<BuildSpec> getBuildSpecs() {
-        this.buildSpecs
+    void build(@Nullable String extending, @DelegatesTo(value = BuildDelegate) Closure buildClosure) {
+        this.extending = extending
+        this.buildClosure = buildClosure
+    }
+
+    void build(@DelegatesTo(value = BuildDelegate) Closure buildClosure) {
+        this.extending = null
+        this.buildClosure = buildClosure
+    }
+
+    @ApiStatus.Internal
+    @Nullable String getExtending() {
+        this.extending
+    }
+
+    @ApiStatus.Internal
+    Closure getBuildClosure() {
+        this.buildClosure
     }
 
 }

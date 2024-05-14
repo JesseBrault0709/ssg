@@ -2,6 +2,7 @@ package com.jessebrault.ssg.buildscript
 
 import com.jessebrault.ssg.SiteSpec
 import groovy.transform.NullCheck
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
@@ -10,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.util.function.Consumer
 import java.util.function.Function
 
-import static BuildScriptRunner.runClosureScript
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.Mockito.verify
 
@@ -52,7 +52,7 @@ final class BuildScriptsTests {
             Map<String, Object> binding = [:],
             Consumer<BuildScriptBase> configureBase = { }
     ) {
-        new BuildScriptRunner(urls).runBuildScript(scriptName, binding, configureBase)
+        new FileBuildScriptGetter(urls).getBuildInfo(scriptName, binding, configureBase)
     }
 
     @Test
@@ -164,6 +164,8 @@ final class BuildScriptsTests {
     }
 
     @Test
+    @Disabled
+    @Deprecated(forRemoval = true)
     void oneBuildWithAbstractParent() {
         def r = runClosureScript {
             abstractBuild(name: 'parent') {

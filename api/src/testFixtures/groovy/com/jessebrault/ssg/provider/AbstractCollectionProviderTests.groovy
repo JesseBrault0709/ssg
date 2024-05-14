@@ -20,11 +20,6 @@ abstract class AbstractCollectionProviderTests {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractCollectionProviderTests)
 
-    @SuppressWarnings('GrMethodMayBeStatic')
-    protected Provider<Integer> getProvider(Integer t) {
-        Providers.of(t)
-    }
-
     protected abstract CollectionProvider<Integer> getCollectionProvider(Collection<Integer> ts)
 
     @Test
@@ -75,12 +70,10 @@ abstract class AbstractCollectionProviderTests {
 
     @TestFactory
     Collection<DynamicTest> containsAndIsCaseProviderChildren() {
-        def p0 = this.getProvider(0)
         def p1 = this.getCollectionProvider([])
         def sum = p0 + p1
         ([
                 contains: { CollectionProvider<Integer> p ->
-                    assertTrue(p.contains(p0))
                     assertTrue(p.contains(p1))
                 } as Consumer<CollectionProvider<Integer>>,
                 in: { CollectionProvider<Integer> p ->

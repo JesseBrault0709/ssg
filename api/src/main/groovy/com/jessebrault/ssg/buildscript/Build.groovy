@@ -1,66 +1,44 @@
 package com.jessebrault.ssg.buildscript
 
-import com.jessebrault.ssg.SiteSpec
-import com.jessebrault.ssg.task.TaskFactory
-import com.jessebrault.ssg.task.TaskFactorySpec
+import com.jessebrault.ssg.model.Model
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.NullCheck
-import groovy.transform.TupleConstructor
+import groowt.util.fp.property.Property
+import groowt.util.fp.provider.NamedProvider
+import groowt.util.fp.provider.NamedSetProvider
+import groowt.util.fp.provider.Provider
+import groowt.util.fp.provider.SetProvider
 
-import java.util.function.Function
+import static java.util.Objects.requireNonNull
 
-@TupleConstructor(defaults = false)
 @NullCheck(includeGenerated = true)
 @EqualsAndHashCode
 final class Build {
 
-    static Build getEmpty() {
-        new Build(
-                '',
-                OutputDirFunctions.DEFAULT,
-                SiteSpec.getBlank(),
-                [:],
-                [],
-                []
-        )
-    }
-
-    static Build get(Map<String, Object> args) {
-        new Build(
-                args.name as String ?: '',
-                args.outputDirFunction as Function<Build, OutputDir> ?: OutputDirFunctions.DEFAULT,
-                args.siteSpec as SiteSpec ?: SiteSpec.getBlank(),
-                args.globals as Map<String, Object> ?: [:],
-                args.taskFactorySpecs as Collection<TaskFactorySpec<TaskFactory>> ?: [],
-                args.includedBuilds as Collection<String> ?: []
-        )
-    }
-
-    static Build concat(Build b0, Build b1) {
-        new Build(
-                b0.name.blank ? b1.name : b0.name,
-                OutputDirFunctions.concat(b0.outputDirFunction, b1.outputDirFunction),
-                SiteSpec.concat(b0.siteSpec, b1.siteSpec),
-                b0.globals + b1.globals,
-                b0.taskFactorySpecs + b1.taskFactorySpecs,
-                b0.includedBuilds + b1.includedBuilds
-        )
-    }
-
-    final String name
-    final Function<Build, OutputDir> outputDirFunction
-    final SiteSpec siteSpec
-    final Map<String, Object> globals
-    final Collection<TaskFactorySpec<TaskFactory>> taskFactorySpecs
     final Collection<String> includedBuilds
+    final Property<String> name
+    final Property<String> siteName
+    final Property<String> baseUrl
+    final Provider<File> outputDir
+    final Provider<Map<String, Object>> globals
+    final Set<Provider<File>> textsDirs
+    final Set<NamedProvider<Model>> models
 
-    Build plus(Build other) {
-        concat(this, other)
+    @SuppressWarnings('GroovyAssignabilityCheck')
+    Build(Map args) {
+        this.includedBuilds = requireNonNull(args.includedBuilds)
+        this.name = requireNonNull(args.name)
+        this.siteName = requireNonNull(args.siteName)
+        this.baseUrl = requireNonNull(args.baseUrl)
+        this.outputDir = requireNonNull(args.outputDir)
+        this.globals = requireNonNull(args.globals)
+        this.textsDirs = requireNonNull(args.textsDirs)
+        this.models = requireNonNull(args.models)
     }
 
     @Override
     String toString() {
-        "Build(name: ${ this.name }, siteSpec: ${ this.siteSpec }, globals: ${ this.globals }, includedBuilds: ${ this.includedBuilds })"
+        "Build(name: ${ this.name })"
     }
 
 }
