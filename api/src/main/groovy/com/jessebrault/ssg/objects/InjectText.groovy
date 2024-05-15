@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.build
+package com.jessebrault.ssg.objects
 
 import jakarta.inject.Qualifier
 
@@ -10,7 +10,7 @@ import java.lang.annotation.Target
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD])
-@interface Text {
+@interface InjectText {
 
     /**
      * The name of the text, or the path of the text, starting with '/'

@@ -4,11 +4,14 @@ import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
+import java.util.function.Supplier
+
 @NullCheck
 @TupleConstructor(includeFields = true)
 class BuildDelegateToBuildSpecConverter {
 
     private final FileBuildScriptGetter buildScriptGetter
+    private final Supplier<BuildDelegate> buildDelegateSupplier
 
     protected BuildSpec getFromDelegate(String name, BuildDelegate delegate) {
         new BuildSpec(
@@ -32,7 +35,7 @@ class BuildDelegateToBuildSpecConverter {
             extending = from.extending
         }
 
-        def delegate = new BuildDelegate()
+        def delegate = this.buildDelegateSupplier.get()
         while (!buildHierarchy.isEmpty()) {
             def currentScript = buildHierarchy.pop()
             currentScript.buildClosure.delegate = delegate

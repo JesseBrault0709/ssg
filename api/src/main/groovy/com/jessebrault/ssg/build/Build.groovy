@@ -2,6 +2,7 @@ package com.jessebrault.ssg.build
 
 import com.jessebrault.ssg.model.Model
 import com.jessebrault.ssg.page.Page
+import groowt.util.di.RegistryObjectFactory
 import groowt.util.fp.provider.NamedSetProvider
 
 import static com.jessebrault.ssg.util.ObjectUtil.*
@@ -14,8 +15,8 @@ class Build {
     final File outputDir
     final Map globals
     final Set<File> textsDirs
-    final NamedSetProvider<Model> models
     final NamedSetProvider<Page> pages
+    final RegistryObjectFactory objectFactory
 
     Build(Map args) {
         this.name = requireString(args.name)
@@ -24,14 +25,14 @@ class Build {
         this.outputDir = requireFile(args.outputDir)
         this.globals = requireMap(args.globals)
         this.textsDirs = requireSet(args.textsDirs)
-        this.models = requireType(NamedSetProvider, args.models)
         this.pages = requireType(NamedSetProvider, args.pages)
+        this.objectFactory = requireType(RegistryObjectFactory, args.objectFactory)
     }
 
     void doBuild() {
         // set up object factory for di
         // container should have: Build and all its properties
-        // container should also have @Text, @Texts, @Model, @Models, and @Page resolvers
+        // container should also have @Text, @Texts, @Page, and @Pages resolvers
     }
 
 }

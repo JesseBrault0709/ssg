@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.build
+package com.jessebrault.ssg.objects
 
 import jakarta.inject.Qualifier
 
@@ -10,11 +10,11 @@ import java.lang.annotation.Target
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD])
-@interface Texts {
+@interface InjectPage {
 
     /**
-     * Names of texts and/or globs (starting with '/') of texts
+     * May be either a page name or a path starting with '/'
      */
-    String[] value()
+    String value()
 
 }

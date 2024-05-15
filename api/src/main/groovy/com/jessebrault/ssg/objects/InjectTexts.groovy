@@ -1,4 +1,4 @@
-package com.jessebrault.ssg.build
+package com.jessebrault.ssg.objects
 
 import jakarta.inject.Qualifier
 
@@ -10,10 +10,10 @@ import java.lang.annotation.Target
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD])
-@interface Pages {
+@interface InjectTexts {
 
     /**
-     * Names of pages and/or globs (starting with '/') of pages
+     * Names of texts and/or globs (starting with '/') of texts
      */
     String[] value()
 
