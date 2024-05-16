@@ -12,8 +12,12 @@ import com.jessebrault.ssg.page.PageSpec
 import com.jessebrault.ssg.text.Text
 import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.view.PageView
+import com.jessebrault.ssg.view.WvcPageView
 import groovy.transform.TupleConstructor
 import groowt.util.di.RegistryObjectFactory
+import groowt.view.component.ViewComponent
+import groowt.view.component.context.DefaultComponentContext
+import groowt.view.web.DefaultWebViewComponentContext
 import io.github.classgraph.ClassGraph
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -128,7 +132,6 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                 .addClassLoader(groovyClassLoader)
         basePackages.each { classgraph.acceptPackages(it) }
 
-
         def pages = [] as Set<Page>
 
         try (def scanResult = classgraph.scan()) {
@@ -185,6 +188,13 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                         exception
                 )
                 return
+            }
+
+            // Prepare for rendering
+            pageView.pageTitle = it.name
+            pageView.url = buildSpec.baseUrl.get() + it.path
+            if (pageView instanceof WvcPageView) {
+                pageView.context = new DefaultWebViewComponentContext()
             }
 
             // Render the page

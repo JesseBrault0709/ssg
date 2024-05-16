@@ -9,6 +9,7 @@ import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
@@ -67,15 +68,38 @@ public class SsgGradlePlugin implements Plugin<Project> {
         sourceSets.create(name, sourceSet -> {
             // first, register the dirs
             // java
-            sourceSet.getJava().setSrcDirs(List.of(name + File.separator + "java"));
+            final var javaSourceDirectorySet = sourceSet.getJava();
+            javaSourceDirectorySet.setSrcDirs(List.of(name + File.separator + "java"));
+
             // groovy
             final var groovySourceDirectorySet = sourceSet.getExtensions().getByType(GroovySourceDirectorySet.class);
             groovySourceDirectorySet.setSrcDirs(List.of(name + File.separator + "groovy"));
+
             // resources
             sourceSet.getResources().setSrcDirs(List.of(name + File.separator + "resources"));
 
-            project.getTasks().withType(GroovyCompile.class).configureEach(groovyCompile -> {
+            // second, configure the relevant compile tasks
+            project.getTasks().named(sourceSet.getCompileJavaTaskName(), JavaCompile.class, javaCompile -> {
+                javaCompile.source(name + File.separator + "java");
+            });
+            project.getTasks().named(sourceSet.getCompileTaskName("groovy"), GroovyCompile.class, groovyCompile -> {
                 groovyCompile.source(name + File.separator + "groovy");
+            });
+
+            // third, we need a jar task which knows where stuff is
+            final TaskProvider<Jar> jarTaskProvider = project.getTasks().register(
+                    sourceSet.getJarTaskName(),
+                    Jar.class,
+                    jarTask -> {
+                        // jarTask.from(javaSourceDirectorySet.getClassesDirectory());
+                        jarTask.from(groovySourceDirectorySet.getClassesDirectory());
+                        jarTask.from(sourceSet.getResources());
+                        jarTask.getArchiveBaseName().set(project.getName() + "-" + name);
+                    }
+            );
+
+            project.getTasks().named("ssgJars", ssgJarsTask -> {
+                ssgJarsTask.dependsOn(jarTaskProvider);
             });
         });
     }
@@ -153,6 +177,10 @@ public class SsgGradlePlugin implements Plugin<Project> {
         project.getPlugins().apply(JavaPlugin.class);
         project.getPlugins().apply(GroovyPlugin.class);
 
+        // create our ssgJars task, which is just a holder for source set jar tasks
+        project.getTasks().register("ssgJars");
+
+        // configure the repositories, tooling models, and source sets
         this.configureRepositories(project);
         this.configureToolingModelBuilders();
         this.configureSourceSets(project);

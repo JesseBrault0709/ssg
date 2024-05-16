@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DeafultSsgBuildModel implements SsgBuildModel, Serializable {
+public class DefaultSsgBuildModel implements SsgBuildModel, Serializable {
 
     private final Set<File> buildOutputLibs = new HashSet<>();
     private final Set<File> runtimeClasspath = new HashSet<>();

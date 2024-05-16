@@ -1,0 +1,7 @@
+---
+package com.jessebrault.site
+---
+$pageTitle
+$url
+
+Hello, World!

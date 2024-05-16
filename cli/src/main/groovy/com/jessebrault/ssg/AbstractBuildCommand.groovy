@@ -93,6 +93,9 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
                         groovyClassLoader.addURL(URLUtil.ofJarFile(classpathElement))
                     }
                 }
+
+                projectConnection.newBuild().forTasks('ssgJars').run()
+                projectConnection.close()
             }
 
             this.libDirs.each { libDir ->
