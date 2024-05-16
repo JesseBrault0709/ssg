@@ -2,7 +2,7 @@ package com.jessebrault.ssg.view
 
 import groowt.view.StandardGStringTemplateView
 
-class GStringPageView extends StandardGStringTemplateView implements PageView {
+abstract class GStringPageView extends StandardGStringTemplateView implements PageView {
 
     String pageTitle
     String url
