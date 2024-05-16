@@ -3,18 +3,16 @@
     <Appenders>
         <Console name="standard" target="SYSTEM_OUT">
             <PatternLayout>
-                <MarkerPatternSelector defaultPattern="%highlight{%-5level} %logger{1}: %msg%n%ex">
-                    <PatternMatch key="FLOW" pattern="%highlight{%-5level} %logger{1}: %markerSimpleName %msg%n%ex" />
+                <MarkerPatternSelector defaultPattern="%highlight{%-5level} %logger: %msg%n%ex">
+                    <PatternMatch key="FLOW" pattern="%highlight{%-5level} %logger: %markerSimpleName %msg%n%ex" />
                 </MarkerPatternSelector>
             </PatternLayout>
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="trace">
+        <Root level="info">
             <AppenderRef ref="standard" />
         </Root>
-        <Logger name="com.jessebrault.fsm" level="OFF" />
-        <Logger name="com.jessebrault.gst" level="OFF" />
-        <Logger name="com.jessebrault.gst.groovy.GroovyTemplateCreator" level="trace" />
+        <Logger name="org.gradle" level="off" />
     </Loggers>
 </Configuration>

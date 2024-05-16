@@ -82,35 +82,33 @@ final class Glob {
         boolean result = true
         parts:
         for (def part : this.parts) {
-            switch (part) {
-                case Literal -> {
+            if (part instanceof Literal) {
+                if (subjectPartStack.isEmpty()) {
+                    result = false
+                    break
+                }
+                def subjectPart = subjectPartStack.pop()
+                if (part.literal != subjectPart) {
+                    result = false
+                    break
+                }
+            } else if (part instanceof AnyDirectoryHierarchy) {
+                while (!subjectPartStack.isEmpty()) {
+                    def current = subjectPartStack.pop()
                     if (subjectPartStack.isEmpty()) {
-                        result = false
-                        break
-                    }
-                    def subjectPart = subjectPartStack.pop()
-                    if (part.literal != subjectPart) {
-                        result = false
-                        break
+                        subjectPartStack.push(current)
+                        continue parts
                     }
                 }
-                case AnyDirectoryHierarchy -> {
-                    while (!subjectPartStack.isEmpty()) {
-                        def current = subjectPartStack.pop()
-                        if (subjectPartStack.isEmpty()) {
-                            subjectPartStack.push(current)
-                            continue parts
-                        }
-                    }
+            } else if (part instanceof GlobFileOrDirectory) {
+                def subjectPart = subjectPartStack.pop()
+                def m = part.regexPattern.matcher(subjectPart)
+                if (!m.matches()) {
+                    result = false
+                    break parts
                 }
-                case GlobFileOrDirectory -> {
-                    def subjectPart = subjectPartStack.pop()
-                    def m = part.regexPattern.matcher(subjectPart)
-                    if (!m.matches()) {
-                        result = false
-                        break
-                    }
-                }
+            } else {
+                throw new IllegalStateException('Should not get here.')
             }
         }
         result

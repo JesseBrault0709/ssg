@@ -4,6 +4,10 @@ import java.nio.file.Path
 
 final class PathUtil {
 
+    static File relative(File base, File target) {
+        base.toPath().relativize(target.toPath()).toFile()
+    }
+
     static String relative(String base, String target) {
         Path.of(base).relativize(Path.of(target)).toString()
     }

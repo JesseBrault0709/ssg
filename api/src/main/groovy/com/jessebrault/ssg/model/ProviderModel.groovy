@@ -13,6 +13,7 @@ import groowt.util.fp.provider.Provider
 class ProviderModel<T> implements Model<T> {
 
     final String name
+    final Class<T> type
     private final Provider<T> modelProvider
 
     @Override
@@ -22,6 +23,6 @@ class ProviderModel<T> implements Model<T> {
 
     @Override
     String toString() {
-        "ProviderModel($this.name)"
+        "ProviderModel(name: $name, type: $type)"
     }
 }

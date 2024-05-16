@@ -1,2 +1,2 @@
 rootProject.name = 'ssg'
-include 'api', 'cli', 'ssg-gradle-plugin'
+include 'api', 'cli', 'ssg-gradle-model', 'ssg-gradle-plugin'

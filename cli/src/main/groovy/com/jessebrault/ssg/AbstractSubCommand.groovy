@@ -12,8 +12,8 @@ abstract class AbstractSubCommand implements Callable<Integer> {
 
     private static final Logger logger = LogManager.getLogger(AbstractSubCommand)
 
-    @CommandLine.ParentCommand
-    StaticSiteGeneratorCli cli
+    @CommandLine.Mixin
+    CommonCliOptions commonCliOptions
 
     protected abstract Integer doSubCommand()
 
@@ -26,14 +26,15 @@ abstract class AbstractSubCommand implements Callable<Integer> {
         def configuration = context.getConfiguration()
         def rootLoggerConfig = configuration.getRootLogger()
 
-        if (this.cli.logLevel?.info) {
+        def logLevel = this.commonCliOptions.logLevel
+        if (logLevel == LogLevel.INFO) {
             rootLoggerConfig.level = Level.INFO
-        } else if (this.cli.logLevel?.debug) {
+        } else if (logLevel == LogLevel.DEBUG) {
             rootLoggerConfig.level = Level.DEBUG
-        } else if (this.cli.logLevel?.trace) {
+        } else if (logLevel == LogLevel.TRACE) {
             rootLoggerConfig.level = Level.TRACE
         } else {
-            rootLoggerConfig.level = Level.WARN
+            rootLoggerConfig.level = Level.INFO
         }
 
         context.updateLoggers()

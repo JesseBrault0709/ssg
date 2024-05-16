@@ -1,4 +1,29 @@
 plugins {
     id 'ssg-common'
     id 'java-gradle-plugin'
+    id 'maven-publish'
 }
+
+dependencies {
+    implementation project(':ssg-gradle-model')
+}
+
+gradlePlugin {
+    plugins {
+        create('ssgGradlePlugin') {
+            id = 'com.jessebrault.ssg'
+            implementationClass = 'com.jessebrault.ssg.gradle.SsgGradlePlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        create('ssgGradlePlugin', MavenPublication) {
+            artifactId = 'ssg-gradle-plugin'
+            from components.java
+        }
+    }
+}
+
+

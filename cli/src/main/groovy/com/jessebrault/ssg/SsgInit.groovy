@@ -4,14 +4,20 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import picocli.CommandLine
 
-import static com.jessebrault.ssg.util.ResourceUtil.copyResourceToFile
-
 @CommandLine.Command(
         name = 'init',
         mixinStandardHelpOptions = true,
         description = 'Generates a blank project, optionally with some basic files.'
 )
 final class SsgInit extends AbstractSubCommand {
+
+    static void copyResourceToFile(String resourceName, File target) {
+        SsgInit.getResource(resourceName).withReader { reader ->
+            target.withWriter { writer ->
+                reader.transferTo(writer)
+            }
+        }
+    }
 
     static void init(File targetDir, boolean meaty) {
         new FileTreeBuilder(targetDir).with {

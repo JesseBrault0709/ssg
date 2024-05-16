@@ -1,0 +1,13 @@
+plugins {
+    id 'ssg-common'
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        create('ssgGradleModel', MavenPublication) {
+            artifactId = 'ssg-gradle-model'
+            from components.java
+        }
+    }
+}

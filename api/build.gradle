@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'java-library'
     id 'java-test-fixtures'
+    id 'maven-publish'
 }
 
 repositories {
@@ -18,26 +19,26 @@ configurations {
 
 dependencies {
     api libs.groovy
+    api libs.groovy.yaml
     api libs.groowt.all
 
     compileOnlyApi libs.jetbrains.anontations
 
-    implementation libs.groovy.templates
+    implementation libs.classgraph
     implementation libs.commonmark
     implementation libs.commonmark.frontmatter
     implementation libs.jsoup
-
-    // https://archiva.jessebrault.com/#artifact/com.jessebrault.gst/lib
-    implementation 'com.jessebrault.gst:lib:0.0.5'
-
-    // https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core
-    implementation 'org.jgrapht:jgrapht-core:1.5.2'
-
-    // So we can use Grape dependency management
-    // https://mvnrepository.com/artifact/org.apache.ivy/ivy
-    runtimeOnly 'org.apache.ivy:ivy:2.5.2'
 }
 
 jar {
     archivesBaseName = 'ssg-api'
+}
+
+publishing {
+    publications {
+        create('ssgApi', MavenPublication) {
+            artifactId = 'ssg-api'
+            from components.java
+        }
+    }
 }

@@ -12,6 +12,7 @@ import groovy.transform.TupleConstructor
 final class SimpleModel<T> implements Model<T> {
 
     final String name
+    final Class<T> type
     private final T t
 
     @Override
@@ -21,7 +22,7 @@ final class SimpleModel<T> implements Model<T> {
 
     @Override
     String toString() {
-        "SimpleModel(${ this.t })"
+        "SimpleModel(name: $name, type: $type.name)"
     }
 
 }

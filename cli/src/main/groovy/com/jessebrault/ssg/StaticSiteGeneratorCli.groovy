@@ -5,30 +5,17 @@ import picocli.CommandLine
 @CommandLine.Command(
         name = 'ssg',
         mixinStandardHelpOptions = true,
-        version = '0.2.0-SNAPSHOT',
-        description = 'Runs tasks, such as generating HTML files, from a given configuration.',
+        version = '0.4.0',
+        description = 'A static site generator which can interface with Gradle for high extensibility.',
         subcommands = [SsgInit, SsgBuild, SsgWatch]
 )
 final class StaticSiteGeneratorCli {
 
     static void main(String[] args) {
-        System.exit(new CommandLine(StaticSiteGeneratorCli).execute(args))
+        System.exit(new CommandLine(StaticSiteGeneratorCli).with {
+            setCaseInsensitiveEnumValuesAllowed(true)
+            execute(args)
+        })
     }
-
-    static class LogLevel {
-
-        @CommandLine.Option(names = ['--info'], description = 'Log at INFO level.')
-        boolean info
-
-        @CommandLine.Option(names = ['--debug'], description = 'Log at DEBUG level.')
-        boolean debug
-
-        @CommandLine.Option(names = ['--trace'], description = 'Log at TRACE level.')
-        boolean trace
-
-    }
-
-    @CommandLine.ArgGroup(exclusive = true, heading = 'Log Level')
-    LogLevel logLevel
 
 }

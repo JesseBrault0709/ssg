@@ -1,6 +1,5 @@
 package com.jessebrault.ssg
 
-import com.jessebrault.ssg.buildscript.DefaultBuildScriptConfiguratorFactory
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import picocli.CommandLine
@@ -19,15 +18,7 @@ final class SsgBuild extends AbstractBuildCommand {
         logger.traceEntry()
         def result = 0
         this.requestedBuilds.each {
-            def buildResult = this.doSingleBuild(
-                    it,
-                    [new DefaultBuildScriptConfiguratorFactory(
-                            new File('.'),
-                            { this.staticSiteGenerator.buildScriptClassLoader }
-                    )],
-                    this.scriptArgs
-            )
-            if (buildResult == 1) {
+            if (this.doSingleBuild(it) != 0) {
                 result = 1
             }
         }

@@ -2,18 +2,22 @@ plugins {
     id 'ssg-common'
     id 'groovy'
     id 'application'
+    id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     mavenLocal()
 }
 
 dependencies {
     implementation project(':api')
+    implementation project(':ssg-gradle-model')
     implementation libs.picocli
     implementation libs.log4j2.api
     implementation libs.log4j2.core
+    implementation "org.gradle:gradle-tooling-api:8.7"
 
     runtimeOnly libs.log4j2.slf4j2.impl
 }
@@ -31,5 +35,14 @@ distributions {
     main {
         //noinspection GroovyAssignabilityCheck
         distributionBaseName = 'ssg'
+    }
+}
+
+publishing {
+    publications {
+        create('ssgCli', MavenPublication) {
+            artifactId = 'ssg-cli'
+            from components.java
+        }
     }
 }

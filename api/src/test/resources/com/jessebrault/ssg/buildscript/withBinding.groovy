@@ -1,1 +1,0 @@
-stringConsumer.accept('test')
