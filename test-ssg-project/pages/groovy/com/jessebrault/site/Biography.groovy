@@ -7,16 +7,11 @@ import jakarta.inject.Inject
 @PageSpec(name = 'Biography', path = '/biography')
 class Biography extends WvcPageView {
 
+    static final String greeting = 'Hello, World!'
+
     @Inject
     Biography() {
         super(Biography.getResource('BiographyTemplate.wvc'))
-        println 'Hello from Biography!'
-    }
-
-    @Override
-    void renderTo(Writer out) throws IOException {
-        println "Rendering: $pageTitle..."
-        super.renderTo(out)
     }
 
 }

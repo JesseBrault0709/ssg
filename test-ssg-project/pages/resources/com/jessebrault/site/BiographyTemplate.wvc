@@ -1,4 +1,13 @@
 ---
 package com.jessebrault.site
 ---
-Hello, World!
+<html lang="en">
+  <head>
+    <title>$pageTitle</title>
+  </head>
+  <body>
+    <h1>$pageTitle</h1>
+    <h2>$url</h2>
+    <p>$greeting</p>
+  </body>
+</html>
