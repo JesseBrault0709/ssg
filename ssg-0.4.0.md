@@ -28,11 +28,16 @@ Have the following layout of dirs and files. It is a combined gradle/ssg project
 - settings.gradle: the usual gradle settings
 
 ## Api TODO
-- [ ] Move from `Provider`/`Property` in `api` to `groowt.util.provider`.
-- [ ] Move from all the fp-util stuff to `groowt.util.fp`.
-- [ ] Get rid of graph-dependency.
+- [X] Move from `Provider`/`Property` in `api` to `groowt.util.provider`.
+- [X] Move from all the fp-util stuff to `groowt.util.fp`.
+- [X] Get rid of graph-dependency.
+- [ ] Create a `SsgComponentContext` which extends `DefaultWebViewComponentContext` and automatically resolves based
+  on package names given in the build script.
+- [ ] Add a section for plugins in the build script. Plugins can transform the build spec, generator, etc.
 
 ## New Build Script DSL
+
+**This section is old as of 5/17/24.** See the newer example in `test-ssg-project/ssg/default.groovy`. 
 
 Simple example:
 ```groovy
