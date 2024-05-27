@@ -28,6 +28,12 @@ dependencies {
     implementation libs.commonmark
     implementation libs.commonmark.frontmatter
     implementation libs.jsoup
+
+    runtimeOnly libs.groowt.wvcCompiler
+}
+
+java {
+    withSourcesJar()
 }
 
 jar {

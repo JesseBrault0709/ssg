@@ -27,6 +27,10 @@ application {
     applicationName = 'ssg'
 }
 
+java {
+    withSourcesJar()
+}
+
 jar {
     archivesBaseName = "ssg-cli"
 }
