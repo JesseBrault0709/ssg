@@ -15,9 +15,7 @@ import com.jessebrault.ssg.view.PageView
 import com.jessebrault.ssg.view.WvcPageView
 import groovy.transform.TupleConstructor
 import groowt.util.di.RegistryObjectFactory
-import groowt.view.component.ViewComponent
-import groowt.view.component.context.DefaultComponentContext
-import groowt.view.web.DefaultWebViewComponentContext
+import groowt.view.component.web.DefaultWebViewComponentContext
 import io.github.classgraph.ClassGraph
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

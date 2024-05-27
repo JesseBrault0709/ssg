@@ -4,7 +4,7 @@ import groowt.view.component.AbstractViewComponent
 import groowt.view.component.ComponentTemplate
 import groowt.view.component.compiler.ComponentTemplateCompileUnit
 import groowt.view.component.compiler.source.ComponentTemplateSource
-import groowt.view.web.BaseWebViewComponent
+import groowt.view.component.web.BaseWebViewComponent
 
 import java.util.function.Function
 
