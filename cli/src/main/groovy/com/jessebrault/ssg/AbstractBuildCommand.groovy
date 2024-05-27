@@ -16,11 +16,12 @@ abstract class AbstractBuildCommand extends AbstractSubCommand {
     private static final Logger logger = LogManager.getLogger(AbstractBuildCommand)
 
     @CommandLine.Option(
-            names = ['-b', '--build'],
+            names = ['-b', '--build', '--build-name'],
             description = 'The name of a build to execute. May be the name of a script (without the .groovy extension) in a build script dir, or a fully-qualified-name of a build script on the classpath or nested in a build script dir.',
             arity = '1..*',
             required = true,
-            paramLabel = 'buildName'
+            paramLabel = 'buildName',
+            defaultValue = 'default'
     )
     Set<String> requestedBuilds
 
