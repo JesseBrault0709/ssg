@@ -20,7 +20,6 @@ final class BuildDelegate {
         return {
             new BuildDelegate(projectDir).tap {
                 basePackages.convention = [] as Set<String>
-                outputDir.convention = new File(projectDir, 'dist')
                 globals.convention = [:]
                 models.convention = [] as Set<Model>
                 textsDirs.convention = [new File(projectDir, 'texts')] as Set<File>

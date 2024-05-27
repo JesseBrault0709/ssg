@@ -24,6 +24,7 @@ abstract class BuildScriptBase extends Script {
     private String extending
     private Closure buildClosure = { }
     private File projectRoot
+    private String buildName
 
     /* --- Instance DSL helpers --- */
 
@@ -53,6 +54,11 @@ abstract class BuildScriptBase extends Script {
     @ApiStatus.Internal
     void setProjectRoot(File projectRoot) {
         this.projectRoot = requireNonNull(projectRoot)
+    }
+
+    @ApiStatus.Internal
+    void setBuildName(String buildName) {
+        this.buildName = buildName
     }
 
     @ApiStatus.Internal

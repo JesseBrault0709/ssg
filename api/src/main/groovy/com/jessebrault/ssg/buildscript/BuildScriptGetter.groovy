@@ -22,6 +22,7 @@ final class BuildScriptGetter {
         def buildScript = scriptClass.getConstructor().newInstance()
         buildScript.binding = new Binding(this.scriptCliArgs)
         buildScript.projectRoot = projectDir
+        buildScript.buildName = fqn
         buildScript.run()
         buildScript
     }

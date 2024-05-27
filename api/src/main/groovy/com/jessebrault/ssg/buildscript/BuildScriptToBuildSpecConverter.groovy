@@ -39,6 +39,7 @@ class BuildScriptToBuildSpecConverter {
         }
 
         def delegate = this.buildDelegateSupplier.get()
+        delegate.outputDir.setConvention(new File(name.replaceAll(/\./, File.separator)))
         while (!buildHierarchy.isEmpty()) {
             def currentScript = buildHierarchy.pop()
             currentScript.buildClosure.delegate = delegate
