@@ -75,8 +75,7 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                 projectDir
         )
         def buildScriptToBuildSpecConverter = new BuildScriptToBuildSpecConverter(
-                buildScriptGetter,
-                BuildDelegate.withDefaults(projectDir)
+                buildScriptGetter, { String name -> BuildDelegate.withDefaults(name, projectDir) }
         )
         def buildSpec = buildScriptToBuildSpecConverter.convert(buildScriptFqn)
 

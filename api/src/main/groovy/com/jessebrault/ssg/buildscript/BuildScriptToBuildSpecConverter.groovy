@@ -4,14 +4,14 @@ import com.jessebrault.ssg.buildscript.delegates.BuildDelegate
 import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
-import java.util.function.Supplier
+import java.util.function.Function
 
 @NullCheck
 @TupleConstructor(includeFields = true)
 class BuildScriptToBuildSpecConverter {
 
     private final BuildScriptGetter buildScriptGetter
-    private final Supplier<BuildDelegate> buildDelegateSupplier
+    private final Function<String, BuildDelegate> buildDelegateFactory
 
     protected BuildSpec getFromDelegate(String name, BuildDelegate delegate) {
         new BuildSpec(
@@ -38,8 +38,7 @@ class BuildScriptToBuildSpecConverter {
             extending = from.extending
         }
 
-        def delegate = this.buildDelegateSupplier.get()
-        delegate.outputDir.setConvention(new File(name.replaceAll(/\./, File.separator)))
+        def delegate = this.buildDelegateFactory.apply(name)
         while (!buildHierarchy.isEmpty()) {
             def currentScript = buildHierarchy.pop()
             currentScript.buildClosure.delegate = delegate

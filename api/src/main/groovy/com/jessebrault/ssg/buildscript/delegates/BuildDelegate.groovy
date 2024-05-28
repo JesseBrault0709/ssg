@@ -4,6 +4,7 @@ import com.jessebrault.ssg.model.Model
 import com.jessebrault.ssg.model.Models
 import com.jessebrault.ssg.text.MarkdownTextConverter
 import com.jessebrault.ssg.text.TextConverter
+import com.jessebrault.ssg.util.PathUtil
 import groowt.util.di.DefaultRegistryObjectFactory
 import groowt.util.di.RegistryObjectFactory
 import groowt.util.fp.property.DefaultProperty
@@ -12,14 +13,16 @@ import groowt.util.fp.provider.DefaultProvider
 import groowt.util.fp.provider.NamedProvider
 import groowt.util.fp.provider.Provider
 
+import java.nio.file.Path
 import java.util.function.Supplier
 
 final class BuildDelegate {
 
-    static Supplier<BuildDelegate> withDefaults(File projectDir) {
+    static Supplier<BuildDelegate> withDefaults(String buildName, File projectDir) {
         return {
             new BuildDelegate(projectDir).tap {
                 basePackages.convention = [] as Set<String>
+                outputDir.convention = PathUtil.resolve(projectDir, Path.of('dist', buildName))
                 globals.convention = [:]
                 models.convention = [] as Set<Model>
                 textsDirs.convention = [new File(projectDir, 'texts')] as Set<File>

@@ -12,6 +12,10 @@ final class PathUtil {
         Path.of(base).relativize(Path.of(target)).toString()
     }
 
+    static File resolve(File base, Path target) {
+        base.toPath().resolve(target).toFile()
+    }
+
     private PathUtil() {}
 
 }
