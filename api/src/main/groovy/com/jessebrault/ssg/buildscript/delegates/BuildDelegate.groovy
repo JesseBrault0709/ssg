@@ -18,17 +18,15 @@ import java.util.function.Supplier
 
 final class BuildDelegate {
 
-    static Supplier<BuildDelegate> withDefaults(String buildName, File projectDir) {
-        return {
-            new BuildDelegate(projectDir).tap {
-                basePackages.convention = [] as Set<String>
-                outputDir.convention = PathUtil.resolve(projectDir, Path.of('dist', buildName))
-                globals.convention = [:]
-                models.convention = [] as Set<Model>
-                textsDirs.convention = [new File(projectDir, 'texts')] as Set<File>
-                textConverters.convention = [new MarkdownTextConverter()] as Set<TextConverter>
-                objectFactoryBuilder.convention = DefaultRegistryObjectFactory.Builder.withDefaults()
-            }
+    static BuildDelegate withDefaults(String buildName, File projectDir) {
+        new BuildDelegate(projectDir).tap {
+            basePackages.convention = [] as Set<String>
+            outputDir.convention = PathUtil.resolve(projectDir, Path.of('dist', buildName.split(/\\./)))
+            globals.convention = [:]
+            models.convention = [] as Set<Model>
+            textsDirs.convention = [new File(projectDir, 'texts')] as Set<File>
+            textConverters.convention = [new MarkdownTextConverter()] as Set<TextConverter>
+            objectFactoryBuilder.convention = DefaultRegistryObjectFactory.Builder.withDefaults()
         }
     }
 

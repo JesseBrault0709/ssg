@@ -5,6 +5,7 @@ import groovy.transform.NullCheck
 import groovy.transform.TupleConstructor
 
 import java.util.function.Function
+import java.util.function.Supplier
 
 @NullCheck
 @TupleConstructor(includeFields = true)
@@ -28,7 +29,7 @@ class BuildScriptToBuildSpecConverter {
         )
     }
 
-    protected BuildSpec doConvert(String name, BuildScriptBase buildScript) {
+    protected BuildSpec doConvert(String buildScriptFqn, BuildScriptBase buildScript) {
         final Deque<BuildScriptBase> buildHierarchy = new LinkedList<>()
         buildHierarchy.push(buildScript)
         String extending = buildScript.extending
@@ -38,14 +39,14 @@ class BuildScriptToBuildSpecConverter {
             extending = from.extending
         }
 
-        def delegate = this.buildDelegateFactory.apply(name)
+        def delegate = this.buildDelegateFactory.apply(buildScriptFqn)
         while (!buildHierarchy.isEmpty()) {
             def currentScript = buildHierarchy.pop()
             currentScript.buildClosure.delegate = delegate
             currentScript.buildClosure()
         }
 
-        this.getFromDelegate(name, delegate)
+        this.getFromDelegate(buildScriptFqn, delegate)
     }
 
     BuildSpec convert(String buildScriptFqn) {

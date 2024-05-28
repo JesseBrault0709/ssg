@@ -44,9 +44,6 @@ abstract class BuildScriptBase extends Script {
         this.buildClosure = buildClosure
     }
 
-    /* --- internal --- */
-
-    @ApiStatus.Internal
     File getProjectRoot() {
         requireNonNull(this.projectRoot)
     }
@@ -54,6 +51,10 @@ abstract class BuildScriptBase extends Script {
     @ApiStatus.Internal
     void setProjectRoot(File projectRoot) {
         this.projectRoot = requireNonNull(projectRoot)
+    }
+
+    String getBuildName() {
+        return buildName
     }
 
     @ApiStatus.Internal

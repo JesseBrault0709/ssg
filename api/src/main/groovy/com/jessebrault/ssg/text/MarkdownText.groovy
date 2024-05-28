@@ -90,6 +90,8 @@ class MarkdownText implements Text {
             } else {
                 this.parsed = markdownParser.parse(body)
             }
+        } else {
+            this.parsed = markdownParser.parse(completeSourceText)
         }
     }
 

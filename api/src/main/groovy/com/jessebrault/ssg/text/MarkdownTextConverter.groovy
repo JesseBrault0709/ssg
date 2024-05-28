@@ -16,7 +16,7 @@ class MarkdownTextConverter implements TextConverter {
     Text convert(File textsDir, File textFile) {
         new MarkdownText(
                 ExtensionUtil.stripExtension(textFile.name),
-                PathUtil.relative(textsDir, textFile).toString(),
+                '/' + PathUtil.relative(textsDir, textFile).toString(),
                 textFile
         )
     }

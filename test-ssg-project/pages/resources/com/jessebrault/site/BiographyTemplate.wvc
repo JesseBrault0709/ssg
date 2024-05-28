@@ -9,5 +9,8 @@ package com.jessebrault.site
     <h1>$pageTitle</h1>
     <h2>$url</h2>
     <p>$greeting</p>
+    <section>
+      <%= biographyText.render() %>
+    </section>
   </body>
 </html>
