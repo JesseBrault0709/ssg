@@ -80,7 +80,7 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
         def templateUrl = componentClass.getResource(resourceName)
         if (templateUrl == null) {
             return Either.left(new Diagnostic(
-                    "Could not find templateResource: $it.templateResource"
+                    "Could not find templateResource: $resourceName"
             ))
         }
         def source = ComponentTemplateSource.of(templateUrl)
