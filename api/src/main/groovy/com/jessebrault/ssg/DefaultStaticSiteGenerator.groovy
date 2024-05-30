@@ -15,11 +15,17 @@ import com.jessebrault.ssg.view.PageView
 import com.jessebrault.ssg.view.WvcPageView
 import groovy.transform.TupleConstructor
 import groowt.util.di.RegistryObjectFactory
+import groowt.util.fp.either.Either
+import groowt.view.component.ComponentTemplate
+import groowt.view.component.ViewComponent
+import groowt.view.component.compiler.ComponentTemplateClassFactory
+import groowt.view.component.compiler.ComponentTemplateCompilerConfiguration
 import groowt.view.component.compiler.DefaultComponentTemplateCompilerConfiguration
 import groowt.view.component.compiler.SimpleComponentTemplateClassFactory
 import groowt.view.component.compiler.source.ComponentTemplateSource
+import groowt.view.component.factory.ComponentFactories
 import groowt.view.component.web.DefaultWebViewComponentContext
-import groowt.view.component.web.DefaultWebViewComponentScope
+import groowt.view.component.web.WebViewComponent
 import groowt.view.component.web.compiler.DefaultWebViewComponentTemplateCompileUnit
 import io.github.classgraph.ClassGraph
 import org.slf4j.Logger
@@ -63,6 +69,31 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             }
         }
         texts
+    }
+
+    protected Either<Diagnostic, ComponentTemplate> compileTemplate(
+            Class<? extends ViewComponent> componentClass,
+            String resourceName,
+            ComponentTemplateCompilerConfiguration compilerConfiguration,
+            ComponentTemplateClassFactory templateClassFactory
+    ) {
+        def templateUrl = componentClass.getResource(resourceName)
+        if (templateUrl == null) {
+            return Either.left(new Diagnostic(
+                    "Could not find templateResource: $it.templateResource"
+            ))
+        }
+        def source = ComponentTemplateSource.of(templateUrl)
+        def compileUnit = new DefaultWebViewComponentTemplateCompileUnit(
+                source.descriptiveName,
+                componentClass,
+                source,
+                componentClass.packageName
+        )
+        def compileResult = compileUnit.compile(compilerConfiguration)
+        def templateClass = templateClassFactory.getTemplateClass(compileResult)
+        def componentTemplate = templateClass.getConstructor().newInstance()
+        return Either.right(componentTemplate)
     }
 
     @Override
@@ -131,10 +162,11 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
         }
         def classgraph = new ClassGraph()
                 .enableAnnotationInfo()
-                .addClassLoader(groovyClassLoader)
+                .addClassLoader(this.groovyClassLoader)
         basePackages.each { classgraph.acceptPackages(it) }
 
         def pages = [] as Set<Page>
+        def allWvc = [] as Set<Class<? extends WebViewComponent>>
 
         try (def scanResult = classgraph.scan()) {
             // single pages
@@ -167,6 +199,12 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             pageFactoryTypes.each { pageFactoryType ->
                 def pageFactory = objectFactory.createInstance(pageFactoryType)
                 pages.addAll(pageFactory.create())
+            }
+
+            // get all web view components
+            def wvcInfoList = scanResult.getClassesImplementing(WebViewComponent)
+            wvcInfoList.each {
+                allWvc << it.loadClass(WebViewComponent)
             }
         }
 
@@ -206,28 +244,52 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                     configureRootScope {
                         // TODO: scan components in same package, add them to the scope with factories which
                         // use the object factory to construct the component
+                        // also: automatically set template like below for pages
+                        allWvc.each { wvcClass ->
+                            //noinspection GroovyAssignabilityCheck
+                            add(wvcClass, ComponentFactories.ofClosureClassType(wvcClass) { Map attr, Object[] args ->
+                                WebViewComponent component
+                                if (!attr.isEmpty() && args.length > 0) {
+                                    component = objectFactory.createInstance(wvcClass, attr, *args)
+                                } else if (!attr.isEmpty()) {
+                                    component = objectFactory.createInstance(wvcClass, attr)
+                                } else if (args.length > 0) {
+                                    component = objectFactory.createInstance(wvcClass, *args)
+                                } else {
+                                    component = objectFactory.createInstance(wvcClass)
+                                }
+                                if (component.componentTemplate == null) {
+                                    def compileResult = this.compileTemplate(
+                                            wvcClass,
+                                            wvcClass.simpleName + 'Template.wvc',
+                                            wvcCompilerConfiguration,
+                                            componentTemplateClassFactory
+                                    )
+                                    if (compileResult.isRight()) {
+                                        component.componentTemplate = compileResult.getRight()
+                                    } else {
+                                        diagnostics << compileResult.getLeft()
+                                    }
+                                }
+                                return component
+                            })
+                        }
                     }
                 }
 
                 if (pageView.componentTemplate == null) {
-                    def templateUrl = pageView.class.getResource(it.templateResource)
-                    if (templateUrl == null) {
-                        diagnostics.add(new Diagnostic(
-                                "Could not find templateResource: $it.templateResource"
-                        ))
+                    def compileResult = this.compileTemplate(
+                            pageView.class,
+                            it.templateResource,
+                            wvcCompilerConfiguration,
+                            componentTemplateClassFactory
+                    )
+                    if (compileResult.isRight()) {
+                        pageView.componentTemplate = compileResult.getRight()
+                    } else {
+                        diagnostics << compileResult.getLeft()
                         return
                     }
-                    def source = ComponentTemplateSource.of(templateUrl)
-                    def compileUnit = new DefaultWebViewComponentTemplateCompileUnit(
-                            source.descriptiveName,
-                            pageView.class,
-                            source,
-                            pageView.class.packageName
-                    )
-                    def compileResult = compileUnit.compile(wvcCompilerConfiguration)
-                    def templateClass = componentTemplateClassFactory.getTemplateClass(compileResult)
-                    def componentTemplate = templateClass.getConstructor().newInstance()
-                    pageView.componentTemplate = componentTemplate
                 }
             }
 
