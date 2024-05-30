@@ -17,6 +17,10 @@ gradlePlugin {
     }
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
         create('ssgGradlePlugin', MavenPublication) {

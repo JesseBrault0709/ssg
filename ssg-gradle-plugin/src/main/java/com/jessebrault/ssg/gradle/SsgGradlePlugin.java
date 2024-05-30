@@ -64,7 +64,12 @@ public class SsgGradlePlugin implements Plugin<Project> {
         return ssgCliConfiguration;
     }
 
-    protected void createDomainSourceSet(Project project, SourceSetContainer sourceSets, String name) {
+    protected void createDomainSourceSet(
+            Project project,
+            SourceSetContainer sourceSets,
+            String name,
+            List<String> sourceSetDependencies
+    ) {
         sourceSets.create(name, sourceSet -> {
             // first, register the dirs
             // java
@@ -101,10 +106,20 @@ public class SsgGradlePlugin implements Plugin<Project> {
             project.getTasks().named("ssgJars", ssgJarsTask -> {
                 ssgJarsTask.dependsOn(jarTaskProvider);
             });
+
+            // fourth, configure dependencies on other source sets
+            project.getConfigurations().named(name + "Implementation").configure(configuration -> {
+                sourceSetDependencies.forEach(dependencySourceSetName -> {
+                    final SourceSetOutput sourceSetOutput =
+                            sourceSets.getByName(dependencySourceSetName).getOutput();
+                    final Dependency outputDependency = project.getDependencies().create(sourceSetOutput);
+                    configuration.getDependencies().add(outputDependency);
+                });
+            });
         });
     }
 
-    protected void createSsgSourceSet(SourceSetContainer sourceSets) {
+    protected void createSsgSourceSet(Project project, SourceSetContainer sourceSets) {
         sourceSets.create(SSG_SOURCE_SET, sourceSet -> {
             // groovy only
             sourceSet.getExtensions().getByType(GroovySourceDirectorySet.class).setSrcDirs(List.of(SSG_SOURCE_SET));
@@ -112,15 +127,18 @@ public class SsgGradlePlugin implements Plugin<Project> {
             sourceSet.getResources().setSrcDirs(List.of(SSG_SOURCE_SET));
             // disable java
             sourceSet.getJava().setSrcDirs(List.of());
+            // add dependency on main
+            final SourceSetOutput mainOutput = sourceSets.getByName("main").getOutput();
+            project.getDependencies().add(SSG_SOURCE_SET + "Implementation", mainOutput);
         });
     }
 
     protected void configureSourceSets(Project project) {
         final var javaExtension = project.getExtensions().getByType(JavaPluginExtension.class);
         final var sourceSets = javaExtension.getSourceSets();
-        this.createDomainSourceSet(project, sourceSets, PAGES_SOURCE_SET);
-        this.createDomainSourceSet(project, sourceSets, COMPONENTS_SOURCE_SET);
-        this.createSsgSourceSet(sourceSets);
+        this.createSsgSourceSet(project, sourceSets);
+        this.createDomainSourceSet(project, sourceSets, COMPONENTS_SOURCE_SET, List.of("main"));
+        this.createDomainSourceSet(project, sourceSets, PAGES_SOURCE_SET, List.of("main", COMPONENTS_SOURCE_SET));
     }
 
 //    protected void configureCompileSsgGroovyTask(Project project) {
@@ -177,8 +195,10 @@ public class SsgGradlePlugin implements Plugin<Project> {
         project.getPlugins().apply(JavaPlugin.class);
         project.getPlugins().apply(GroovyPlugin.class);
 
-        // create our ssgJars task, which is just a holder for source set jar tasks
-        project.getTasks().register("ssgJars");
+        // create our ssgJars task, which is just a holder for source set jar tasks, including main
+        project.getTasks().register("ssgJars").configure(ssgJars -> {
+            ssgJars.dependsOn("jar"); // main
+        });
 
         // configure the repositories, tooling models, and source sets
         this.configureRepositories(project);

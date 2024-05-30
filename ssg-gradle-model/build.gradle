@@ -3,6 +3,10 @@ plugins {
     id 'maven-publish'
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
         create('ssgGradleModel', MavenPublication) {
