@@ -8,7 +8,7 @@ class Head extends BaseWebViewComponent {
 
     Head(Map attr) {
         super(Head.getResource('HeadTemplate.wvc'))
-        this.title = attr.title()
+        this.title = attr.title
     }
 
 }
