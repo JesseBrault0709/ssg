@@ -10,5 +10,6 @@ import java.lang.annotation.Target
 @interface PageSpec {
     String name()
     String path()
+    String templateResource() default ''
     String fileExtension() default '.html'
 }

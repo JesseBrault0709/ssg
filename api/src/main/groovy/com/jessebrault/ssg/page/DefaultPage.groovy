@@ -14,10 +14,11 @@ class DefaultPage implements Page {
     final String path
     final String fileExtension
     final Class<? extends PageView> viewType
+    final String templateResource
 
     @Override
     String toString() {
-        "SimplePage(name: $name, path: $path, fileExtension: $fileExtension)"
+        "SimplePage(name: $name, path: $path, fileExtension: $fileExtension, templateResource: $templateResource)"
     }
 
 }

@@ -2,9 +2,7 @@
 package com.jessebrault.site
 ---
 <html lang="en">
-  <head>
-    <title>$pageTitle</title>
-  </head>
+  <Head title={pageTitle} />
   <body>
     <h1>$pageTitle</h1>
     <h2>$url</h2>

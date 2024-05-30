@@ -15,7 +15,12 @@ import com.jessebrault.ssg.view.PageView
 import com.jessebrault.ssg.view.WvcPageView
 import groovy.transform.TupleConstructor
 import groowt.util.di.RegistryObjectFactory
+import groowt.view.component.compiler.DefaultComponentTemplateCompilerConfiguration
+import groowt.view.component.compiler.SimpleComponentTemplateClassFactory
+import groowt.view.component.compiler.source.ComponentTemplateSource
 import groowt.view.component.web.DefaultWebViewComponentContext
+import groowt.view.component.web.DefaultWebViewComponentScope
+import groowt.view.component.web.compiler.DefaultWebViewComponentTemplateCompileUnit
 import io.github.classgraph.ClassGraph
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -142,7 +147,10 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                             pageSpec.name(),
                             pageSpec.path(),
                             pageSpec.fileExtension(),
-                            (Class<? extends PageView>) pageViewInfo.loadClass()
+                            (Class<? extends PageView>) pageViewInfo.loadClass(),
+                            !pageSpec.templateResource().empty
+                                    ? pageSpec.templateResource()
+                                    : pageViewInfo.simpleName + 'Template.wvc'
                     )
                 }
             }
@@ -172,6 +180,9 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
         }
 
         def diagnostics = [] as Collection<Diagnostic>
+        def wvcCompilerConfiguration = new DefaultComponentTemplateCompilerConfiguration()
+        wvcCompilerConfiguration.groovyClassLoader = this.groovyClassLoader
+        def componentTemplateClassFactory = new SimpleComponentTemplateClassFactory(this.groovyClassLoader)
 
         pages.each {
             // instantiate PageView
@@ -191,7 +202,33 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             pageView.pageTitle = it.name
             pageView.url = buildSpec.baseUrl.get() + it.path
             if (pageView instanceof WvcPageView) {
-                pageView.context = new DefaultWebViewComponentContext()
+                pageView.context = new DefaultWebViewComponentContext().tap {
+                    configureRootScope {
+                        // TODO: scan components in same package, add them to the scope with factories which
+                        // use the object factory to construct the component
+                    }
+                }
+
+                if (pageView.componentTemplate == null) {
+                    def templateUrl = pageView.class.getResource(it.templateResource)
+                    if (templateUrl == null) {
+                        diagnostics.add(new Diagnostic(
+                                "Could not find templateResource: $it.templateResource"
+                        ))
+                        return
+                    }
+                    def source = ComponentTemplateSource.of(templateUrl)
+                    def compileUnit = new DefaultWebViewComponentTemplateCompileUnit(
+                            source.descriptiveName,
+                            pageView.class,
+                            source,
+                            pageView.class.packageName
+                    )
+                    def compileResult = compileUnit.compile(wvcCompilerConfiguration)
+                    def templateClass = componentTemplateClassFactory.getTemplateClass(compileResult)
+                    def componentTemplate = templateClass.getConstructor().newInstance()
+                    pageView.componentTemplate = componentTemplate
+                }
             }
 
             // Render the page

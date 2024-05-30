@@ -13,6 +13,8 @@ abstract class WvcPageView extends BaseWebViewComponent implements PageView, Wit
     String pageTitle
     String url
 
+    WvcPageView() {}
+
     WvcPageView(ComponentTemplate template) {
         super(template)
     }

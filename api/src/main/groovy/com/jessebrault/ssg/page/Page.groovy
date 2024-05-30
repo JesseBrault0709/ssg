@@ -7,4 +7,5 @@ interface Page {
     String getPath()
     String getFileExtension()
     Class<? extends PageView> getViewType()
+    String getTemplateResource()
 }
