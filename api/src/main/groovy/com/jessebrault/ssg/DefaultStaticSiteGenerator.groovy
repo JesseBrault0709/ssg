@@ -242,9 +242,6 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             if (pageView instanceof WvcPageView) {
                 pageView.context = new DefaultWebViewComponentContext().tap {
                     configureRootScope {
-                        // TODO: scan components in same package, add them to the scope with factories which
-                        // use the object factory to construct the component
-                        // also: automatically set template like below for pages
                         allWvc.each { wvcClass ->
                             //noinspection GroovyAssignabilityCheck
                             add(wvcClass, ComponentFactories.ofClosureClassType(wvcClass) { Map attr, Object[] args ->
