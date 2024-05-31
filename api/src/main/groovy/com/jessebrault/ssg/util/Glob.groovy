@@ -39,7 +39,7 @@ final class Glob {
                 new AnyDirectoryHierarchy()
             } else if (it.contains('*')) {
                 def replaced = it.replace([
-                        '*': '.',
+                        '*': '.*',
                         '.': '\\.'
                 ])
                 new GlobFileOrDirectory(it, ~replaced)
@@ -73,35 +73,29 @@ final class Glob {
             subjectParts = subject.split('/') as List<String>
         }
 
-        def subjectPartIter = subjectParts.iterator()
-        def subjectPartStack = new LinkedList<String>()
-        while (subjectPartIter.hasNext()) {
-            subjectPartStack.push(subjectPartIter.next())
-        }
-
         boolean result = true
         parts:
         for (def part : this.parts) {
             if (part instanceof Literal) {
-                if (subjectPartStack.isEmpty()) {
+                if (subjectParts.isEmpty()) {
                     result = false
                     break
                 }
-                def subjectPart = subjectPartStack.pop()
+                def subjectPart = subjectParts.removeFirst()
                 if (part.literal != subjectPart) {
                     result = false
                     break
                 }
             } else if (part instanceof AnyDirectoryHierarchy) {
-                while (!subjectPartStack.isEmpty()) {
-                    def current = subjectPartStack.pop()
-                    if (subjectPartStack.isEmpty()) {
-                        subjectPartStack.push(current)
+                while (!subjectParts.isEmpty()) {
+                    def current = subjectParts.removeFirst()
+                    if (subjectParts.isEmpty()) {
+                        subjectParts.push(current)
                         continue parts
                     }
                 }
             } else if (part instanceof GlobFileOrDirectory) {
-                def subjectPart = subjectPartStack.pop()
+                def subjectPart = subjectParts.removeFirst()
                 def m = part.regexPattern.matcher(subjectPart)
                 if (!m.matches()) {
                     result = false
