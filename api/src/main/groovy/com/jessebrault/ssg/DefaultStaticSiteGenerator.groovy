@@ -245,9 +245,6 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             if (pageView instanceof WvcPageView) {
                 pageView.context = new DefaultWebViewComponentContext().tap {
                     configureRootScope(WebViewComponentScope) {
-                        // standard lib
-                        addWithAttr(Each)
-
                         // custom components
                         allWvc.each { wvcClass ->
                             //noinspection GroovyAssignabilityCheck
