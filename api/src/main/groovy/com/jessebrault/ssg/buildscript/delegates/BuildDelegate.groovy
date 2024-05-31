@@ -86,9 +86,7 @@ final class BuildDelegate {
         globalsClosure.delegate = globalsDelegate
         globalsClosure.resolveStrategy = Closure.DELEGATE_FIRST
         globalsClosure()
-        this.globals.set DefaultProvider.ofLazy(Map) {
-            this.globals.get() + globalsDelegate
-        }
+        this.globals.set this.globals.get() + globalsDelegate
     }
 
     void model(String name, Object obj) {
