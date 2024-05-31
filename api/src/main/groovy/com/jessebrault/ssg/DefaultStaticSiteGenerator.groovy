@@ -27,7 +27,9 @@ import groowt.view.component.compiler.source.ComponentTemplateSource
 import groowt.view.component.factory.ComponentFactories
 import groowt.view.component.web.DefaultWebViewComponentContext
 import groowt.view.component.web.WebViewComponent
+import groowt.view.component.web.WebViewComponentScope
 import groowt.view.component.web.compiler.DefaultWebViewComponentTemplateCompileUnit
+import groowt.view.component.web.lib.Each
 import io.github.classgraph.ClassGraph
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -242,7 +244,11 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             pageView.url = buildSpec.baseUrl.get() + it.path
             if (pageView instanceof WvcPageView) {
                 pageView.context = new DefaultWebViewComponentContext().tap {
-                    configureRootScope {
+                    configureRootScope(WebViewComponentScope) {
+                        // standard lib
+                        addWithAttr(Each)
+
+                        // custom components
                         allWvc.each { wvcClass ->
                             //noinspection GroovyAssignabilityCheck
                             add(wvcClass, ComponentFactories.ofClosureClassType(wvcClass) { Map attr, Object[] args ->
