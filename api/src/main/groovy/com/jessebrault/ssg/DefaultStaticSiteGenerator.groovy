@@ -12,6 +12,7 @@ import com.jessebrault.ssg.page.PageSpec
 import com.jessebrault.ssg.text.Text
 import com.jessebrault.ssg.util.Diagnostic
 import com.jessebrault.ssg.view.PageView
+import com.jessebrault.ssg.view.SkipTemplate
 import com.jessebrault.ssg.view.WvcPageView
 import groovy.transform.TupleConstructor
 import groowt.util.di.RegistryObjectFactory
@@ -255,7 +256,9 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
                                 } else {
                                     component = objectFactory.createInstance(wvcClass)
                                 }
-                                if (component.componentTemplate == null) {
+                                component.context = pageView.context
+                                if (component.componentTemplate == null
+                                        && !wvcClass.isAnnotationPresent(SkipTemplate)) {
                                     def compileResult = this.compileTemplate(
                                             wvcClass,
                                             wvcClass.simpleName + 'Template.wvc',
