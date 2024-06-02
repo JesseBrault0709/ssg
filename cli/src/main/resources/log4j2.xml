@@ -14,5 +14,6 @@
             <AppenderRef ref="standard" />
         </Root>
         <Logger name="org.gradle" level="off" />
+        <Logger name="groowt" level="off" />
     </Loggers>
 </Configuration>
