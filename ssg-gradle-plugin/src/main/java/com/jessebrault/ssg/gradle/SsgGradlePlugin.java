@@ -141,29 +141,6 @@ public class SsgGradlePlugin implements Plugin<Project> {
         this.createDomainSourceSet(project, sourceSets, PAGES_SOURCE_SET, List.of("main", COMPONENTS_SOURCE_SET));
     }
 
-//    protected void configureCompileSsgGroovyTask(Project project) {
-//        project.getTasks().named("compileSsgGroovy", GroovyCompile.class, groovyCompile -> {
-//            final File dotSsg = project.getLayout().getProjectDirectory().dir(".ssg").getAsFile();
-//            if (!dotSsg.exists()) {
-//                //noinspection ResultOfMethodCallIgnored
-//                dotSsg.mkdirs();
-//            }
-//
-//            final File compileConfigurationScript = new File(dotSsg, "compileSsgGroovy.groovy");
-//            if (!compileConfigurationScript.exists()) {
-//                try (final OutputStream outputStream = new FileOutputStream(compileConfigurationScript)) {
-//                    outputStream.write("""
-//                        configuration.scriptBaseClass = 'com.jessebrault.ssg.buildscript.BuildScriptBase'
-//                        """.stripIndent().trim().getBytes());
-//                } catch (IOException ioException) {
-//                    throw new RuntimeException(ioException);
-//                }
-//            }
-//
-//            groovyCompile.getGroovyOptions().setConfigurationScript(compileConfigurationScript);
-//        });
-//    }
-
     protected void configureSourceSetConfigurations(Project project, Configuration ssgApiConfiguration) {
         final ConfigurationContainer configurations = project.getConfigurations();
 
