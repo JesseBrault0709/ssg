@@ -2,6 +2,7 @@ package com.jessebrault.ssg.gradle;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
@@ -96,7 +97,8 @@ public class SsgGradlePlugin implements Plugin<Project> {
                     sourceSet.getJarTaskName(),
                     Jar.class,
                     jarTask -> {
-                        // jarTask.from(javaSourceDirectorySet.getClassesDirectory());
+                        jarTask.getExtensions().create("ssgJar", SsgJarExtension.class);
+                        // jarTask.from(javaSourceDirectorySet.getClassesDirectory()); // TODO: why not?
                         jarTask.from(groovySourceDirectorySet.getClassesDirectory());
                         jarTask.from(sourceSet.getResources());
                         jarTask.getArchiveBaseName().set(project.getName() + "-" + name);
@@ -173,9 +175,11 @@ public class SsgGradlePlugin implements Plugin<Project> {
         project.getPlugins().apply(GroovyPlugin.class);
 
         // create our ssgJars task, which is just a holder for source set jar tasks, including main
-        project.getTasks().register("ssgJars").configure(ssgJars -> {
-            ssgJars.dependsOn("jar"); // main
+        final TaskProvider<Task> ssgJars = project.getTasks().register("ssgJars");
+        final TaskProvider<Jar> mainJar = project.getTasks().named("jar", Jar.class, task -> {
+            task.getExtensions().create("ssgJar", SsgJarExtension.class);
         });
+        ssgJars.configure(task -> task.dependsOn(mainJar));
 
         // configure the repositories, tooling models, and source sets
         this.configureRepositories(project);
