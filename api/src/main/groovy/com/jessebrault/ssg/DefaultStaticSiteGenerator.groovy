@@ -31,6 +31,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.nio.file.Files
+import java.nio.file.Path
 
 import static groowt.util.di.BindingUtil.named
 import static groowt.util.di.BindingUtil.toSingleton
@@ -159,9 +160,16 @@ class DefaultStaticSiteGenerator implements StaticSiteGenerator {
             }
             outputDir.mkdirs()
 
+            def splitPathParts = page.path.split('/')
+            def pathParts = page.path.endsWith('/')
+                    ? splitPathParts + 'index'
+                    : splitPathParts
+
+            def path = Path.of(pathParts[0], pathParts.drop(1))
+
             def outputFile = new File(
                     outputDir,
-                    page.path.replace('/', File.separator) + page.fileExtension
+                    path.toString() + page.fileExtension
             )
             outputFile.parentFile.mkdirs()
             try {
