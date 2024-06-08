@@ -1,5 +1,5 @@
-package com.jessebrault.ssg
+package com.jessebrault.ssg;
 
-enum LogLevel {
+public enum LogLevel {
     INFO, DEBUG, TRACE
 }
