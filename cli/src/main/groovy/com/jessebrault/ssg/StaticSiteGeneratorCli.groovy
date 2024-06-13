@@ -13,7 +13,7 @@ final class StaticSiteGeneratorCli {
 
     static void main(String[] args) {
         System.exit(new CommandLine(StaticSiteGeneratorCli).with {
-            setCaseInsensitiveEnumValuesAllowed(true)
+            caseInsensitiveEnumValuesAllowed = true
             execute(args)
         })
     }

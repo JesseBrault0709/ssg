@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 final class StaticSiteGeneratorCliTests {
 
     private static void cliSmokeScreen(String... args) {
-        assertEquals(0, new CommandLine(StaticSiteGeneratorCli).execute(args))
+        assertEquals(0, new CommandLine(StaticSiteGeneratorCli).with {
+            caseInsensitiveEnumValuesAllowed = true
+            execute(args)
+        })
     }
 
     @Test
