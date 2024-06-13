@@ -162,8 +162,8 @@ public class SsgGradlePlugin implements Plugin<Project> {
             Configuration ssgApiConfiguration,
             Configuration ssgCliConfiguration
     ) {
-        final Dependency ssgApi = project.getDependencies().create("com.jessebrault.ssg:ssg-api:0.4.0");
-        final Dependency ssgCli = project.getDependencies().create("com.jessebrault.ssg:ssg-cli:0.4.0");
+        final Dependency ssgApi = project.getDependencies().create("com.jessebrault.ssg:ssg-api:0.4.2");
+        final Dependency ssgCli = project.getDependencies().create("com.jessebrault.ssg:ssg-cli:0.4.2");
         ssgApiConfiguration.getDependencies().add(ssgApi);
         ssgCliConfiguration.getDependencies().add(ssgCli);
     }
