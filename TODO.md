@@ -2,15 +2,16 @@
 
 Here will be kept all of the various todos for this project, organized by release.
 
-## 0.4.1
-
+## 0.4.2
 - [ ] `Text` component for simply rendering Text objects. Can be used as such:
 ```
 <Text path='/SomeText.md' />
 <Text name='SomeText.md' />
 <Text text={text} />
 ```
-- [ ] Update groowt to 0.1.1.
+
+## 0.4.1
+- [x] Update groowt to 0.1.2.
 
 ## Future
 
