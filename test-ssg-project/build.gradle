@@ -1,5 +1,5 @@
 plugins {
-    id 'com.jessebrault.ssg' version '0.4.0'
+    id 'com.jessebrault.ssg' version '0.4.2'
 }
 
 dependencies {
@@ -8,5 +8,12 @@ dependencies {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven {
+        url 'https://archiva.jessebrault.com/repository/internal/'
+
+        credentials {
+            username System.getenv('JBARCHIVA_USERNAME')
+            password System.getenv('JBARCHIVA_PASSWORD')
+        }
+    }
 }

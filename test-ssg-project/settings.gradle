@@ -1,7 +1,14 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        mavenLocal()
+        maven {
+            url 'https://archiva.jessebrault.com/repository/internal/'
+
+            credentials {
+                username System.getenv('JBARCHIVA_USERNAME')
+                password System.getenv('JBARCHIVA_PASSWORD')
+            }
+        }
     }
 }
 
