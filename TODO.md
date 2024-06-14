@@ -11,6 +11,13 @@ program with the incorporation of Groowt and Web View Components.
 - [ ] watch/dev mode and server
 - [ ] Reorganize gradle project layout so there is less hunting around for files
 
+## 0.4.* Ongoing
+- [ ] Automate test project
+- [ ] Move as much gradle integration from `cli` project to `api` project
+  - [ ] Think about abstracting the build tool logic, because all we need
+    really is the URLs/Paths for the classes/jars of components and resources
+- [ ] Document new api and usage.
+
 ## 0.4.3
 - [ ] `Text` component for simply rendering Text objects. Can be used as such:
 ```

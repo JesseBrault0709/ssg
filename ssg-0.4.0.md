@@ -1,4 +1,5 @@
 # Targeting 0.4.0: Ideas and Plans
+**This file is old as of 06/14/2024.**
 
 Have the following layout of dirs and files. It is a combined gradle/ssg project.
 - bin: a folder for shell scripts
