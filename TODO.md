@@ -17,6 +17,8 @@ program with the incorporation of Groowt and Web View Components.
   - [ ] Think about abstracting the build tool logic, because all we need
     really is the URLs/Paths for the classes/jars of components and resources
 - [ ] Document new api and usage.
+- [ ] Re-incorporate dist plugin in gradle build of cli/api
+  - [ ] Think about how these might be used without a gradle project backing
 
 ## 0.4.3
 - [ ] `Text` component for simply rendering Text objects. Can be used as such:
