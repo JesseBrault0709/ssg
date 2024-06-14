@@ -31,6 +31,7 @@ program with the incorporation of Groowt and Web View Components.
 - [ ] `ModelFactory` for creating models, and `TextModelFactory` for creating models from texts.
 - [ ] `Model` component for rendering a model with either a supplied renderer, or a registered `ModelRenderer`
 - [ ] `Global` component for rendering globals.
+- [ ] Automatically inject self PageSpec and path to Pages.
 
 ## 0.4.1
 - [x] Update groowt to 0.1.2.
