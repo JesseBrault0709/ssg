@@ -23,5 +23,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.jessebrault.jbarchiva:jbarchiva:0.1.0'
+    implementation 'com.jessebrault.jbarchiva:jbarchiva:0.2.2'
 }
